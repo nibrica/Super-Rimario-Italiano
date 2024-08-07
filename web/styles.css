@@ -291,6 +291,8 @@ noscript {
 
     #share-button {
         width: auto;
+        padding-left: 8px;
+        padding-right: 8px;
     }
 }
 
