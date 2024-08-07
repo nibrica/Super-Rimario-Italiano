@@ -1,0 +1,87 @@
+<!--
+Super Rimario Italiano
+Copyright (C) 2024 Nicolò Brigadoi Calamari
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+-->
+
+
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Nicolò Brigadoi Calamari">
+    <meta name="description" content="Rimario italiano creato da Nicolò Brigadoi Calamari. Trova rime, assonanze e consonanze.">
+    <link rel="stylesheet" href="styles.css">
+    <title>Super Rimario Italiano</title>
+</head>
+
+<body>
+    <h1 id="main-title">
+        <a href=""><span>SUPER</span> RIMARIO ITALIANO</a>
+    </h1>
+    <div class="search-container">
+        <input type="text" id="search-bar" placeholder="Cerca le rime..." maxlength="50"
+            onkeydown="SearchFromBar(event.key)">
+        <button class="search-button" onmousedown="SearchFromBar()" disabled>Cerca</button>
+    </div>
+    <div id="query-label">
+        Caricamento in corso...
+    </div>
+    <div class="box-container">
+        <div class="message-box" id="system-message" data-show="off"></div>
+        <div class="message-box" id="homograph-message"></div>
+        <noscript>
+            <div class="message-box">Errore: JavaScript non è abilitato.</div>
+        </noscript>
+    </div>
+    <div id="navigation">
+        <button id="previous-button" title="Indietro" onmousedown="SlideNavigation(-1)">◀</button>
+        <div id="slide-label"></div>
+        <button id="next-button" title="Avanti" onmousedown="SlideNavigation(1)">▶</button>
+    </div>
+    <div class="box-container" id="results-box">
+        <section class="default-box">
+            <h2>RIME</h2>
+            <div class="results-list" id="rhymes-box"></div>
+        </section>
+        <section class="default-box">
+            <h2>ASSONANZE ATONE</h2>
+            <div class="results-list" id="atonal-assonances-box"></div>
+        </section>
+        <section class="default-box">
+            <h2>ASSONANZE SEMPLICI</h2>
+            <div class="results-list" id="assonances-box"></div>
+        </section>
+        <section class="default-box">
+            <h2>CONSONANZE</h2>
+            <div class="results-list" id="consonances-box"></div>
+        </section>
+    </div>
+    <button id="share-button" onclick="SharePage()">🌐&nbsp;Condividi</button>
+    <footer class="software-info">
+        Rimario italiano creato da Nicolò Brigadoi Calamari.
+        Trova rime, assonanze e consonanze e le ordina per frequenza,
+        ovvero dalle parole più comuni a quelle meno utilizzate.
+        Il codice sorgente
+        <a href="https://github.com/nibrica/Super-Rimario-Italiano" target="_blank">è disponibile su GitHub</a>
+        ed è distribuito sotto licenza
+        <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank">GNU General Public License v3.0</a>.
+    </footer>
+    <script type="text/javascript" src="rimario.js"></script>
+</body>
+
+</html>

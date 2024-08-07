@@ -1,0 +1,296 @@
+/*
+Super Rimario Italiano
+Copyright (C) 2024 Nicolò Brigadoi Calamari
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
+    background-color: white;
+    color: black;
+    font-size: 16px;
+    line-height: 1.25;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+    padding: 10px;
+}
+
+.search-container,
+#navigation,
+.box-container,
+#share-button,
+.software-info {
+    max-width: 704px;
+    width: 100%;
+}
+
+#main-title {
+    display: block;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    font-size: 36px;
+    font-weight: bold;
+    user-select: none;
+    text-align: center;
+}
+
+#main-title a {
+    text-decoration: none;
+    color: black;
+}
+
+#main-title a:visited {
+    color: black;
+}
+
+#main-title a span {
+    color: #ee1c25;
+}
+
+.search-container {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#search-bar {
+    width: calc(100% - 20px);
+    padding: 10px;
+    font-size: 16px;
+    background-color: white;
+    border: 1px solid #a9a9a9;
+}
+
+.search-button,
+#navigation button {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #a9a9a9;
+    background-color: #e0e0e0;
+    color: black;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.search-button:hover,
+#navigation button:hover {
+    background-color: #f3f3f3;
+}
+
+.search-button:disabled,
+#navigation button:disabled {
+    color: #a9a9a9;
+    background-color: #f3f3f3;
+}
+
+#query-label {
+    margin-bottom: 16px;
+    font-weight: bold;
+    font-size: 24px;
+}
+
+#navigation {
+    display: flex;
+}
+
+#slide-label {
+    padding: 10px;
+    width: 100%;
+    text-align: center;
+    user-select: none;
+}
+
+.box-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.default-box,
+.message-box {
+    border: 1px solid #a9a9a9;
+    margin-bottom: 10px;
+    padding: 10px;
+}
+
+.default-box,
+#system-message,
+#homograph-message {
+    display: none;
+}
+
+#system-message {
+    font-weight: bold;
+}
+
+#homograph-message {
+    font-style: italic;
+}
+
+.message-box {
+    width: 100%;
+}
+
+noscript {
+    width: 100%;
+    font-weight: bold;
+}
+
+.section-button {
+    color: black;
+    background-color: white;
+    font-size: 16px;
+    line-height: 2.0;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    font-weight: bold;
+    text-align: left;
+    word-break: normal;
+    border-style: hidden;
+    user-select: none;
+}
+
+.section-button:hover {
+    text-decoration: underline;
+}
+
+.section-button span {
+    font-style: normal;
+}
+
+.word-button {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+#results-box {
+    line-height: 2.0;
+}
+
+#results-box h2 {
+    display: block;
+    font-weight: bold;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: white;
+    font-size: 16px;
+    margin: 0;
+    padding: 0;
+}
+
+.results-none {
+    font-style: italic;
+    text-align: center;
+    word-break: normal;
+}
+
+.results-list {
+    word-break: break-all;
+}
+
+#share-button {
+    display: none;
+    padding: 8px;
+    font-size: 16px;
+    text-align: center;
+    cursor: pointer;
+    background-color: #002250;
+    color: white;
+    font-weight: bold;
+    border: none;
+    user-select: none;
+}
+
+#share-button:hover {
+    background-color: #004bb5;
+}
+
+.software-info {
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.software-info a {
+    font-weight: bold;
+    text-decoration: underline;
+    color: black;
+}
+
+.software-info a:visited {
+    color: black;
+}
+
+@media (min-width: 768px) {
+    .search-container {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    #search-bar {
+        width: calc(100% - 110px);
+        margin-bottom: 0;
+    }
+
+    .search-button {
+        width: 100px;
+    }
+
+    #navigation {
+        display: none;
+    }
+
+    .box-container {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .default-box {
+        width: 21%;
+    }
+
+    #results-box h2 {
+        min-height: 2lh;
+    }
+
+    #share-button {
+        width: auto;
+    }
+}
+
+@media (min-width: 1024px) {
+
+    .search-container,
+    #navigation,
+    .box-container,
+    #share-button,
+    .software-info {
+        max-width: 960px;
+    }
+
+    #results-box h2 {
+        min-height: auto;
+    }
+}
