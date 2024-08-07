@@ -72,18 +72,28 @@ body {
 
 #search-bar {
     width: calc(100% - 20px);
+    box-sizing: content-box;
     padding: 10px;
     font-size: 16px;
+    color: black;
     background-color: white;
     border: 1px solid #a9a9a9;
+    border-radius: 8px;
+    line-height: 1;
+}
+
+#search-bar::placeholder {
+    color: #444444;
 }
 
 .search-button,
 .navigation-button {
     width: 100%;
-    padding: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
     font-size: 16px;
     border: 1px solid #a9a9a9;
+    border-radius: 8px;
     background-color: #e0e0e0;
     color: black;
     text-align: center;
@@ -127,6 +137,7 @@ body {
 .default-box,
 .message-box {
     border: 1px solid #a9a9a9;
+    border-radius: 8px;
     margin-bottom: 10px;
     padding: 10px;
 }
@@ -216,6 +227,7 @@ noscript {
     color: white;
     font-weight: bold;
     border: none;
+    border-radius: 8px;
     user-select: none;
 }
 
