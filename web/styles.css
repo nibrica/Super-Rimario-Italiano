@@ -145,10 +145,6 @@ body {
     font-style: italic;
 }
 
-.message-box {
-    width: 100%;
-}
-
 noscript {
     width: 100%;
     font-weight: bold;
@@ -265,6 +261,10 @@ noscript {
     .box-container {
         flex-direction: row;
         justify-content: space-between;
+    }
+
+    .message-box {
+        width: 100%;
     }
 
     .default-box {
