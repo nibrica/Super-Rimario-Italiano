@@ -429,6 +429,7 @@ function SearchFromBar(key = "Enter") {
 function SearchFromButton(element) {
     document.getElementById("search-bar").value = element.innerHTML;
     Search(element.innerHTML);
+    window.scrollTo(0, 0);
 }
 
 async function CollapseSection(element) {
