@@ -4,7 +4,7 @@ Super Rimario Italiano è un dizionario di rime online per la lingua italiana. Q
 
 ## Versione online
 
-Il rimario è disponibile online su L'AvisioBlog.
+Il rimario è disponibile online su L'AvisioBlog all'indirizzo https://www.lavisioblog.it/super-rimario-italiano
 
 ## Caratteristiche
 

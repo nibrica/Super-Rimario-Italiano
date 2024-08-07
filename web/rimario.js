@@ -15,7 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-const dictionary_link = "parole-accenti-frequenze_2024-08-05.csv";
+const dictionary_link = "parole-accenti-frequenze_2024-08-06.csv";
 
 let resize_timeout = null;
 let segmenter = null;

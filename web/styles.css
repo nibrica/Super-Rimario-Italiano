@@ -79,7 +79,7 @@ body {
 }
 
 .search-button,
-#navigation button {
+.navigation-button {
     width: 100%;
     padding: 10px;
     font-size: 16px;
@@ -92,12 +92,12 @@ body {
 }
 
 .search-button:hover,
-#navigation button:hover {
+.navigation-button:hover {
     background-color: #f3f3f3;
 }
 
 .search-button:disabled,
-#navigation button:disabled {
+.navigation-button:disabled {
     color: #a9a9a9;
     background-color: #f3f3f3;
 }
