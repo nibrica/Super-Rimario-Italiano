@@ -15,7 +15,7 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-const dictionary_link = "parole-accenti-frequenze_2024-08-06.csv";
+const dictionary_link = "parole-accenti-frequenze_2026-02-23.csv";
 
 const results_per_page = 100;
 const max_character_changes = 3;

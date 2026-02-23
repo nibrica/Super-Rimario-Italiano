@@ -30,7 +30,7 @@ import mwxml
 print("Italian dictionary builder by Nicolò Brigadoi Calamari [2024]")
 
 # INPUT FILES
-wiktionary_xml_dump_path = "input/itwiktionary-20240801-pages-articles.xml" # https://dumps.wikimedia.org/backup-index.html
+wiktionary_xml_dump_path = "input/itwiktionary-20260201-pages-articles.xml" # https://dumps.wikimedia.org/backup-index.html
 colfis_frequencies_path = "input/formario_minuscolo_colfis.txt" # encoding: ISO-8859 (iso-8859-1) https://linguistica.sns.it/CoLFIS/Formario.htm
 word_list_paths = [
     "input/280000_parole_italiane_napolux.txt", # https://github.com/napolux/paroleitaliane/blob/master/paroleitaliane/280000_parole_italiane.txt
