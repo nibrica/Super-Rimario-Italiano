@@ -311,8 +311,10 @@ function UpdatePageNav(resultsList) {
     const results = search_results[resultsList.dataset.getresults][changesIndex];
     const totalPages = Math.ceil(results.length / results_per_page);
     const currentPage = parseInt(resultsList.dataset.pageindex);
+    const scrollTopButton = "<button class='scroll-top-button'" +
+        " onmousedown='document.getElementById(\"main-title\").scrollIntoView(true)'>Torna in cima</button>";
     if (totalPages <= 1) {
-        pageNav.innerHTML = "";
+        pageNav.innerHTML = scrollTopButton;
         return;
     }
     const lastPage = totalPages - 1;
@@ -328,8 +330,7 @@ function UpdatePageNav(resultsList) {
         " onmousedown='NavigatePageTo(this, " + lastPage + ")'>▶▶</button>" +
         "</div>" +
         "<span class='page-label'>Pagina " + (currentPage + 1) + "/" + totalPages + "</span>" +
-        "<button class='scroll-top-button'" +
-        " onmousedown='document.getElementById(\"main-title\").scrollIntoView(true)'>Torna in cima</button>";
+        scrollTopButton;
 }
 
 function SwitchChangesGroup(button) {
