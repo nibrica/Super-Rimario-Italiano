@@ -17,11 +17,16 @@
 
 const dictionary_link = "parole-accenti-frequenze_2024-08-06.csv";
 
+const results_per_page = 100;
+const max_character_changes = 3;
+
 let resize_timeout = null;
 let segmenter = null;
 let collator = null;
 let alphabetical_order = null;
 let dictionary = null;
+
+let search_results = { rhymes: [], atonal_assonances: [], assonances: [], consonances: [] };
 
 let slide_index = 0;
 
@@ -87,7 +92,7 @@ function GetQueryAccent(query) {
     const accent = query.search(/[àèìòùáéíóú]/u);
     if (accent >= 0) return accent;
     const segmented_query = [...segmenter.segment(query)];
-    const query_index = SearchWordIndex(0, dictionary.length);
+    const query_index = SearchWordIndex(0, dictionary.length - 1);
     if (query_index < 0) {
         document.getElementById("query-label").innerHTML = "<i>“" + query + "”</i> non è nel dizionario";
         ShowSystemMessage("Per cercare le rime che non sono nel dizionario è necessario indicare esplicitamente l'accento. (Es. <i>italiàno</i>)");
@@ -127,14 +132,13 @@ function SearchRhymes(suffix_changed) {
     }
 
     const segmented_word = [...segmenter.segment(suffix_changed.word)];
-    const found_rhyme_index = SearchRhymeIndex(0, dictionary.length);
+    const found_rhyme_index = SearchRhymeIndex(0, dictionary.length - 1);
     if (found_rhyme_index < 0) return [];
     return SearchRhymesFromIndex(found_rhyme_index);
 }
 
-//Generate combinations of similar consonats to search for the assonances
+//Generate combinations of similar consonants to search for the assonances
 function GenerateConsonantCombinations(suffix) {
-    const max_changes = 3;
     const similar_consonants = {
         "r": "ln",
         "t": "pdbn",
@@ -158,7 +162,7 @@ function GenerateConsonantCombinations(suffix) {
         for (; index < word.length; index++) {
             if (consonants.includes(word[index])) break;
         }
-        if (index === word.length || changed.length >= max_changes) {
+        if (index === word.length || changed.length >= max_character_changes) {
             return [{ word: word, changed: changed }];
         }
         const results = Generate(word, index + 1, changed);
@@ -172,9 +176,8 @@ function GenerateConsonantCombinations(suffix) {
     return Generate(suffix, 1, []);
 }
 
-//Generate combinations of vowels for the search of consonances and atonal assonaces
+//Generate combinations of vowels for the search of consonances and atonal assonances
 function GenerateVowelCombinations(suffix) {
-    const max_changes = 3;
     const vowels = "aeiou";
 
     //No need for segmentation, as we made sure that there are only ASCII characters
@@ -182,9 +185,9 @@ function GenerateVowelCombinations(suffix) {
         for (; index < word.length; index++) {
             if (vowels.includes(word[index])) break;
         }
-        if (index === word.length || changed.length >= max_changes) {
-            return [{ word: word, changed: changed }]
-        };
+        if (index === word.length || changed.length >= max_character_changes) {
+            return [{ word: word, changed: changed }];
+        }
         const results = [];
         for (const substitution of vowels) {
             //Skip combinations with double vowels (es. 'aa')
@@ -249,125 +252,103 @@ function SearchImperfectRhymes(suffix_changed_list) {
 }
 
 //Sort by frequency
-function SortPerfectRhymes(indexes) {
+function SortRhymes(indexes) {
     return indexes.sort((a, b) => dictionary[b.index][2] - dictionary[a.index][2]);
 }
 
-//Sort by number of differences, then by frequency
-function SortImperfectRhymes(rhymes_changed_list) {
-    return rhymes_changed_list.sort((a, b) => {
-        const changes_difference = a.changed.length - b.changed.length;
-        if (changes_difference !== 0) {
-            return changes_difference;
+function SaveRhymes(index_changed_list, search_query) {
+    for (const index_changed of index_changed_list) {
+        if (collator.compare(dictionary[index_changed.index][0], search_query) !== 0) {
+            search_results.rhymes[0].push(index_changed.index);
         }
-        else return dictionary[b.index][2] - dictionary[a.index][2]
-    });
+    }
 }
 
-function PrintPerfectRhymes(rhymes_changed_list, query) {
-
-    //Make a plain word list
-    function MakeRhymeList() {
-        let text = "";
-        for (const data of rhymes_changed_list) {
-            if (collator.compare(dictionary[data.index][0], query) !== 0) {
-                text += "<div>" + dictionary[data.index][0] + "</div>";
-            }
-        }
-        return text;
+function SaveAssonances(index_changed_list) {
+    for (const index_changed of index_changed_list) {
+        search_results.assonances[index_changed.changed.length - 1].push(index_changed.index);
     }
+}
 
-    const text = MakeRhymeList();
-    if (text.length === 0) {
-        document.getElementById("rhymes-box").innerHTML = "<div class='results-none'>Nessuna rima trovata</div>";
+function SaveConsonances(index_changed_list) {
+    for (const index_changed of index_changed_list) {
+        if (index_changed.changed.length === 1 && index_changed.changed[0] === 0) {
+            search_results.atonal_assonances[0].push(index_changed.index);
+        }
+        else {
+            search_results.consonances[index_changed.changed.length - 1].push(index_changed.index);
+        }
+    }
+}
+
+function PrintResults(element) {
+    const changes_index = parseInt(element.dataset.changes);
+    if (search_results[element.dataset.getresults][changes_index].length == 0) {
+        element.innerHTML = "<div class='results-none'>Nessuna " + element.dataset.name + " trovata</div>";
+        UpdatePageNav(element);
         return;
     }
-    document.getElementById("rhymes-box").innerHTML = text;
+    const html_tag = element.dataset.displaymode === "button"
+        ? "<div class='word-button' onmousedown='SearchFromButton(this)'>"
+        : "<div>";
+    const page_index = parseInt(element.dataset.pageindex);
+    const end = (page_index + 1) * results_per_page;
+    let text = "";
+    for (
+        let iii = page_index * results_per_page;
+        iii < search_results[element.dataset.getresults][changes_index].length && iii < end;
+        iii++
+    ) {
+        text += html_tag + dictionary[search_results[element.dataset.getresults][changes_index][iii]][0] + "</div>";
+    }
+    element.innerHTML = text;
+    UpdatePageNav(element);
 }
 
-function PrintAtonalAssonances(rhymes_changed_list) {
-
-    //Make a word list of clickable divs
-    function MakeAtonalList() {
-        let text = "";
-        for (const data of rhymes_changed_list) {
-            text += "<div class='word-button' onmousedown='SearchFromButton(this)'>" +
-                dictionary[data.index][0] + "</div>";
-        }
-        return text;
-    }
-
-    if (rhymes_changed_list.length === 0) {
-        document.getElementById("atonal-assonances-box").innerHTML = "<div class='results-none'>Nessuna assonanza atona trovata</div>";
+function UpdatePageNav(resultsList) {
+    const pageNav = resultsList.parentElement.querySelector('.page-nav');
+    const changesIndex = parseInt(resultsList.dataset.changes);
+    const results = search_results[resultsList.dataset.getresults][changesIndex];
+    const totalPages = Math.ceil(results.length / results_per_page);
+    const currentPage = parseInt(resultsList.dataset.pageindex);
+    if (totalPages <= 1) {
+        pageNav.innerHTML = "";
         return;
     }
-    document.getElementById("atonal-assonances-box").innerHTML = MakeAtonalList(rhymes_changed_list);
+    const lastPage = totalPages - 1;
+    pageNav.innerHTML =
+        "<div class='page-buttons'>" +
+        "<button class='page-button'" + (currentPage === 0 ? " disabled" : "") +
+        " onmousedown='NavigatePageTo(this, 0)'>◀◀</button>" +
+        "<button class='page-button'" + (currentPage === 0 ? " disabled" : "") +
+        " onmousedown='NavigatePageTo(this, " + (currentPage - 1) + ")'>◀</button>" +
+        "<button class='page-button'" + (currentPage >= lastPage ? " disabled" : "") +
+        " onmousedown='NavigatePageTo(this, " + (currentPage + 1) + ")'>▶</button>" +
+        "<button class='page-button'" + (currentPage >= lastPage ? " disabled" : "") +
+        " onmousedown='NavigatePageTo(this, " + lastPage + ")'>▶▶</button>" +
+        "</div>" +
+        "<span class='page-label'>Pagina " + (currentPage + 1) + "/" + totalPages + "</span>" +
+        "<button class='scroll-top-button'" +
+        " onmousedown='document.getElementById(\"main-title\").scrollIntoView(true)'>Torna in cima</button>";
 }
 
-function PrintAssonances(rhymes_changed_list) {
-
-    //Make a word list of clickable divs, with collapsable subsection header
-    function MakeAssonanceList() {
-        let title_plural;
-        let text = "";
-        let last_change = -1;
-        for (const data of rhymes_changed_list) {
-            if (data.changed.length !== last_change) {
-                last_change = data.changed.length;
-                title_plural = (data.changed.length == 1) ? "a" : "e";
-                text += "<br></span></div><div class='results-section'><button class='section-button'" +
-                    "title='Esapndi/collassa sezione' onmousedown='CollapseSection(this)' data-show='on'><span>▾</span> " +
-                    data.changed.length + " differenz" + title_plural + "</button><span>";
-            }
-            text += "<div class='word-button' onmousedown='SearchFromButton(this)'>" +
-                dictionary[data.index][0] + "</div>";
-        }
-        return text.slice(17);
+function SwitchChangesGroup(button) {
+    const section = button.closest('.default-box');
+    const resultsList = section.querySelector('.results-list');
+    resultsList.dataset.changes = button.dataset.changes;
+    resultsList.dataset.pageindex = "0";
+    for (const btn of section.querySelector('.changes-nav').children) {
+        btn.classList.remove('active');
     }
-
-    if (rhymes_changed_list.length === 0) {
-        document.getElementById("assonances-box").innerHTML = "<div class='results-none'>Nessuna assonanza semplice trovata</div>";
-        return;
-    }
-    document.getElementById("assonances-box").innerHTML = MakeAssonanceList();
+    button.classList.add('active');
+    PrintResults(resultsList);
 }
 
-function PrintConsonances(rhymes_changed_list) {
-
-    //Make a word list of clickable divs, with collapsable subsection header,
-    //while extracting the atonal assonances from the list
-    function MakeConsonanceList() {
-        let title_plural;
-        let text = "";
-        let last_change = -1;
-        const atonal_assonances = [];
-        for (const data of rhymes_changed_list) {
-            if (data.changed.length === 1) {
-                if (data.changed[0] === 0) {
-                    atonal_assonances.push(data);
-                    continue;
-                }
-            }
-            if (data.changed.length !== last_change) {
-                last_change = data.changed.length;
-                title_plural = (data.changed.length == 1) ? "a" : "e";
-                text += "<br></span></div><div class='results-section'><button class='section-button'" +
-                    "title='Esapndi/collassa sezione' onmousedown='CollapseSection(this)' data-show='on'><span>▾</span> " +
-                    data.changed.length + " differenz" + title_plural + "</button><span>";
-            }
-            text += "<div class='word-button' onmousedown='SearchFromButton(this)'>" +
-                dictionary[data.index][0] + "</div>";
-        }
-        return { text: text.slice(17), atonal_assonances: atonal_assonances };
-    }
-
-    const text_and_atonal_assonances = MakeConsonanceList();
-    if (text_and_atonal_assonances.text.length === 0) {
-        document.getElementById("consonances-box").innerHTML = "<div class='results-none'>Nessuna consonanza trovata</div>";
-        return text_and_atonal_assonances.atonal_assonances;
-    }
-    document.getElementById("consonances-box").innerHTML = text_and_atonal_assonances.text;
-    return text_and_atonal_assonances.atonal_assonances;
+function NavigatePageTo(button, page) {
+    const section = button.closest('.default-box');
+    const resultsList = section.querySelector('.results-list');
+    resultsList.dataset.pageindex = "" + page;
+    PrintResults(resultsList);
 }
 
 //Main search function
@@ -389,8 +370,49 @@ function Search(query) {
         document.title = "Rime con " + normalized_query + " | Super Rimario Italiano";
     }
 
+    function ResetSearchResults() {
+        search_results = { rhymes: [], atonal_assonances: [], assonances: [], consonances: [] };
+        for (let iii = 0; iii < max_character_changes; iii++) {
+            search_results.rhymes.push([]);
+            search_results.atonal_assonances.push([]);
+            search_results.assonances.push([]);
+            search_results.consonances.push([]);
+        }
+    }
+
+    function ResetResultsNavigation() {
+        for (const child of document.getElementById("results-box").children) {
+            const resultsList = child.querySelector('.results-list');
+            const changesNav = child.querySelector('.changes-nav');
+            const results = search_results[resultsList.dataset.getresults];
+            resultsList.dataset.pageindex = "0";
+            let firstNonEmpty = -1;
+            let nonEmptyCount = 0;
+            for (let iii = 0; iii < results.length; iii++) {
+                if (results[iii].length > 0) {
+                    if (firstNonEmpty < 0) firstNonEmpty = iii;
+                    nonEmptyCount++;
+                }
+            }
+            resultsList.dataset.changes = firstNonEmpty >= 0 ? "" + firstNonEmpty : "0";
+            let navHTML = "";
+            if (nonEmptyCount > 1) {
+                for (let iii = 0; iii < results.length; iii++) {
+                    if (results[iii].length > 0) {
+                        const plural = (iii + 1 === 1) ? "a" : "e";
+                        const active = (iii === firstNonEmpty) ? " active" : "";
+                        navHTML += "<button class='changes-button" + active + "' data-changes='" + iii +
+                            "' onmousedown='SwitchChangesGroup(this)'>" +
+                            (iii + 1) + " differenz" + plural + "</button>";
+                    }
+                }
+            }
+            changesNav.innerHTML = navHTML;
+        }
+    }
+
     if (!dictionary || !segmenter) {
-        console.warn("Search disabed");
+        console.warn("Search disabled");
         return;
     }
 
@@ -402,21 +424,20 @@ function Search(query) {
     if (query_accent < 0) return;
     document.getElementById("query-label").innerHTML = "Rime con " + normalized_query;
     ResetNavigation();
+    ResetSearchResults();
     const rhyme_suffix = normalized_query.substring(query_accent);
     if (rhyme_suffix.length < 16) {
-        PrintPerfectRhymes(SortPerfectRhymes(SearchPerfectRhymes(rhyme_suffix)), normalized_query);
-        PrintAssonances(SortImperfectRhymes(SearchImperfectRhymes(
-            GenerateConsonantCombinations(rhyme_suffix), rhyme_suffix
-        )));
-        PrintAtonalAssonances(PrintConsonances(SortImperfectRhymes(SearchImperfectRhymes(
-            GenerateVowelCombinations(rhyme_suffix), rhyme_suffix
-        ))));
+        SaveRhymes(SortRhymes(SearchPerfectRhymes(rhyme_suffix)), normalized_query);
+        SaveAssonances(SortRhymes(
+            SearchImperfectRhymes(GenerateConsonantCombinations(rhyme_suffix))
+        ));
+        SaveConsonances(SortRhymes(
+            SearchImperfectRhymes(GenerateVowelCombinations(rhyme_suffix))
+        ));
     }
-    else {
-        PrintPerfectRhymes([], normalized_query);
-        PrintAtonalAssonances([]);
-        PrintAssonances([]);
-        PrintConsonances([]);
+    ResetResultsNavigation();
+    for (const child of document.getElementById("results-box").children) {
+        PrintResults(child.querySelector('.results-list'));
     }
 }
 
@@ -427,25 +448,9 @@ function SearchFromBar(key = "Enter") {
 }
 
 function SearchFromButton(element) {
-    document.getElementById("search-bar").value = element.innerHTML;
-    Search(element.innerHTML);
+    document.getElementById("search-bar").value = element.textContent;
+    Search(element.textContent);
     document.getElementById("main-title").scrollIntoView(true);
-}
-
-async function CollapseSection(element) {
-    if (element.dataset.show === "on") {
-        element.dataset.show = "off";
-        element.parentElement.children[1].style.display = "none";
-        element.children[0].innerHTML = "▸";
-        element.style.fontStyle = "italic";
-    }
-    else {
-        element.dataset.show = "on";
-        element.parentElement.children[1].style.display = "inline";
-        element.children[0].innerHTML = "▾";
-        element.style.fontStyle = "normal";
-    }
-
 }
 
 function ShowSystemMessage(message) {
@@ -480,7 +485,7 @@ function HandleResize() {
             document.getElementById("system-message").dataset.show === "on") {
             result_boxes[iii].style.display = "none";
         }
-        else result_boxes[iii].style.display = "inline";
+        else result_boxes[iii].style.display = "flex";
     }
 }
 

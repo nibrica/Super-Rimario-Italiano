@@ -87,29 +87,47 @@ body {
 }
 
 .search-button,
-.navigation-button {
-    width: 100%;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    font-size: 16px;
+.navigation-button,
+.changes-button,
+.page-button,
+.scroll-top-button {
     border: 1px solid #a9a9a9;
-    border-radius: 8px;
     background-color: #e0e0e0;
     color: black;
-    text-align: center;
     cursor: pointer;
     user-select: none;
 }
 
 .search-button:hover,
-.navigation-button:hover {
+.navigation-button:hover,
+.changes-button:hover,
+.page-button:hover,
+.scroll-top-button:hover {
     background-color: #f3f3f3;
 }
 
 .search-button:disabled,
-.navigation-button:disabled {
+.navigation-button:disabled,
+.page-button:disabled {
     color: #a9a9a9;
     background-color: #f3f3f3;
+}
+
+.search-button,
+.navigation-button {
+    width: 100%;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-size: 16px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.changes-button,
+.page-button,
+.scroll-top-button {
+    font-size: 14px;
+    border-radius: 4px;
 }
 
 #query-label {
@@ -142,6 +160,10 @@ body {
     padding: 10px;
 }
 
+.default-box {
+    flex-direction: column;
+}
+
 .default-box,
 #system-message,
 #homograph-message {
@@ -159,30 +181,6 @@ body {
 noscript {
     width: 100%;
     font-weight: bold;
-}
-
-.section-button {
-    color: black;
-    background-color: white;
-    font-size: 16px;
-    line-height: 2.0;
-    border: none;
-    padding: 0;
-    margin: 0;
-    cursor: pointer;
-    font-weight: bold;
-    text-align: left;
-    word-break: normal;
-    border-style: hidden;
-    user-select: none;
-}
-
-.section-button:hover {
-    text-decoration: underline;
-}
-
-.section-button span {
-    font-style: normal;
 }
 
 .word-button {
@@ -216,6 +214,57 @@ noscript {
 
 .results-list {
     word-break: break-all;
+    flex: 1;
+}
+
+.changes-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 4px;
+}
+
+.changes-nav:empty {
+    display: none;
+}
+
+.changes-button {
+    padding: 2px 6px;
+}
+
+.changes-button.active {
+    background-color: black;
+    color: white;
+    border-color: black;
+}
+
+.page-nav {
+    margin-top: 4px;
+}
+
+.page-buttons {
+    display: flex;
+}
+
+.page-nav:empty {
+    display: none;
+}
+
+.page-button {
+    flex: 1;
+    padding: 4px 0;
+}
+
+.scroll-top-button {
+    width: 100%;
+    padding: 4px 0;
+}
+
+.page-label {
+    display: block;
+    font-size: 14px;
+    user-select: none;
+    text-align: center;
 }
 
 #share-button {
