@@ -3,7 +3,7 @@
 import polars as pl
 import pytest
 
-from rimario_build import export, lexicon, report, schema
+from rimario_build import config, export, lexicon, report, schema
 
 
 # --- builders -----------------------------------------------------------------
@@ -149,6 +149,34 @@ def test_attribution_lists_sources_and_versions(tmp_path):
 
 
 # --- lexicon ------------------------------------------------------------------
+
+@pytest.fixture(autouse=True)
+def keep_unseen_forms(monkeypatch):
+    """The other tests' forms are in one lexicon and mostly in no corpus."""
+    monkeypatch.setattr(config, "UNSEEN_MIN_LEXICONS", 1)
+
+
+def test_forms_in_no_corpus_need_enough_lexicons(monkeypatch):
+    monkeypatch.setattr(config, "UNSEEN_MIN_LEXICONS", 2)
+    forms = forms_df({"form": "raro"}, {"form": "rarissimo"}, {"form": "rarissimo", "lemma": "raro"},
+                     {"form": "comune"}, {"form": "comune", "source": "morphit"}, {"form": "visto"},
+                     {"form": "dimmelo", "lemma": "dire", "pos": "verb", "source": "morphit"})
+    readings = readings_df({"form": "raro", "stress_idx": 1}, {"form": "rarissimo", "stress_idx": 4},
+                           {"form": "comune", "stress_idx": 3}, {"form": "visto", "stress_idx": 1},
+                           {"form": "dimmelo", "stress_idx": 1, "lemma": "dire", "pos": "verb", "tier": "propagated",
+                            "evidence": "none", "sources": ["paradigm.enclitic"]})
+    entries, excluded = run_select(forms, readings, freq_df("visto"))
+    assert keys(entries) == [("comune", 3), ("dimmelo", 1), ("visto", 1)]     # enclitics are exempt
+    assert excluded.rows() == [("rarissimo", "few_lexicons"), ("raro", "few_lexicons")]
+
+    overrides = pl.DataFrame([("raro", 1, "add", None)], schema=lexicon.OVERRIDES, orient="row")
+    entries, excluded = run_select(forms, readings, freq_df("visto"), overrides=overrides)
+    assert ("raro", 1) in keys(entries) and excluded["form"].to_list() == ["rarissimo"]
+
+    monkeypatch.setattr(config, "UNSEEN_MIN_LEXICONS", 3)
+    entries, _ = run_select(forms, readings, freq_df("visto"))
+    assert keys(entries) == [("dimmelo", 1), ("visto", 1)]
+
 
 def test_proper_nouns_need_kaikki_and_frequency_and_never_duplicate_a_common_reading():
     forms = forms_df({"form": "rosa"}, {"form": "rosa", "pos": "name", "tags": ["proper"]},

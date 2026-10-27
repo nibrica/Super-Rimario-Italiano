@@ -299,6 +299,13 @@ LOANWORD_ITALIAN_SUFFIXES = (
     "ario", "aria", "ari", "ezza",
 )
 LOANWORD_EN_MARGIN = 0.25
+# A form found in no corpus needs at least this many lexicons (of Morph-it! and
+# the two Wiktionaries) to stay, unless paradigm derived it as a verb + clitics
+# (portàndoglielo: regular, and rhymes). At 2 it drops ~318k forms that only one
+# lexicon lists, 5.8 of the 15.8 MB of the CSV: mostly generated inflections, and
+# the lexicons' typos (muoiaa, indebitaa in Wiktionary inflection tables) with
+# them. 1 keeps every form; overrides.tsv `add` lines bring a reading back.
+UNSEEN_MIN_LEXICONS = 2
 REPORT_TOP_N = 50                  # rows per bounded list in report.md
 REPORT_UNATTESTED_N = 200          # most frequent forms without attested stress
 REPORT_ZIPF_BANDS = (1, 2, 3, 4, 5, 6)   # band edges for row counts by Zipf

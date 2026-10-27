@@ -18,11 +18,11 @@ Built: 2026-10-27
 |  |  |
 |---|---|
 | file | parole-accenti-frequenze.csv |
-| rows | 899,429 |
-| distinct words | 896,347 |
-| size | 15,784,767 bytes |
-| gzipped | 4,346,532 bytes |
-| sha256 | `26ff7e613e80244e73f36711972bc12f14e7d469549e64c51dd522a13662f9e5` |
+| rows | 581,808 |
+| distinct words | 578,797 |
+| size | 10,034,933 bytes |
+| gzipped | 2,906,171 bytes |
+| sha256 | `1954472e86af5a604907bdc1ce82c421ccf2e00bcb66791dc2d275e7fb4ce1e2` |
 
 ## Row counts
 
@@ -30,41 +30,41 @@ Built: 2026-10-27
 
 | tier | rows |
 |---|---|
-| attested | 540933 |
-| predicted | 50618 |
-| propagated | 307878 |
+| attested | 443978 |
+| predicted | 15273 |
+| propagated | 122557 |
 
 **By supporting source** (a row counts once per source)
 
 | source | rows |
 |---|---|
-| kaikki_en | 497388 |
-| kaikki_it | 111483 |
-| model | 50618 |
-| morphit | 18106 |
+| kaikki_en | 409784 |
+| kaikki_it | 102584 |
+| model | 15273 |
+| morphit | 17654 |
 | paradigm.enclitic | 61245 |
-| paradigm.nominal | 75099 |
-| paradigm.single_vowel | 158 |
-| paradigm.suffix | 29744 |
-| paradigm.verb_ending | 145111 |
-| paradigm.verb_rhizotonic | 12230 |
+| paradigm.nominal | 33059 |
+| paradigm.single_vowel | 154 |
+| paradigm.suffix | 10960 |
+| paradigm.verb_ending | 30612 |
+| paradigm.verb_rhizotonic | 1635 |
 
 **By flag**
 
 | flag | rows |
 |---|---|
-| none | 816511 |
-| 1 non-default | 3082 |
-| 2 predicted | 50618 |
-| 4 vulgar | 2912 |
-| 8 archaic | 22311 |
+| none | 545375 |
+| 1 non-default | 3011 |
+| 2 predicted | 15273 |
+| 4 vulgar | 2268 |
+| 8 archaic | 11630 |
 | 16 proper | 8088 |
 
 **By Zipf band**
 
 | zipf | rows |
 |---|---|
-| < 1 | 736750 |
+| < 1 | 419129 |
 | 1–2 | 83112 |
 | 2–3 | 51946 |
 | 3–4 | 21563 |
@@ -76,12 +76,13 @@ Built: 2026-10-27
 
 | reason | forms |
 |---|---|
-| abbreviation | 279 |
+| abbreviation | 280 |
 | chars | 4059 |
+| few_lexicons | 317529 |
 | loanword | 1651 |
 | low_confidence | 14813 |
 | misspelling | 242 |
-| proper_no_freq | 2278 |
+| proper_no_freq | 2298 |
 | proper_no_kaikki | 223 |
 
 ## Gold accuracy
@@ -133,9 +134,60 @@ Previous CSV: 899,429 rows, 896,347 words.
 
 _none_
 
-**Forms removed:** 0 (most frequent first)
+**Forms removed:** 317,550 (most frequent first)
 
-_none_
+| form | old zipf×100 |
+|---|---|
+| aaleniàna | 32 |
+| aaleniàne | 32 |
+| aaleniàni | 32 |
+| aaleniàno | 32 |
+| àbache | 32 |
+| abachìste | 32 |
+| abacìsti | 32 |
+| abadìte | 32 |
+| abadìti | 32 |
+| abalienànti | 32 |
+| abalienaziòni | 32 |
+| abandonàndosi | 32 |
+| abandonàntesi | 32 |
+| abandonàntisi | 32 |
+| abandonàrti | 32 |
+| abandonàtasi | 32 |
+| abandonàtesi | 32 |
+| abandonàtevi | 32 |
+| abandonàtisi | 32 |
+| abandonàtosi | 32 |
+| abandoniàmoci | 32 |
+| abandonwàri (2) | 32 |
+| abantìco | 32 |
+| abapicàle | 32 |
+| abaptìsta | 32 |
+| abaptìsti | 32 |
+| abarognosìa | 32 |
+| abarognosìe | 32 |
+| abàrra (8) | 32 |
+| abarrài (8) | 32 |
+| abarràmmo (8) | 32 |
+| abarràndo (8) | 32 |
+| abarràndosi (8) | 32 |
+| abàrrano (8) | 32 |
+| abarrànte (8) | 32 |
+| abarràntesi (8) | 32 |
+| abarràre (8) | 32 |
+| abarràrono (8) | 32 |
+| abarràrsi (8) | 32 |
+| abarràsse (8) | 32 |
+| abarràssero (8) | 32 |
+| abarràssi (8) | 32 |
+| abarràssimo (8) | 32 |
+| abarràste (8) | 32 |
+| abarràsti (8) | 32 |
+| abarràte (8) | 32 |
+| abarràtevi (8) | 32 |
+| abàrrati (8) | 32 |
+| abarràto (8) | 32 |
+| abarràtosi (8) | 32 |
 
 **Stress changed:** 0 forms (set of stressed positions differs)
 
@@ -204,7 +256,7 @@ _none_
 
 ## Homographs split 50/50
 
-399 homographs split 50/50 (override candidates).
+365 homographs split 50/50 (override candidates).
 
 | form | readings | reason | zipf |
 |---|---|---|---|
@@ -375,7 +427,7 @@ The 1,455 largest gaps between a down-weighted source estimate and the other sou
 
 ## Most frequent forms without attested stress
 
-357,804 forms have only propagated or predicted stress; the 200 most frequent (work through these first):
+137,156 forms have only propagated or predicted stress; the 200 most frequent (work through these first):
 
 | # | form | tier | zipf | lemmas |
 |---|---|---|---|---|

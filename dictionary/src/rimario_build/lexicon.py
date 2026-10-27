@@ -23,13 +23,15 @@ TIER_RANK = {t: i for i, t in enumerate(schema.TIER_ORDER)}
 OVERRIDE_PROVENANCE = "override:curation"
 KAIKKI = ("kaikki_en", "kaikki_it")
 SINGLE_VOWEL = "paradigm.single_vowel"     # paradigm's rule for one-vowel words: no lemma behind it
+ENCLITIC = "paradigm.enclitic"             # verb + clitics (portàndoglielo): regular, exempt from few_lexicons
 
 # Why a form is left out. A form with no kept reading gets the first reason
 # (in this order) among its readings; a form with no reading at all gets
 # "chars", "low_confidence" (the model's prediction was withheld) or "no_stress".
 REASONS = (
     "chars", "abbreviation", "misspelling", "roman_numeral", "loanword", "proper_no_kaikki",
-    "proper_no_freq", "low_confidence", "not_in_lexicon", "no_stress", "override_remove",
+    "proper_no_freq", "low_confidence", "not_in_lexicon", "few_lexicons", "no_stress",
+    "override_remove",
 )
 
 _LOANWORD_RE = "[" + "".join(sorted(config.LOANWORD_CHARS)) + "]"
@@ -177,7 +179,7 @@ def select(
     ``low_confidence`` (form, stress_idx, confidence) holds the model's withheld
     predictions: a form left without any reading because of it gets that reason.
     """
-    lex = _flag(forms.select("form"), "in_lex")
+    lex = forms.group_by("form").agg(in_lex=pl.lit(True), n_lexicons=pl.col("source").n_unique())
     freq = _flag(freq_forms.select("form"), "in_freq")
     kaikki_name = _flag(
         forms.filter(pl.col("source").is_in(KAIKKI) & (pl.col("pos") == "name")).select("form"),
@@ -212,6 +214,9 @@ def select(
         .when(pl.col("proper") & ~pl.col("kaikki_name")).then(pl.lit("proper_no_kaikki"))
         .when(pl.col("proper") & ~pl.col("in_freq")).then(pl.lit("proper_no_freq"))
         .when(~pl.col("in_lex") & (pl.col("tier") != "propagated")).then(pl.lit("not_in_lexicon"))
+        .when(pl.col("in_lex") & ~pl.col("in_freq") & (pl.col("n_lexicons") < config.UNSEEN_MIN_LEXICONS)
+              & ~pl.col("sources").list.contains(ENCLITIC))
+        .then(pl.lit("few_lexicons"))
     )
     kept = r.filter(pl.col("reason").is_null())
     # A proper reading with the spelling and stress of a common one adds nothing.
