@@ -1,0 +1,26 @@
+# Manual stress fixes. They always win over every source (OVERHAUL-PLAN §5.5),
+# so a reported bug becomes a one-line change here.
+#
+# Columns (tab-separated):
+#   form        NFC lowercase spelling, as in the output (città, perché, capitano)
+#   stress_idx  character index of the stressed vowel in `form`
+#   action      add | remove | fix
+#   note        why: the stress-marked form, a source, a bug report
+#
+# Actions:
+#   add     add this reading (tier "override"), keeping the others
+#   remove  drop the (form, stress_idx) reading; an empty stress_idx drops the
+#           whole form from the dictionary
+#   fix     replace every reading of the form by this one
+#
+# The output has no vowel quality (one row per form and stress), so there is
+# no quality column.
+#
+# Examples (tab-separated, without the leading "# "):
+#   resina	3	add	resìna, the old name of Ercolano
+#   gratuito	5	remove	gratuìto, common but non-standard stress
+#   piu		remove	accent-less typo of più
+#   rubrica	1	fix	rùbrica, a source has rubrìca
+#
+# Compute stress_idx with text.resolve_spelling("rùbrica") rather than by hand.
+form	stress_idx	action	note

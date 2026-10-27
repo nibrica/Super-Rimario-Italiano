@@ -1,0 +1,55 @@
+{
+  "kaikki_en": {
+    "etag": "\"6addda20-4918ce8\"",
+    "fetched_at": "2026-10-27T02:04:11Z",
+    "file": "kaikki.org-dictionary-Italian.jsonl.gz",
+    "last_modified": "Sun, 25 Oct 2026 10:29:52 GMT",
+    "sha256": "7ac16b2fb860fd687610bd0eb97300bd301f0258067e7197c0b4180ccb3f06d2",
+    "size": 76647656,
+    "url": "https://kaikki.org/dictionary/Italian/kaikki.org-dictionary-Italian.jsonl.gz"
+  },
+  "kaikki_it": {
+    "etag": "\"6addbc8a-29d17f3\"",
+    "fetched_at": "2026-10-27T02:04:11Z",
+    "file": "it-extract.jsonl.gz",
+    "last_modified": "Sun, 25 Oct 2026 08:23:38 GMT",
+    "sha256": "1e8e9edd2b112e61a687e9cf205874d24696311d9af455779a06641e4e91c5a0",
+    "size": 43849715,
+    "url": "https://kaikki.org/dictionary/downloads/it/it-extract.jsonl.gz"
+  },
+  "leipzig_news": {
+    "etag": "\"f9380fc-62df65df7f580\"",
+    "fetched_at": "2026-10-27T02:04:12Z",
+    "file": "ita_news_2024_1M.tar.gz",
+    "last_modified": "Wed, 12 Feb 2025 18:47:02 GMT",
+    "sha256": "90ed9f839c50de9a58a7f1772516891d6721c92f4b863560bd26a480d7717e30",
+    "size": 261325052,
+    "url": "https://downloads.wortschatz-leipzig.de/corpora/ita_news_2024_1M.tar.gz"
+  },
+  "morphit": {
+    "etag": null,
+    "fetched_at": "2026-10-27T02:04:11Z",
+    "file": "morph-it.tgz",
+    "last_modified": "Thu, 03 May 2018 10:51:58 GMT",
+    "mirror": "mirror/morphit/morph-it.tgz",
+    "sha256": "b137343dc095e038ebfaef7c743185e85ec35f5322a1b8629b600e6e898c7024",
+    "size": 2617548,
+    "url": "https://docs.sslmit.unibo.it/lib/exe/fetch.php?media=resources:morph-it.tgz",
+    "via": "mirror"
+  },
+  "opensubtitles": {
+    "etag": "\"a1b4df0d31f9783eb198ce2e2575d4061fc39adadf788f9a564422fe04d8a759\"",
+    "fetched_at": "2026-10-27T02:04:12Z",
+    "file": "it_full.txt",
+    "last_modified": null,
+    "sha256": "b23b0c6a3f59c1da1c7caa667b9df5699e95323fee20a05f343c7d7dae73c4be",
+    "size": 9677728,
+    "url": "https://raw.githubusercontent.com/hermitdave/FrequencyWords/master/content/2018/it/it_full.txt"
+  },
+  "wordfreq": {
+    "fetched_at": "2026-10-27T02:04:11Z",
+    "package": "wordfreq",
+    "url": "https://pypi.org/project/wordfreq/3.1.1/",
+    "version": "3.1.1"
+  }
+}

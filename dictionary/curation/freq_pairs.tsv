@@ -1,0 +1,65 @@
+# "More common than" judgements, checked by tests/test_curation.py.
+# Agreement = fraction of pairs where the default reading of `more` has a higher
+# zipf than the default reading of `less` in out/parole-accenti-frequenze.csv.
+# It is a check on the frequency merge (OVERHAUL-PLAN §6.6), not used to tune it.
+#
+# Columns (tab-separated): more, less, note. Forms are NFC lowercase spellings.
+# Only add pairs whose order no Italian speaker would argue about.
+more	less	note
+amore	amorevole	base vs derived
+casa	casupola	base vs derived
+libro	libercolo	base vs derived
+tempo	tempaccio	base vs derived
+uomo	omaccione	base vs derived
+città	cittadella	base vs derived
+anno	annata	base vs derived
+notte	nottata	base vs derived
+giorno	giornata	base vs derived
+acqua	acquitrino	base vs derived
+lavoro	lavorio	base vs derived
+mare	mareggiata	base vs derived
+bene	benissimo	base vs superlative
+buono	buonissimo	base vs superlative
+nuovo	nuovissimo	base vs superlative
+gatto	gattino	base vs diminutive
+cane	cagnolino	base vs diminutive
+strada	stradina	base vs diminutive
+mano	manina	base vs diminutive
+sono	siamo	inflection
+è	era	inflection
+ho	avevo	inflection
+parlo	parlassimo	inflection
+fare	effettuare	common vs formal synonym
+dire	proferire	common vs bookish synonym
+vedere	scorgere	common vs bookish synonym
+guardare	rimirare	common vs bookish synonym
+mangiare	desinare	common vs archaic synonym
+parlare	favellare	common vs archaic synonym
+dormire	sonnecchiare	common vs rarer synonym
+bambino	fanciullo	common vs bookish synonym
+ragazzo	giovinetto	common vs bookish synonym
+vecchio	vegliardo	common vs bookish synonym
+bello	avvenente	common vs bookish synonym
+paura	timore	common vs bookish synonym
+madre	genitrice	common vs bookish synonym
+casa	dimora	common vs bookish synonym
+ciao	salve	common vs formal greeting
+molto	assai	common vs regional/bookish synonym
+sempre	sovente	common vs bookish synonym
+subito	immantinente	modern vs archaic
+dove	ove	modern vs archaic
+questo	codesto	modern vs archaic
+qui	quivi	modern vs archaic
+poi	indi	modern vs archaic
+perché	perciocché	modern vs archaic
+mentre	allorché	modern vs bookish
+però	tuttavia	spoken vs written connective
+anche	altresì	spoken vs bookish
+così	siffatto	common vs bookish
+ancora	ancorare	homograph spelling: default ancòra vs a derived verb
+legge	leggiadro	homograph spelling: default légge
+capitano	capitanato	homograph spelling, base vs derived
+principi	principesco	homograph spelling, base vs derived
+viola	violaceo	homograph spelling, base vs derived
+mente	mentire	homograph spelling: default ménte
+compito	compitare	homograph spelling: default cómpito

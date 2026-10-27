@@ -1,3 +1,5 @@
 /lavisioblog/
-/dictionary/input/*
-/dictionary/myenv/
+/dictionary/data/
+/dictionary/.venv/
+__pycache__/
+.pytest_cache/

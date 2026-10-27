@@ -1,0 +1,132 @@
+# Gold standard for stress and homographs, checked by tests/test_curation.py.
+# Every (form, stress_idx) below must appear in out/parole-accenti-frequenze.csv.
+#
+# Columns (tab-separated):
+#   form        NFC lowercase spelling, as in the output (città, perché, capitano)
+#   stress_idx  character index of the stressed vowel in `form`
+#   default     1 = must be the default reading, 0 = must be non-default,
+#               empty = not checked
+#   note        the stress-marked form first, then an optional gloss after a space
+#
+# The output has one row per (form, stress): readings that differ only in vowel
+# quality (pèsca/pésca) are one row, so such a pair is one gold row.
+#
+# Standard Italian stress as given by DOP / Treccani. Add rows by hand; compute
+# stress_idx from the marked form with text.resolve_spelling rather than counting.
+form	stress_idx	default	note
+ancora	0	0	àncora (noun: anchor)
+ancora	3	1	ancòra (adverb: still, again)
+principi	2		prìncipi (plural of principe)
+principi	5		princìpi (plural of principio)
+subito	1	1	sùbito (adverb: at once)
+subito	3	0	subìto (past participle of subire)
+capitano	1		càpitano (capitare, 3pl present)
+capitano	5		capitàno (noun: captain)
+viola	1		vìola (violare, 3sg present)
+viola	2		viòla (noun/adjective: violet)
+resina	1	1	rèsina (noun: resin (resìna is the old name of Ercolano))
+ambito	0	1	àmbito (noun: scope, field)
+ambito	3	0	ambìto (past participle of ambire)
+compito	1	1	cómpito (noun: task, homework)
+compito	4	0	compìto (past participle of compire; adjective: polite)
+nettare	1		nèttare (noun: nectar)
+nettare	4		nettàre (verb: to clean)
+seguito	1		séguito (noun: following, retinue)
+seguito	4		seguìto (past participle of seguire)
+altero	0		àltero (alterare, 1sg present)
+altero	3		altèro (adjective: proud)
+indice	0	1	ìndice (noun: index)
+indice	3	0	indìce (indire, 3sg present)
+capito	3	1	capìto (past participle of capire)
+capito	1	0	càpito (capitare, 1sg present)
+leggere	1	1	lèggere (verb: to read)
+leggere	4	0	leggère (feminine plural of leggero)
+auguri	3	1	augùri (plural of augurio)
+auguri	0	0	àuguri (plural of augure)
+nocciolo	1		nòcciolo (noun: stone of a fruit, core)
+nocciolo	5		nocciòlo (noun: hazel tree)
+retina	1		rètina (noun: retina)
+retina	3		retìna (noun: small net)
+volano	1		vólano (volare, 3pl present)
+volano	3		volàno (noun: shuttlecock, flywheel)
+regia	3		regìa (noun: direction (film, theatre))
+regia	1		règia (feminine of regio)
+pesca	1		pèsca (noun: peach), pésca (noun: fishing)
+botte	1		bòtte (noun: blows), bótte (noun: barrel)
+venti	1		vènti (plural of vento), vénti (number: twenty)
+legge	1		lègge (leggere, 3sg present), légge (noun: law)
+mente	1		mènte (mentire, 3sg present), ménte (noun: mind)
+colto	1		còlto (past participle of cogliere), cólto (adjective: learned)
+accetta	3		accètta (accettare, 3sg present), accétta (noun: hatchet)
+tema	1		tèma (noun: theme, essay), téma (noun: fear (literary))
+dimmelo	1		dìmmelo (imperative + clitics)
+portandoglielo	4		portàndoglielo (gerund + clitics)
+guardatevi	5		guardàtevi (imperative + clitic)
+dammi	1		dàmmi (imperative + clitic)
+fallo	1		fàllo (imperative + clitic)
+dillo	1		dìllo (imperative + clitic)
+fatelo	1		fàtelo (imperative + clitic)
+darglielo	1		dàrglielo (infinitive + clitics)
+ditemi	1		dìtemi (imperative + clitic)
+guardandolo	5		guardàndolo (gerund + clitic)
+sbrigati	3		sbrìgati (imperative + clitic)
+alzati	0		àlzati (imperative + clitic)
+vattene	1		vàttene (imperative + clitics)
+tavolo	1		tàvolo
+sabato	1		sàbato
+medico	1		mèdico
+stupido	2		stùpido
+pagina	1		pàgina
+musica	1		mùsica
+facile	1		fàcile
+numero	1		nùmero
+albero	0		àlbero
+macchina	1		màcchina
+telefono	3		telèfono (noun; also telefonare, 1sg present)
+abitano	0		àbitano (abitare, 3pl present)
+desidero	3		desìdero (desiderare, 1sg present; also noun)
+città	4		città
+perché	5		perché
+virtù	4		virtù
+caffè	4		caffè
+più	2		più
+già	2		già
+può	2		può
+però	3		però
+così	3		così
+lunedì	5		lunedì
+università	9		università
+papà	3		papà (distinct spelling from pàpa)
+è	0		è (essere, 3sg present)
+dà	1		dà (dare, 3sg present)
+parlerebbero	6		parlerèbbero (conditional)
+capissimo	3		capìssimo (imperfect subjunctive)
+parlavamo	6		parlavàmo (imperfect)
+sarebbe	3		sarèbbe (conditional)
+mangiando	5		mangiàndo (gerund)
+dormivano	4		dormìvano (imperfect)
+cantassero	4		cantàssero (imperfect subjunctive)
+venderò	6		venderò (future)
+computer	4		compùter (loanword)
+manager	1		mànager (loanword)
+hotel	3		hotèl (loanword)
+internet	0		ìnternet (loanword)
+sport	2		spòrt (loanword)
+film	1		fìlm (loanword)
+casa	1		càsa
+amore	2		amóre
+parlare	4		parlàre
+ragazzo	3		ragàzzo
+cuore	2		cuòre
+parola	3		paròla
+rima	1		rìma
+poesia	4		poesìa
+farmacia	6		farmacìa
+zio	1		zìo
+paura	2		paùra
+papa	1		pàpa (noun: pope)
+gratuito	4		gratùito (standard stress (DOP))
+rubrica	1		rùbrica (standard stress (DOP))
+persuadere	5		persuàdere (standard stress (DOP))
+leccornia	7		leccornìa (standard stress (DOP))
+guaina	3		guaìna (standard stress (DOP))

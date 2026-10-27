@@ -1,0 +1,143 @@
+# Sources of the dictionary build (OVERHAUL-PLAN §1, §2).
+#
+# Read by fetch.py (download) and export.py (out/ATTRIBUTION.md, together with
+# sources.lock.json, which records the version actually used).
+#
+# One [[source]] table per source, in attribution order:
+#
+#   id            directory under data/raw/ and key in sources.lock.json;
+#                 the "source" value in every table the build produces
+#   name          human-readable name
+#   provides      what the build takes from it (one line)
+#   resolver      how the latest version is found:
+#                   "http"     fixed URL, re-downloaded only when its ETag /
+#                              Last-Modified changes (conditional GET)
+#                   "leipzig"  `url` contains {year}: probe from the current year
+#                              down to `min_year` and use only the newest that exists
+#                   "package"  an installed Python dependency (`package`); its
+#                              version is recorded, nothing is downloaded
+#   url           download URL (http), URL pattern with {year} (leipzig), or
+#                 the package's index page (package)
+#   file          local file name under data/raw/<id>/ (may contain {year})
+#   min_year      leipzig only: oldest year to probe
+#   package       package only: distribution name
+#   mirror        optional: path (relative to dictionary/) of an unchanged copy
+#                 committed in this repository, redistributed under the
+#                 source's licence. fetch.py restores it into data/raw/<id>/
+#                 when upstream can't serve the file and there is no local
+#                 copy, and records "via": "mirror" in the lock.
+#   mirror_sha256 sha256 of the mirror file (verified on every restore)
+#   mirror_last_modified  upstream Last-Modified of the mirrored version; a
+#                 different upstream value means the mirror needs refreshing
+#   homepage      page describing the resource
+#   license       licence name; license_url: its text
+#   attribution   credit line to reproduce wherever the data is shown
+#   [[source.cite]]  works to cite: `text` (full reference), optional `url`
+#
+# Every source must be redistributable and usable commercially inside a GPL
+# project, and downloadable automatically.
+
+[[source]]
+id = "kaikki_en"
+name = "Kaikki.org: Italian entries of the English Wiktionary"
+provides = "Italian lemmas and inflected forms with IPA, stress-marked hyphenation and stress-marked inflection tables"
+resolver = "http"
+url = "https://kaikki.org/dictionary/Italian/kaikki.org-dictionary-Italian.jsonl.gz"
+file = "kaikki.org-dictionary-Italian.jsonl.gz"
+homepage = "https://kaikki.org/dictionary/Italian/"
+license = "CC BY-SA 4.0 (Wiktionary content; also GFDL)"
+license_url = "https://creativecommons.org/licenses/by-sa/4.0/"
+attribution = "Contains data from the English Wiktionary (https://en.wiktionary.org/), by Wiktionary contributors, extracted by wiktextract and published by Kaikki.org (Tatu Ylonen), licensed under CC BY-SA 4.0."
+
+[[source.cite]]
+text = "Tatu Ylonen. 2022. Wiktextract: Wiktionary as Machine-Readable Structured Data. In Proceedings of the 13th Language Resources and Evaluation Conference (LREC 2022), pages 1317-1325, Marseille, France. European Language Resources Association."
+url = "https://aclanthology.org/2022.lrec-1.140"
+
+[[source]]
+id = "kaikki_it"
+name = "Kaikki.org: Italian Wiktionary extract"
+provides = "Italian entries of the Italian Wiktionary with stress-marked hyphenation, IPA, POS and verb-form glosses"
+resolver = "http"
+url = "https://kaikki.org/dictionary/downloads/it/it-extract.jsonl.gz"
+file = "it-extract.jsonl.gz"
+homepage = "https://kaikki.org/itwiktionary/rawdata.html"
+license = "CC BY-SA 4.0 (Wiktionary content; also GFDL)"
+license_url = "https://creativecommons.org/licenses/by-sa/4.0/"
+attribution = "Contains data from the Italian Wiktionary (https://it.wiktionary.org/), by Wikizionario contributors, extracted by wiktextract and published by Kaikki.org (Tatu Ylonen), licensed under CC BY-SA 4.0."
+
+[[source.cite]]
+text = "Tatu Ylonen. 2022. Wiktextract: Wiktionary as Machine-Readable Structured Data. In Proceedings of the 13th Language Resources and Evaluation Conference (LREC 2022), pages 1317-1325, Marseille, France. European Language Resources Association."
+url = "https://aclanthology.org/2022.lrec-1.140"
+
+[[source]]
+id = "morphit"
+name = "Morph-it!"
+provides = "About 505,000 Italian inflected forms with their lemma and morphological features"
+resolver = "http"
+url = "https://docs.sslmit.unibo.it/lib/exe/fetch.php?media=resources:morph-it.tgz"
+file = "morph-it.tgz"
+# Since 2026 the server answers automated GETs with a bot check (HTTP 402),
+# so the unchanged tarball (with its lgpl.txt and readme) is mirrored here.
+mirror = "mirror/morphit/morph-it.tgz"
+mirror_sha256 = "b137343dc095e038ebfaef7c743185e85ec35f5322a1b8629b600e6e898c7024"
+mirror_last_modified = "Thu, 03 May 2018 10:51:58 GMT"
+homepage = "https://docs.sslmit.unibo.it/doku.php?id=resources:morph-it"
+license = "CC BY-SA 2.0 (also LGPL)"
+license_url = "https://creativecommons.org/licenses/by-sa/2.0/"
+attribution = "Contains data from Morph-it! by Marco Baroni and Eros Zanchetta (University of Bologna), licensed under CC BY-SA 2.0 and LGPL. The original archive (morph-it.tgz, including its licence text lgpl.txt and readme) is redistributed unchanged in this repository under the same licence, at dictionary/mirror/morphit/morph-it.tgz."
+
+[[source.cite]]
+text = "Eros Zanchetta and Marco Baroni. 2005. Morph-it! A free corpus-based morphological resource for the Italian language. In Proceedings of Corpus Linguistics 2005, University of Birmingham, UK."
+
+[[source]]
+id = "wordfreq"
+name = "wordfreq"
+provides = "Merged Italian word frequencies (Wikipedia, subtitles, news, books, web, social media; snapshot of about 2021)"
+resolver = "package"
+package = "wordfreq"
+url = "https://pypi.org/project/wordfreq/"
+homepage = "https://github.com/rspeer/wordfreq"
+license = "CC BY-SA 4.0 (data; the code is Apache 2.0)"
+license_url = "https://creativecommons.org/licenses/by-sa/4.0/"
+attribution = "Contains word frequencies from wordfreq by Robyn Speer, built for Italian from Wikipedia, OPUS OpenSubtitles 2018 (http://www.opensubtitles.org/), NewsCrawl 2014, GlobalVoices, Google Books Ngrams (http://books.google.com/ngrams), OSCAR, Twitter and Reddit, licensed under CC BY-SA 4.0."
+
+[[source.cite]]
+text = "Robyn Speer. 2022. rspeer/wordfreq: v3.0 (v3.0.2). Zenodo."
+url = "https://doi.org/10.5281/zenodo.7199437"
+
+[[source]]
+id = "opensubtitles"
+name = "FrequencyWords: OpenSubtitles 2018, Italian (full list)"
+provides = "Word counts from Italian film and TV subtitles (spoken register)"
+resolver = "http"
+url = "https://raw.githubusercontent.com/hermitdave/FrequencyWords/master/content/2018/it/it_full.txt"
+file = "it_full.txt"
+homepage = "https://github.com/hermitdave/FrequencyWords"
+license = "CC BY-SA 4.0"
+license_url = "https://creativecommons.org/licenses/by-sa/4.0/"
+attribution = "Contains word counts from FrequencyWords by Hermit Dave, built from the OpenSubtitles2018 corpus (http://www.opensubtitles.org/, via OPUS), licensed under CC BY-SA 4.0."
+
+[[source.cite]]
+text = "Pierre Lison and Jörg Tiedemann. 2016. OpenSubtitles2016: Extracting Large Parallel Corpora from Movie and TV Subtitles. In Proceedings of the 10th International Conference on Language Resources and Evaluation (LREC 2016), pages 923-929, Portorož, Slovenia. European Language Resources Association."
+url = "https://aclanthology.org/L16-1147"
+
+[[source.cite]]
+text = "Hermit Dave. FrequencyWords: frequency word lists from OpenSubtitles 2018."
+url = "https://github.com/hermitdave/FrequencyWords"
+
+[[source]]
+id = "leipzig_news"
+name = "Leipzig Corpora Collection: Italian news, 1M sentences (newest year)"
+provides = "One million recent Italian news sentences: post-2021 word counts and contexts for splitting homographs"
+resolver = "leipzig"
+url = "https://downloads.wortschatz-leipzig.de/corpora/ita_news_{year}_1M.tar.gz"
+file = "ita_news_{year}_1M.tar.gz"
+min_year = 2015
+homepage = "https://wortschatz.uni-leipzig.de/en/download/Italian"
+license = "CC BY 4.0"
+license_url = "https://creativecommons.org/licenses/by/4.0/"
+attribution = "Contains data from the Leipzig Corpora Collection (Italian news corpus), Deutscher Wortschatz, Leipzig University, licensed under CC BY 4.0."
+
+[[source.cite]]
+text = "Dirk Goldhahn, Thomas Eckart and Uwe Quasthoff. 2012. Building Large Monolingual Dictionaries at the Leipzig Corpora Collection: From 100 to 200 Languages. In Proceedings of the 8th International Conference on Language Resources and Evaluation (LREC 2012), Istanbul, Turkey. European Language Resources Association."
+url = "http://www.lrec-conf.org/proceedings/lrec2012/pdf/327_Paper.pdf"

@@ -126,7 +126,7 @@ dictionary/
 - All tunable numbers (weights, thresholds) live in `config.py`.
 - Each stage logs its duration and row counts.
 
-**Dependencies:** Python ≥ 3.12, `polars`, `orjson`, `wordfreq`, `scikit-learn`, plus `pytest` for development. No system packages.
+**Dependencies:** Python ≥ 3.14, `polars`, `orjson`, `wordfreq`, `scikit-learn`, plus `pytest` for development. No system packages.
 
 **Speed:**
 - The extractors are independent and run in parallel (`ProcessPoolExecutor`); the Leipzig sentences are tokenized in parallel chunks.
@@ -155,7 +155,7 @@ fetch ─► sources/* ─► forms, freq, contexts
 |---|---|
 | `forms` (from kaikki_en, kaikki_it, morphit) | `form, lemma, pos, stress_idx?, quality? (open/closed), evidence (ipa/hyphenation/table/sill/none), register_tags, source` |
 | `freq` (from wordfreq_it, opensubtitles, leipzig) | `form, count or zipf, source`, plus per-source metadata: total tokens, detection floor, truncated? |
-| `contexts` (leipzig) | `form, cue_class (nominal/verbal), count`, only for homograph forms |
+| `contexts` (leipzig) | `form, cue, count`: the token right before each form, kept only when it's one of the cue words configured for §6.4; `homographs.py` maps each cue to its class (nominal/verbal) |
 | `entries` (merged) | `form, stress_idx, quality, lemma, pos, zipf, share, is_default, tier (attested/propagated/predicted), confidence, provenance` |
 
 `stress_idx` keeps today's meaning: the character index of the stressed vowel in the NFC lowercase spelling.
@@ -179,15 +179,15 @@ For forms that Morph-it (or a Kaikki inflection list) knows but no source marks 
 - **Productive suffixes:** *-ménte, -zióne, -ità, -ìsmo, -ìsta, -ìssimo, -ìno, -étto, -èllo*.
 
 ### 5.3 Learned fallback (replaces espeak)
-- **Training data:** all attested forms. For each vowel position, a classifier predicts "stressed or not" from the surrounding characters, the distance from the end in vowels, suffix n-grams and the POS if known (scikit-learn `HistGradientBoostingClassifier`). The highest-scoring vowel wins, and its probability is the confidence.
+- **Training data:** all attested readings (not propagated ones). For each vowel position, a classifier predicts "stressed or not" from the surrounding characters, the distance from the end in vowels, suffix n-grams and the POS if known (scikit-learn `HistGradientBoostingClassifier`). The highest-scoring vowel wins, and its probability is the confidence.
 - **Evaluation:** held-out folds of attested data, plus `gold.tsv`.
-- **Shipping rule:** ship predictions with tier `predicted` only above a confidence threshold. Low-confidence words are left out and listed in the report.
+- **Shipping rule:** ship predictions with tier `predicted` only above a confidence threshold, set per POS (names need more confidence than nouns). Low-confidence words are left out and listed in the report.
 
 ### 5.4 Vowel quality
-Taken from Kaikki's IPA and accent marks (ɛ/è, e/é, ɔ/ò, o/ó) for the stressed vowel. It's used internally to tell homographs apart, and it's **exported only where it's the sole difference** between two readings with the same spelling and stress (*pèsca*/*pésca*, *bòtte*/*bótte*), so most rows stay without flags (§8).
+Taken from Kaikki's IPA and accent marks (ɛ/è, e/é, ɔ/ò, o/ó) for the stressed vowel. It may stay in internal tables, but it **doesn't split rows and isn't exported**: *pèsca*/*pésca* and *bòtte*/*bótte* are one row per (word, stress), whose frequency is the sum of the two readings. The output has no vowel-quality flag (§8).
 
 ### 5.5 Curation
-- `overrides.tsv`: `form, stress_idx, quality, action (add/remove/fix), note`. It always wins, so reported bugs become one-line changes.
+- `overrides.tsv`: `form, stress_idx, action (add/remove/fix), note`. It always wins, so reported bugs become one-line changes.
 - `gold.tsv`: ~1,000 hand-checked forms, focused on homographs (*àncora/ancòra, prìncipi/princìpi, sùbito/subìto, càpitano/capitàno, vìola/viòla, rèsina/resìna*), enclitics and loanwords. `test_curation.py` fails if accuracy on it drops.
 
 ---
@@ -200,7 +200,7 @@ Taken from Kaikki's IPA and accent marks (ɛ/è, e/é, ɔ/ò, o/ó) for the stre
 - Store each source's **detection floor**, the Zipf of a single occurrence. wordfreq's list stops at a known cutoff, so a word missing from it is *below* that cutoff.
 
 ### 6.2 Treat a missing word as an upper bound
-A word missing from a source that covers its whole vocabulary (or from one with a known cutoff) is evidence that it's rare there. It counts as one observation at `floor_s − 0.5`, with half that source's weight. A word absent from all three sources gets no corpus estimate (§6.5).
+A word missing from a source that covers its whole vocabulary (or from one with a known cutoff) is evidence that it's rare there. It counts as one observation at `floor_s − 0.5`, with half that source's weight. The bound only applies as an upper bound: it's used where it lies below the word's real observations, and ignored where it would pull the word up. A word absent from all three sources gets no corpus estimate (§6.5).
 
 ### 6.3 Weighted mean with shrinkage
 ```
@@ -224,12 +224,14 @@ zipf(reading) = zipf(form) + log10(share(reading))
    - Counts are smoothed with a small prior (α = 2), so a handful of contexts can't produce 100/0.
 2. **Same-POS readings with different lemmas** (*prìncipi/princìpi*): the ratio of the lemmas' merged frequencies (*principe* vs *principio*).
 3. **Proper noun vs. common word** (*Rosa*/*rosa* when stress differs, e.g. a place name): the share of capitalized occurrences that don't start a sentence in the Leipzig sentences.
-4. **No usable signal** (including same-lemma, vowel-quality pairs such as *pèsca/pésca*): 50/50, flagged in the report as candidates for overrides.
+4. **No usable signal:** 50/50, flagged in the report as candidates for overrides.
+
+In the implementation, the capitalization check (3) runs before context (1), since proper nouns take no article. Context decides only when the form has at least `CONTEXT_MIN_CUES` nominal + verbal cue hits; readings that are function words (prepositions, articles, determiners, pronouns, conjunctions) take no cue side.
 
 The reading with the largest share becomes `is_default`; the others get the *non-default* flag.
 
 ### 6.5 Forms found only in dictionaries
-Forms that appear in a lexicon but in no corpus get `min_floor − 0.5`. Ties are broken by how many lexicons contain the form. The long tail gets a usable order instead of a pile of zeros.
+Forms that appear in a lexicon but in no corpus get `min_floor − 0.5`. Ties are broken by how many lexicons contain the form. The long tail gets a usable order instead of a pile of zeros. In practice `min_floor − 0.5` is close to 0, so these values sit in a small positive band starting at `LEXICON_ONLY_MIN_ZIPF`, below every corpus estimate, where even a 50/50 split of them stays above 0.
 
 ### 6.6 Validation
 - `freq_pairs.tsv`: ~200 hand judgements ("*amore* > *amorevole*", "*ciao* > *salve*"). `test_curation.py` asserts a minimum agreement. It's a check on the merge, not used to tune the weights.
@@ -240,7 +242,7 @@ Forms that appear in a lexicon but in no corpus get `min_floor − 0.5`. Ties ar
 ## 7. Which forms go in
 - **Include:** forms in at least one lexicon (`kaikki_en`, `kaikki_it`, `morphit`) or generated in §5.2, that also have a stress value at tier `attested`, `propagated`, or `predicted` above the threshold.
 - **Proper nouns** (Kaikki `name` entries: places, personal names) are included **only if at least one frequency source has them**, lowercased like every other word and flagged. If a proper noun has the same spelling and stress as a common word (*rosa*), it adds no row. Whether to drop more is decided once the final size is known.
-- **Exclude:** abbreviations, misspellings (Kaikki tags), and anything with characters outside the Italian alphabet plus accented vowels. Loanwords stay only if they appear in an Italian section with IPA.
+- **Exclude:** abbreviations, misspellings (Kaikki tags), and anything with characters outside the Italian alphabet plus accented vowels. Loanwords stay only if they appear in an Italian section with IPA. English words are gated by comparing wordfreq's English and Italian Zipf for the form, and Roman numerals (*ii*, *iv*, *vii*) are excluded.
 - **Register and sensitivity tags** (Kaikki *archaic, poetic, literary, obsolete*; *vulgar, offensive, derogatory*) become flags, not filters. Whether to hide them is a frontend decision.
 
 ---
@@ -254,11 +256,10 @@ The filename is **fixed**: the file is committed, so git shows each update as an
 Each row has **3 fields, or 4 when it has flags**:
 
 ```
-pesca,1,355,3
-pesca,1,402,4
 ancora,0,301,1
 ancora,3,489
 amore,2,512
+pinca,1,32,6
 ```
 
 | field | type | meaning |
@@ -273,12 +274,12 @@ amore,2,512
 | bit | value | meaning |
 |---|---|---|
 | 0 | 1 | non-default reading of a homograph |
-| 1 | 2 | stressed vowel open (è/ò); only where vowel quality is the sole difference (§5.4) |
-| 2 | 4 | stressed vowel closed (é/ó); same rule |
-| 3 | 8 | stress predicted by the model (attested and rule-derived stress count as normal) |
-| 4 | 16 | vulgar / offensive / derogatory |
-| 5 | 32 | archaic / poetic / literary |
-| 6 | 64 | proper noun |
+| 1 | 2 | stress predicted by the model (attested and rule-derived stress count as normal) |
+| 2 | 4 | vulgar / offensive / derogatory |
+| 3 | 8 | archaic / poetic / literary |
+| 4 | 16 | proper noun |
+
+The value of a row is the sum of its flags: `pinca,1,32,6` above is a predicted (2), vulgar (4) reading. Vowel quality is not exported (§5.4).
 
 Also written: `out/ATTRIBUTION.md` (see §1).
 
@@ -322,4 +323,8 @@ Don't publish a dictionary from this pipeline before phase 3: until then, words 
 - **Generated forms:** kept only if attested in a lexicon or corpus (§5.2).
 - **Proper nouns:** only those with frequency data, flagged (§7).
 - **Not in this plan:** phonetic rhyme keys, syllable and metre data, lemma column, poetic truncations (unnecessary or too much data); frontend ideas are in `web/FRONTEND-NOTES.md`; later work is in `dictionary/FOLLOW-UPS.md`.
+- **Overrides:** none added; `curation/overrides.tsv` has no data rows (§5.5).
+- **Gold threshold:** `GOLD_MIN_ACCURACY = 0.90` (§5.5).
+- **Morph-it:** mirrored in the repository (`dictionary/mirror/morphit/`), because its server answers automated GETs with HTTP 402 (§1).
+- **Vowel quality:** merged; it no longer splits rows and has no output flag (§5.4, §8).
 - **Filename:** fixed and committed (`out/parole-accenti-frequenze.csv`); the content hash is added by the site build step (`BUILD-STEP.md`).
