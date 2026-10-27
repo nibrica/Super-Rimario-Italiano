@@ -1,3 +1,4 @@
+<!doctype html>
 <!--
 Super Rimario Italiano
 Copyright (C) 2024 Nicolò Brigadoi Calamari
@@ -15,86 +16,194 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 -->
-
-
-<!DOCTYPE html>
 <html lang="it">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="author" content="Nicolò Brigadoi Calamari">
-    <meta name="description"
-        content="Rimario italiano online. Trova rime, assonanze e consonanze e le ordina per frequenza d'uso.">
-    <link rel="stylesheet" href="styles.css">
-    <title>Super Rimario Italiano</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Nicolò Brigadoi Calamari">
+  <meta name="description" content="Rimario italiano online. Trova rime, assonanze e consonanze e le ordina per frequenza d'uso.">
+  <title>Super Rimario Italiano</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="rimario.css">
+  <style>
+    /* standalone page only; the WordPress build drops this block */
+    body { margin: 0; background: #fff; font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+  </style>
+  <script type="module" src="js/app.js"></script>
 </head>
-
 <body>
-    <h1 id="main-title">
-        <a href=""><span>SUPER</span> RIMARIO ITALIANO</a>
-    </h1>
-    <div class="search-container">
-        <input type="text" id="search-bar" placeholder="Cerca le rime..." maxlength="50"
-            onkeydown="SearchFromBar(event.key)">
-        <button class="search-button" onmousedown="SearchFromBar()" disabled>Cerca</button>
-    </div>
-    <div id="query-label">
-        Caricamento in corso...
-    </div>
-    <div class="box-container">
-        <div class="message-box" id="system-message" data-show="off"></div>
-        <div class="message-box" id="homograph-message"></div>
-        <noscript>
-            <div class="message-box">Errore: JavaScript non è abilitato.</div>
-        </noscript>
-    </div>
-    <div id="navigation">
-        <button class="navigation-button" id="previous-button" title="Indietro"
-            onmousedown="SlideNavigation(-1)">◀</button>
-        <div id="slide-label"></div>
-        <button class="navigation-button" id="next-button" title="Avanti" onmousedown="SlideNavigation(1)">▶</button>
-    </div>
-    <div class="box-container" id="results-box">
-        <section class="default-box">
-            <h2>RIME</h2>
-            <div class="changes-nav"></div>
-            <div class="results-list" id="rhymes-box" data-name="rima" data-displaymode="text" data-getresults="rhymes"
-                data-pageindex="0" data-changes="0"></div>
-            <div class="page-nav"></div>
-        </section>
-        <section class="default-box">
-            <h2>ASSONANZE ATONE</h2>
-            <div class="changes-nav"></div>
-            <div class="results-list" id="atonal-assonances-box" data-name="assonanza atona" data-displaymode="button"
-                data-getresults="atonal_assonances" data-pageindex="0" data-changes="0"></div>
-            <div class="page-nav"></div>
-        </section>
-        <section class="default-box">
-            <h2>ASSONANZE SEMPLICI</h2>
-            <div class="changes-nav"></div>
-            <div class="results-list" id="assonances-box" data-name="assonanza semplice" data-displaymode="button"
-                data-getresults="assonances" data-pageindex="0" data-changes="0"></div>
-            <div class="page-nav"></div>
-        </section>
-        <section class="default-box">
-            <h2>CONSONANZE</h2>
-            <div class="changes-nav"></div>
-            <div class="results-list" id="consonances-box" data-name="consonanza" data-displaymode="button"
-                data-getresults="consonances" data-pageindex="0" data-changes="0"></div>
-            <div class="page-nav"></div>
-        </section>
-    </div>
-    <button id="share-button" onclick="SharePage()">🌐&nbsp;Condividi</button>
-    <footer class="software-info">
-        Rimario italiano online creato da Nicolò Brigadoi Calamari.
-        Trova rime, assonanze e consonanze e le ordina per frequenza d'uso.
-        Il codice sorgente
-        <a href="https://github.com/nibrica/Super-Rimario-Italiano" target="_blank">è disponibile su GitHub</a>
-        ed è distribuito sotto licenza
-        <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank">GNU General Public License v3.0</a>.
-    </footer>
-    <script type="text/javascript" src="rimario.js"></script>
-</body>
+<!-- rimario:begin -->
+<div id="rimario" class="sri" lang="it"
+     data-dictionary-url="../dictionary/out/parole-accenti-frequenze.csv"
+     data-attribution-url="../dictionary/out/ATTRIBUTION.md">
+  <div class="sri-app">
 
+    <header class="sri-header">
+      <h1 class="sri-title">
+        <a class="sri-title-link" href="./" data-sri-home>
+          <img class="sri-logo" src="logo.svg" width="440" height="96" alt="Super Rimario Italiano">
+        </a>
+      </h1>
+      <p class="sri-tagline">Rime, assonanze e consonanze ordinate per frequenza d'uso.</p>
+    </header>
+
+    <form class="sri-search" id="sri-search" role="search" autocomplete="off" novalidate>
+      <label class="sri-search-label" for="sri-input">Parola da cercare</label>
+      <div class="sri-search-field">
+        <svg class="sri-icon sri-search-icon" aria-hidden="true" viewBox="0 0 24 24" width="20" height="20"
+             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="7"/>
+          <path d="M20 20l-3.8-3.8"/>
+        </svg>
+        <input class="sri-input" id="sri-input" name="q" type="search" maxlength="50"
+               placeholder="es. amore, città, àncora" enterkeyhint="search"
+               autocapitalize="none" autocorrect="off" spellcheck="false"
+               aria-describedby="sri-search-hint">
+        <button class="sri-clear" id="sri-clear" type="button" aria-label="Cancella" hidden>
+          <svg class="sri-icon" aria-hidden="true" viewBox="0 0 24 24" width="18" height="18"
+               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+        <button class="sri-submit" id="sri-submit" type="submit">Cerca</button>
+      </div>
+      <p class="sri-search-hint" id="sri-search-hint">Per le parole che non sono nel dizionario indica l'accento, es. <em>italiàno</em>.</p>
+    </form>
+
+    <div class="sri-loading" id="sri-loading" hidden>
+      <p class="sri-loading-label" id="sri-loading-label">Caricamento del dizionario…</p>
+      <div class="sri-progress" id="sri-progress" role="progressbar" aria-labelledby="sri-loading-label"
+           aria-valuemin="0" aria-valuemax="100" data-indeterminate>
+        <div class="sri-progress-bar"></div>
+      </div>
+      <p class="sri-loading-detail" id="sri-loading-detail"></p>
+    </div>
+
+    <div class="sri-message" id="sri-message" data-kind="info" hidden></div>
+    <noscript><p class="sri-message" data-kind="error">Per usare il rimario è necessario abilitare JavaScript.</p></noscript>
+
+    <section class="sri-idle" id="sri-idle" aria-labelledby="sri-idle-title" hidden>
+      <h2 class="sri-idle-title" id="sri-idle-title">Prova con</h2>
+      <ul class="sri-chips" role="list">
+        <li><button class="sri-chip sri-example" type="button" data-q="amore">amore</button></li>
+        <li><button class="sri-chip sri-example" type="button" data-q="città">città</button></li>
+        <li><button class="sri-chip sri-example" type="button" data-q="notte">notte</button></li>
+        <li><button class="sri-chip sri-example" type="button" data-q="àncora">àncora</button></li>
+        <li><button class="sri-chip sri-example" type="button" data-q="pésca">pésca</button></li>
+        <li><button class="sri-chip sri-example" type="button" data-q="iniquo">iniquo</button></li>
+        <li><button class="sri-chip sri-example" type="button" data-q="perché">perché</button></li>
+        <li><button class="sri-chip sri-example" type="button" data-q="canzone">canzone</button></li>
+      </ul>
+    </section>
+
+    <section class="sri-results" id="sri-results" aria-labelledby="sri-query-heading" hidden>
+      <div class="sri-results-head">
+        <h2 class="sri-query" id="sri-query-heading" tabindex="-1">
+          <span class="sri-query-prefix">Rime con</span>
+          <strong class="sri-query-word" id="sri-query-word"></strong>
+        </h2>
+        <button class="sri-share" id="sri-share" type="button">
+          <svg class="sri-icon" aria-hidden="true" viewBox="0 0 24 24" width="18" height="18"
+               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 15V3M7.5 7.5L12 3l4.5 4.5"/>
+            <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/>
+          </svg>
+          <span class="sri-share-label">Condividi</span>
+        </button>
+      </div>
+      <div class="sri-readings" id="sri-readings" hidden>
+        <span class="sri-readings-label" id="sri-readings-label">Letture:</span>
+        <ul class="sri-chips" id="sri-readings-list" role="list" aria-labelledby="sri-readings-label"></ul>
+      </div>
+      <ul class="sri-notes" id="sri-notes" role="list" hidden></ul>
+      <fieldset class="sri-filters" id="sri-filters">
+        <legend class="sri-filters-legend">Mostra</legend>
+        <label class="sri-toggle"><input type="checkbox" id="sri-filter-proper" data-pref="proper"><span>Nomi propri</span></label>
+        <label class="sri-toggle"><input type="checkbox" id="sri-filter-archaic" data-pref="archaic"><span>Parole arcaiche e poetiche</span></label>
+        <label class="sri-toggle"><input type="checkbox" id="sri-filter-vulgar" data-pref="vulgar"><span>Parole volgari e offensive</span></label>
+        <span class="sri-filters-note" id="sri-hidden-note"></span>
+      </fieldset>
+
+      <div class="sri-tabs" id="sri-tabs" role="tablist" aria-label="Categorie di risultati">
+        <button class="sri-tab" id="sri-tab-rhymes" type="button" role="tab" data-cat="rhymes"
+                aria-controls="sri-panel-rhymes" aria-selected="true" tabindex="0">
+          <span class="sri-tab-name">Rime</span><span class="sri-count" data-count></span>
+        </button>
+        <button class="sri-tab" id="sri-tab-atonal" type="button" role="tab" data-cat="atonal"
+                aria-controls="sri-panel-atonal" aria-selected="false" tabindex="-1">
+          <span class="sri-tab-name">Atone</span><span class="sri-count" data-count></span>
+        </button>
+        <button class="sri-tab" id="sri-tab-assonances" type="button" role="tab" data-cat="assonances"
+                aria-controls="sri-panel-assonances" aria-selected="false" tabindex="-1">
+          <span class="sri-tab-name">Assonanze</span><span class="sri-count" data-count></span>
+        </button>
+        <button class="sri-tab" id="sri-tab-consonances" type="button" role="tab" data-cat="consonances"
+                aria-controls="sri-panel-consonances" aria-selected="false" tabindex="-1">
+          <span class="sri-tab-name">Consonanze</span><span class="sri-count" data-count></span>
+        </button>
+      </div>
+      <div class="sri-panels" id="sri-panels">
+        <section class="sri-panel" id="sri-panel-rhymes" role="tabpanel" aria-labelledby="sri-tab-rhymes"
+                 data-cat="rhymes" data-active tabindex="-1">
+          <h3 class="sri-panel-title">Rime <span class="sri-count" data-count></span></h3>
+          <div class="sri-groups" role="group" aria-label="Numero di differenze" data-groups hidden></div>
+          <ol class="sri-chips sri-words" role="list" data-words></ol>
+          <p class="sri-empty" data-empty hidden></p>
+          <button class="sri-more" type="button" data-more hidden></button>
+        </section>
+        <section class="sri-panel" id="sri-panel-atonal" role="tabpanel" aria-labelledby="sri-tab-atonal"
+                 data-cat="atonal" tabindex="-1">
+          <h3 class="sri-panel-title">Assonanze atone <span class="sri-count" data-count></span></h3>
+          <div class="sri-groups" role="group" aria-label="Numero di differenze" data-groups hidden></div>
+          <ol class="sri-chips sri-words" role="list" data-words></ol>
+          <p class="sri-empty" data-empty hidden></p>
+          <button class="sri-more" type="button" data-more hidden></button>
+        </section>
+        <section class="sri-panel" id="sri-panel-assonances" role="tabpanel" aria-labelledby="sri-tab-assonances"
+                 data-cat="assonances" tabindex="-1">
+          <h3 class="sri-panel-title">Assonanze semplici <span class="sri-count" data-count></span></h3>
+          <div class="sri-groups" role="group" aria-label="Numero di differenze" data-groups hidden></div>
+          <ol class="sri-chips sri-words" role="list" data-words></ol>
+          <p class="sri-empty" data-empty hidden></p>
+          <button class="sri-more" type="button" data-more hidden></button>
+        </section>
+        <section class="sri-panel" id="sri-panel-consonances" role="tabpanel" aria-labelledby="sri-tab-consonances"
+                 data-cat="consonances" tabindex="-1">
+          <h3 class="sri-panel-title">Consonanze <span class="sri-count" data-count></span></h3>
+          <div class="sri-groups" role="group" aria-label="Numero di differenze" data-groups hidden></div>
+          <ol class="sri-chips sri-words" role="list" data-words></ol>
+          <p class="sri-empty" data-empty hidden></p>
+          <button class="sri-more" type="button" data-more hidden></button>
+        </section>
+      </div>
+      <button class="sri-top" id="sri-top" type="button">Torna su</button>
+    </section>
+
+    <details class="sri-help" id="sri-help">
+      <summary>Come funziona</summary>
+      <dl>
+        <dt>Rime</dt><dd>Stessa terminazione a partire dalla vocale accentata: amore → cuore, fiore.</dd>
+        <dt>Assonanze atone</dt><dd>Cambia solo la vocale accentata, il resto è uguale: amore → mare, dire.</dd>
+        <dt>Assonanze semplici</dt><dd>Stesse vocali, con consonanti simili: amore → sole, persone.</dd>
+        <dt>Consonanze</dt><dd>Stesse consonanti, con vocali diverse: amore → ora, cara.</dd>
+      </dl>
+      <p>Assonanze e consonanze sono raggruppate per numero di differenze. I risultati sono ordinati per frequenza d'uso.</p>
+      <p>Le parole con più letture mostrano l'accento (àncora, ancòra). Il segno ° indica un accento stimato automaticamente.</p>
+      <p>Se una parola non è nel dizionario, scrivila con l'accento: italiàno.</p>
+    </details>
+
+    <p class="sri-vh" id="sri-live" role="status" aria-live="polite"></p>
+
+    <footer class="sri-footer">
+      <p>Creato da Nicolò Brigadoi Calamari. Il codice sorgente è
+        <a href="https://github.com/nibrica/Super-Rimario-Italiano" target="_blank" rel="noopener">su GitHub</a>
+        con licenza <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener">GPL v3</a>.</p>
+      <p>Il dizionario è costruito da fonti aperte e distribuito con licenza CC BY-SA 4.0:
+        <a href="../dictionary/out/ATTRIBUTION.md" data-sri-attribution target="_blank" rel="noopener">fonti e licenze</a>.</p>
+    </footer>
+
+  </div>
+</div>
+<!-- rimario:end -->
+</body>
 </html>

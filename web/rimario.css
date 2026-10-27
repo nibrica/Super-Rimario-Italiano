@@ -1,0 +1,1250 @@
+/*
+Super Rimario Italiano
+Copyright (C) 2024 Nicolò Brigadoi Calamari
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+/*
+ * Every rule is scoped under #rimario: the widget is embedded in a WordPress
+ * page, so it must neither leak styles out nor inherit the theme's styles.
+ * Layout uses container queries on #rimario (the theme's content column),
+ * never viewport media queries.
+ *
+ * Narrow layout (default): one tab bar + one visible panel.
+ * >= 600px container: tab bar hidden, panels as cards in 2 columns.
+ * >= 960px container: 4 columns.
+ */
+
+
+/* ---------------------------------------------------------------------------
+   Root: undo theme styles on the root itself, then tokens and base text.
+   --------------------------------------------------------------------------- */
+
+#rimario {
+    all: revert;
+}
+
+#rimario {
+    --sri-accent: #ee1c25;          /* brand red: decorative only */
+    --sri-accent-ink: #c4121a;      /* red for text and borders on white */
+    --sri-accent-ink-hover: #a30f16;
+    --sri-ink: #1b1b1f;
+    --sri-ink-muted: #5c5f66;
+    --sri-line: #e3e5e8;
+    --sri-line-strong: #c9ccd1;
+    --sri-bg: #ffffff;
+    --sri-chip-bg: #f3f4f6;
+    --sri-chip-bg-hover: #e7e9ec;
+    --sri-selected-bg: #fdecec;
+    --sri-focus: #1a5fd0;
+    --sri-focus-ring: rgb(26 95 208 / .2);
+    --sri-error-bg: #fdf0f0;
+    --sri-error-line: #f4c7ca;
+    --sri-error-ink: #8a1018;
+    --sri-info-bg: #f4f6f9;
+    --sri-radius: 14px;
+    --sri-radius-sm: 8px;
+    --sri-radius-pill: 999px;
+    --sri-shadow: 0 1px 2px rgb(0 0 0 / .06), 0 2px 6px rgb(0 0 0 / .06);
+    --sri-sticky-top: 0px;          /* embedders with a sticky header set this */
+    --sri-ease: 160ms ease;
+    --sri-column: 42em;             /* width of the centered single-column blocks */
+
+    display: block;
+    container: sri / inline-size;
+    scroll-margin-top: calc(var(--sri-sticky-top) + 16px);
+    margin: 0;
+    padding: 0;
+    background: var(--sri-bg);
+    color: var(--sri-ink);
+    font-family: inherit;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    font-variant: normal;
+    line-height: 1.45;
+    letter-spacing: normal;
+    word-spacing: normal;
+    text-align: start;
+    text-indent: 0;
+    text-transform: none;
+    text-shadow: none;
+    white-space: normal;
+    hyphens: manual;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+
+/* ---------------------------------------------------------------------------
+   Reset against theme leakage. Component rules are all `#rimario .sri-…`
+   (specificity 1,1,0), which beats this reset (1,0,1) and most theme rules.
+   img/svg are deliberately excluded: reverting would drop width/height.
+   --------------------------------------------------------------------------- */
+
+#rimario :is(div, p, span, strong, em, a, ul, ol, li, h1, h2, h3, button, input, label,
+              fieldset, legend, section, header, footer, form, details, summary, dl, dt, dd) {
+    all: revert;
+    box-sizing: border-box;
+}
+
+/* Themes love decorating list items, links and headings with pseudo-elements. */
+#rimario :is(div, p, span, a, ul, ol, li, h1, h2, h3, button, label, section, dt, dd)::before,
+#rimario :is(div, p, span, a, ul, ol, li, h1, h2, h3, button, label, section, dt, dd)::after {
+    all: revert;
+}
+
+#rimario :is(button, input) {
+    font: inherit;
+    color: inherit;
+}
+
+#rimario [hidden] {
+    display: none !important;
+}
+
+#rimario .sri-vh {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+#rimario .sri-icon {
+    display: block;
+    flex: none;
+    width: 18px;
+    height: 18px;
+    max-width: none;
+    margin: 0;
+    fill: none;
+    stroke: currentColor;
+}
+
+#rimario .sri-icon * {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+
+/* ---------------------------------------------------------------------------
+   App shell
+   --------------------------------------------------------------------------- */
+
+#rimario .sri-app {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+    max-width: 1100px;
+    margin-inline: auto;
+    padding: 1em 16px 2em;
+}
+
+/* Single-column blocks are centered and kept to a readable width. */
+#rimario :is(.sri-header, .sri-search, .sri-loading, .sri-message, .sri-idle, .sri-help, .sri-footer) {
+    width: 100%;
+    max-width: var(--sri-column);
+    margin-inline: auto;
+}
+
+/* Sections fade in when JS reveals them. */
+@keyframes sri-enter {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: none; }
+}
+
+#rimario :is(.sri-results, .sri-message, .sri-idle, .sri-loading) {
+    animation: sri-enter 200ms ease-out;
+}
+
+
+/* ---------------------------------------------------------------------------
+   Header
+   --------------------------------------------------------------------------- */
+
+#rimario .sri-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .6em;
+    padding-top: .5em;
+    text-align: center;
+}
+
+#rimario .sri-title {
+    width: min(100%, 440px);
+    margin: 0;
+    font-size: 1em;
+    line-height: 0;
+}
+
+#rimario .sri-title-link {
+    display: block;
+    border-radius: var(--sri-radius-sm);
+    color: inherit;
+    text-decoration: none;
+}
+
+#rimario .sri-logo {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: none;
+}
+
+#rimario .sri-tagline {
+    margin: 0;
+    color: var(--sri-ink-muted);
+    font-size: .95em;
+    text-wrap: balance;
+}
+
+
+/* ---------------------------------------------------------------------------
+   Search
+   --------------------------------------------------------------------------- */
+
+#rimario .sri-search {
+    display: block;
+    margin-block: 0;
+}
+
+#rimario .sri-search-label {
+    display: block;
+    margin: 0 0 .45em;
+    padding-inline: 1.1em;
+    font-size: .9em;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#rimario .sri-search-field {
+    display: flex;
+    align-items: center;
+    gap: .25em;
+    min-height: 58px;
+    padding: 4px;
+    border: 1.5px solid var(--sri-line-strong);
+    border-radius: var(--sri-radius-pill);
+    background: var(--sri-bg);
+    box-shadow: var(--sri-shadow);
+    transition: border-color var(--sri-ease), box-shadow var(--sri-ease);
+}
+
+#rimario .sri-search-field:hover {
+    border-color: #a9adb4;
+}
+
+#rimario .sri-search-field:focus-within {
+    border-color: var(--sri-focus);
+    box-shadow: 0 0 0 4px var(--sri-focus-ring), var(--sri-shadow);
+}
+
+#rimario .sri-search-icon {
+    width: 20px;
+    height: 20px;
+    margin-inline-start: .7em;
+    color: var(--sri-ink-muted);
+}
+
+#rimario .sri-input {
+    flex: 1;
+    min-width: 0;
+    min-height: 48px;
+    margin: 0;
+    padding: 0 .4em;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    color: var(--sri-ink);
+    font-size: 1.1em;
+    line-height: 1.2;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+#rimario .sri-input::placeholder {
+    color: var(--sri-ink-muted);
+    opacity: 1;
+}
+
+#rimario .sri-input::-webkit-search-cancel-button,
+#rimario .sri-input::-webkit-search-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+#rimario .sri-clear {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--sri-ink-muted);
+    cursor: pointer;
+    transition: background-color var(--sri-ease), color var(--sri-ease);
+}
+
+#rimario .sri-clear:hover {
+    background: var(--sri-chip-bg);
+    color: var(--sri-ink);
+}
+
+#rimario .sri-submit {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    margin: 0;
+    padding: 0 1.4em;
+    border: 0;
+    border-radius: var(--sri-radius-pill);
+    background: var(--sri-accent-ink);
+    color: #fff;
+    font-weight: 600;
+    letter-spacing: .01em;
+    cursor: pointer;
+    transition: background-color var(--sri-ease), transform var(--sri-ease);
+}
+
+#rimario .sri-submit:hover {
+    background: var(--sri-accent-ink-hover);
+}
+
+#rimario .sri-submit:active {
+    transform: scale(.97);
+}
+
+#rimario .sri-search-hint {
+    margin: .5em 0 0;
+    padding-inline: 1.1em;
+    color: var(--sri-ink-muted);
+    font-size: .85em;
+}
+
+
+/* ---------------------------------------------------------------------------
+   Loading
+   --------------------------------------------------------------------------- */
+
+#rimario .sri-loading {
+    display: block;
+}
+
+#rimario .sri-loading-label {
+    margin: 0 0 .55em;
+    color: var(--sri-ink-muted);
+    font-size: .9em;
+}
+
+#rimario .sri-progress {
+    position: relative;
+    display: block;
+    height: 6px;
+    overflow: hidden;
+    border-radius: var(--sri-radius-pill);
+    background: var(--sri-line);
+}
+
+/* --sri-progress (0–1) is set by JS on the bar or its parent. */
+#rimario .sri-progress-bar {
+    display: block;
+    width: calc(var(--sri-progress, 0) * 100%);
+    height: 100%;
+    border-radius: inherit;
+    background: var(--sri-accent);
+    transition: width 200ms ease-out;
+}
+
+@keyframes sri-slide {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(250%); }
+}
+
+#rimario .sri-progress[data-indeterminate] .sri-progress-bar {
+    width: 40%;
+    transition: none;
+    animation: sri-slide 1.3s ease-in-out infinite;
+}
+
+#rimario .sri-loading-detail {
+    min-height: 1.45em;
+    margin: .45em 0 0;
+    color: var(--sri-ink-muted);
+    font-size: .8em;
+    font-variant-numeric: tabular-nums;
+}
+
+
+/* ---------------------------------------------------------------------------
+   Messages (info / error)
+   --------------------------------------------------------------------------- */
+
+#rimario .sri-message {
+    display: block;
+    margin-block: 0;
+    padding: .9em 1.1em;
+    border: 1px solid var(--sri-line);
+    border-radius: var(--sri-radius);
+    background: var(--sri-info-bg);
+    color: var(--sri-ink);
+}
+
+#rimario .sri-message[data-kind="error"] {
+    border-color: var(--sri-error-line);
+    background: var(--sri-error-bg);
+    color: var(--sri-error-ink);
+}
+
+#rimario .sri-message > * {
+    margin-block: 0;
+}
+
+#rimario .sri-message > * + * {
+    margin-top: .75em;
+}
+
+#rimario .sri-message-text {
+    display: block;
+}
+
+
+#rimario .sri-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    margin-inline: 0;
+    padding: .45em 1.3em;
+    border: 0;
+    border-radius: var(--sri-radius-pill);
+    background: var(--sri-accent-ink);
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color var(--sri-ease);
+}
+
+#rimario .sri-retry {
+    margin-top: .25em;
+}
+
+#rimario .sri-button:hover {
+    background: var(--sri-accent-ink-hover);
+}
+
+
+/* ---------------------------------------------------------------------------
+   Chips (examples, readings, candidates, result words)
+   --------------------------------------------------------------------------- */
+
+#rimario .sri-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4em;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#rimario .sri-chips > li {
+    display: block;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#rimario .sri-chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    max-width: 100%;
+    margin: 0;
+    padding: .3em .75em;
+    border: 1px solid transparent;
+    border-radius: var(--sri-radius-pill);
+    background: var(--sri-chip-bg);
+    color: var(--sri-ink);
+    line-height: 1.25;
+    text-align: start;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+    transition: background-color var(--sri-ease), color var(--sri-ease), border-color var(--sri-ease);
+}
+
+#rimario .sri-chip:hover {
+    background: var(--sri-chip-bg-hover);
+    color: var(--sri-accent-ink);
+}
+
+#rimario .sri-chip:active {
+    background: var(--sri-line-strong);
+}
+
+/* Readings and candidates are choices, not results: outlined chips. */
+#rimario :is(.sri-reading, .sri-candidate) {
+    border-color: var(--sri-line-strong);
+    background: var(--sri-bg);
+}
+
+#rimario :is(.sri-reading, .sri-candidate):hover {
+    border-color: var(--sri-accent-ink);
+    background: var(--sri-bg);
+}
+
+#rimario .sri-chip[aria-pressed="true"] {
+    border-color: var(--sri-accent-ink);
+    background: var(--sri-selected-bg);
+    color: var(--sri-accent-ink);
+    font-weight: 600;
+}
+
+#rimario .sri-word--predicted::after {
+    content: "°";
+    margin-left: .1em;
+    color: var(--sri-ink-muted);
+}
+
+
+/* ---------------------------------------------------------------------------
+   Idle (example searches)
+   --------------------------------------------------------------------------- */
+
+#rimario .sri-idle {
+    display: block;
+    text-align: center;
+}
+
+#rimario .sri-idle-title {
+    margin: 0 0 .7em;
+    color: var(--sri-ink-muted);
+    font-size: .9em;
+    font-weight: 600;
+}
+
+#rimario .sri-idle .sri-chips {
+    justify-content: center;
+}
+
+
+/* ---------------------------------------------------------------------------
+   Results: head, readings, notes, filters
+   --------------------------------------------------------------------------- */
+
+#rimario .sri-results {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+#rimario .sri-results-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: .75em 1em;
+    padding-bottom: 1em;
+    border-bottom: 1px solid var(--sri-line);
+}
+
+#rimario .sri-query {
+    min-width: 0;
+    margin: 0;
+    font-size: 1em;
+    font-weight: 400;
+    line-height: 1.15;
+    scroll-margin-top: calc(var(--sri-sticky-top) + 16px);
+}
+
+#rimario .sri-query-prefix {
+    display: block;
+    margin-bottom: .2em;
+    color: var(--sri-ink-muted);
+    font-size: .8em;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+#rimario .sri-query-word {
+    display: block;
+    font-size: 1.8em;
+    font-weight: 700;
+    letter-spacing: -.01em;
+    overflow-wrap: anywhere;
+}
+
+#rimario .sri-share {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: .45em;
+    min-height: 40px;
+    margin: 0;
+    padding: .4em 1em .4em .85em;
+    border: 1.5px solid var(--sri-line-strong);
+    border-radius: var(--sri-radius-pill);
+    background: var(--sri-bg);
+    color: var(--sri-ink);
+    font-size: .9em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color var(--sri-ease), background-color var(--sri-ease);
+}
+
+#rimario .sri-share:hover {
+    border-color: var(--sri-ink-muted);
+    background: var(--sri-chip-bg);
+}
+
+#rimario .sri-readings {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5em;
+}
+
+#rimario .sri-readings-label {
+    color: var(--sri-ink-muted);
+    font-size: .9em;
+    font-weight: 600;
+}
+
+#rimario .sri-notes {
+    display: flex;
+    flex-direction: column;
+    gap: .35em;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#rimario .sri-note {
+    display: block;
+    margin: 0;
+    padding: .1em 0 .1em .75em;
+    border-left: 3px solid var(--sri-line-strong);
+    color: var(--sri-ink-muted);
+    font-size: .9em;
+}
+
+#rimario .sri-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .4em;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+/* Floated, the legend becomes an ordinary flex item that sits inline. */
+#rimario .sri-filters-legend {
+    float: left;
+    margin: 0 .2em 0 0;
+    padding: 0;
+    color: var(--sri-ink-muted);
+    font-size: .9em;
+    font-weight: 600;
+}
+
+#rimario .sri-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: .45em;
+    min-height: 36px;
+    margin: 0;
+    padding: .25em .85em .25em .65em;
+    border: 1px solid var(--sri-line-strong);
+    border-radius: var(--sri-radius-pill);
+    background: var(--sri-bg);
+    font-size: .9em;
+    line-height: 1.25;
+    cursor: pointer;
+    transition: border-color var(--sri-ease), background-color var(--sri-ease);
+}
+
+#rimario .sri-toggle:hover {
+    border-color: var(--sri-ink-muted);
+}
+
+#rimario .sri-toggle:has(input:checked) {
+    border-color: var(--sri-accent-ink);
+    background: var(--sri-selected-bg);
+}
+
+#rimario .sri-toggle input {
+    flex: none;
+    width: 1.05em;
+    height: 1.05em;
+    margin: 0;
+    accent-color: var(--sri-accent-ink);
+    cursor: pointer;
+}
+
+#rimario .sri-filters-note {
+    color: var(--sri-ink-muted);
+    font-size: .85em;
+}
+
+#rimario .sri-filters-note:empty {
+    display: none;
+}
+
+
+/* ---------------------------------------------------------------------------
+   Tabs (narrow layout only)
+   --------------------------------------------------------------------------- */
+
+#rimario .sri-tabs {
+    position: sticky;
+    top: var(--sri-sticky-top);
+    z-index: 2;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin-top: -.25em;
+    border-bottom: 1px solid var(--sri-line);
+    background: var(--sri-bg);
+}
+
+#rimario .sri-tab {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .1em;
+    min-width: 0;
+    min-height: 52px;
+    margin: 0;
+    padding: .5em 2px .6em;
+    border: 0;
+    border-radius: var(--sri-radius-sm) var(--sri-radius-sm) 0 0;
+    background: transparent;
+    color: var(--sri-ink-muted);
+    text-align: center;
+    cursor: pointer;
+    transition: color var(--sri-ease), background-color var(--sri-ease);
+}
+
+#rimario .sri-tab::after {
+    content: "";
+    position: absolute;
+    inset: auto 18% 0;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    background: var(--sri-accent);
+    transform: scaleX(0);
+    transition: transform var(--sri-ease);
+}
+
+#rimario .sri-tab:hover {
+    background: var(--sri-chip-bg);
+    color: var(--sri-ink);
+}
+
+#rimario .sri-tab[aria-selected="true"] {
+    color: var(--sri-ink);
+}
+
+#rimario .sri-tab[aria-selected="true"]::after {
+    transform: none;
+}
+
+#rimario .sri-tab-name {
+    display: block;
+    max-width: 100%;
+    font-size: .8em;
+    /* shrink with the widget so "Consonanze" fits four columns at 320px */
+    font-size: clamp(.7em, 3.5cqi, .8em);
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#rimario .sri-count {
+    font-variant-numeric: tabular-nums;
+}
+
+#rimario .sri-tab .sri-count {
+    display: block;
+    min-height: 1.3em;
+    color: var(--sri-ink-muted);
+    font-size: .75em;
+}
+
+
+/* ---------------------------------------------------------------------------
+   Panels
+   --------------------------------------------------------------------------- */
+
+#rimario .sri-panels {
+    display: block;
+    scroll-margin-top: calc(var(--sri-sticky-top) + 4.5em);
+}
+
+#rimario .sri-panel {
+    display: block;
+    min-width: 0;
+    border-radius: var(--sri-radius);
+    container: sri-panel / inline-size;
+}
+
+#rimario .sri-panel:not([data-active]) {
+    display: none;
+}
+
+/* In the narrow layout the tab already names the panel. */
+#rimario .sri-panel-title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+#rimario .sri-groups {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .35em;
+    margin: 0 0 .85em;
+}
+
+#rimario .sri-groups-label {
+    margin-inline-end: .2em;
+    color: var(--sri-ink-muted);
+    font-size: .85em;
+    font-weight: 600;
+}
+
+#rimario .sri-group {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    margin: 0;
+    padding: .15em .75em;
+    border: 1px solid var(--sri-line-strong);
+    border-radius: var(--sri-radius-pill);
+    background: var(--sri-bg);
+    color: var(--sri-ink);
+    font-size: .85em;
+    font-weight: 600;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: background-color var(--sri-ease), border-color var(--sri-ease), color var(--sri-ease);
+}
+
+#rimario .sri-group-n {
+    font-weight: 700;
+}
+
+#rimario .sri-group .sri-count {
+    color: var(--sri-ink-muted);
+    font-weight: 400;
+}
+
+#rimario .sri-group .sri-count::before {
+    content: "·";
+    margin-inline: .35em;
+}
+
+#rimario .sri-group:hover:not(:disabled) {
+    border-color: var(--sri-ink-muted);
+    background: var(--sri-chip-bg);
+}
+
+#rimario .sri-group[aria-pressed="true"],
+#rimario .sri-group[aria-pressed="true"]:hover {
+    border-color: var(--sri-ink);
+    background: var(--sri-ink);
+    color: #fff;
+}
+
+#rimario .sri-group[aria-pressed="true"] .sri-count {
+    color: #fff;
+}
+
+#rimario .sri-group:disabled {
+    border-color: var(--sri-line);
+    background: var(--sri-bg);
+    color: var(--sri-ink-muted);
+    cursor: default;
+}
+
+#rimario .sri-words {
+    gap: .35em;
+}
+
+#rimario .sri-empty {
+    margin: .25em 0;
+    color: var(--sri-ink-muted);
+    font-size: .9em;
+    font-style: italic;
+}
+
+#rimario .sri-more {
+    display: block;
+    width: 100%;
+    min-height: 40px;
+    margin: .9em 0 0;
+    padding: .5em 1em;
+    border: 1px solid var(--sri-line);
+    border-radius: var(--sri-radius-sm);
+    background: var(--sri-info-bg);
+    color: var(--sri-ink);
+    font-size: .9em;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color var(--sri-ease), border-color var(--sri-ease);
+}
+
+#rimario .sri-more:hover {
+    border-color: var(--sri-line-strong);
+    background: var(--sri-chip-bg-hover);
+}
+
+#rimario .sri-top {
+    display: block;
+    align-self: center;
+    min-height: 40px;
+    margin: .5em 0 0;
+    padding: .45em 1.2em;
+    border: 0;
+    border-radius: var(--sri-radius-pill);
+    background: transparent;
+    color: var(--sri-accent-ink);
+    font-size: .9em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color var(--sri-ease);
+}
+
+#rimario .sri-top:hover {
+    background: var(--sri-chip-bg);
+}
+
+
+/* ---------------------------------------------------------------------------
+   Help
+   --------------------------------------------------------------------------- */
+
+#rimario .sri-help {
+    display: block;
+    border: 1px solid var(--sri-line);
+    border-radius: var(--sri-radius);
+    background: var(--sri-bg);
+}
+
+#rimario .sri-help > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1em;
+    min-height: 48px;
+    padding: .7em 1.1em;
+    border-radius: var(--sri-radius);
+    font-weight: 600;
+    list-style: none;
+    cursor: pointer;
+    transition: background-color var(--sri-ease);
+}
+
+#rimario .sri-help > summary::-webkit-details-marker {
+    display: none;
+}
+
+#rimario .sri-help > summary::marker {
+    content: "";
+}
+
+#rimario .sri-help > summary:hover {
+    background: var(--sri-info-bg);
+}
+
+/* Chevron */
+#rimario .sri-help > summary::after {
+    content: "";
+    flex: none;
+    width: .5em;
+    height: .5em;
+    margin-top: -.25em;
+    border-right: 2px solid var(--sri-ink-muted);
+    border-bottom: 2px solid var(--sri-ink-muted);
+    transform: rotate(45deg);
+    transition: transform var(--sri-ease), margin var(--sri-ease);
+}
+
+#rimario .sri-help[open] > summary {
+    border-radius: var(--sri-radius) var(--sri-radius) 0 0;
+}
+
+#rimario .sri-help[open] > summary::after {
+    margin-top: .25em;
+    transform: rotate(-135deg);
+}
+
+#rimario .sri-help > :not(summary) {
+    margin: 0;
+    padding-inline: 1.1em;
+    font-size: .95em;
+}
+
+#rimario .sri-help > dl {
+    padding-top: .4em;
+}
+
+#rimario .sri-help > p {
+    margin-top: .6em;
+    color: var(--sri-ink-muted);
+}
+
+#rimario .sri-help > :last-child {
+    padding-bottom: 1.1em;
+}
+
+#rimario .sri-help dt {
+    display: block;
+    font-weight: 700;
+}
+
+#rimario .sri-help dd {
+    display: block;
+    margin: 0 0 .5em;
+}
+
+
+/* ---------------------------------------------------------------------------
+   Footer
+   --------------------------------------------------------------------------- */
+
+#rimario .sri-footer {
+    display: block;
+    color: var(--sri-ink-muted);
+    font-size: .85em;
+    text-align: center;
+    text-wrap: balance;
+}
+
+#rimario .sri-footer p {
+    margin: .4em 0;
+}
+
+#rimario .sri-footer a,
+#rimario .sri-footer a:visited {
+    color: var(--sri-accent-ink);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: .15em;
+    border-radius: 2px;
+}
+
+#rimario .sri-footer a:hover {
+    text-decoration-thickness: 2px;
+}
+
+
+/* ---------------------------------------------------------------------------
+   Focus. Declared after the components so it wins over their outlines.
+   The search input shows focus on its pill (.sri-search-field) instead.
+   --------------------------------------------------------------------------- */
+
+#rimario :focus-visible {
+    outline: 2px solid var(--sri-focus);
+    outline-offset: 2px;
+}
+
+#rimario .sri-input:focus,
+#rimario .sri-input:focus-visible {
+    outline: none;
+}
+
+#rimario .sri-tab:focus-visible {
+    outline-offset: -2px;
+}
+
+
+/* ---------------------------------------------------------------------------
+   Container queries
+   --------------------------------------------------------------------------- */
+
+/* Very narrow: give the input all the room it can get. */
+@container sri (max-width: 379.98px) {
+    #rimario .sri-search-icon {
+        display: none;
+    }
+
+    #rimario .sri-input {
+        padding-inline-start: .8em;
+    }
+
+    #rimario .sri-submit {
+        padding-inline: 1em;
+    }
+}
+
+/* Wide: all four categories visible at once, as cards. */
+@container sri (min-width: 600px) {
+    #rimario .sri-app {
+        padding-top: 1.5em;
+    }
+
+    #rimario .sri-tabs {
+        display: none;
+    }
+
+    #rimario .sri-panels {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: start;
+        gap: 1em;
+    }
+
+    #rimario .sri-panel,
+    #rimario .sri-panel:not([data-active]) {
+        display: block;
+        padding: 1em;
+        border: 1px solid var(--sri-line);
+        background: var(--sri-bg);
+    }
+
+    #rimario .sri-panel-title {
+        position: static;
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: .5em;
+        width: auto;
+        height: auto;
+        margin: 0 0 .75em;
+        padding: 0;
+        overflow: visible;
+        clip: auto;
+        clip-path: none;
+        font-size: 1em;
+        font-weight: 700;
+        line-height: 1.3;
+        white-space: normal;
+    }
+
+    #rimario .sri-panel-title .sri-count {
+        padding: .1em .6em;
+        border-radius: var(--sri-radius-pill);
+        background: var(--sri-chip-bg);
+        color: var(--sri-ink-muted);
+        font-size: .75em;
+        font-weight: 600;
+    }
+
+    #rimario .sri-panel-title .sri-count:empty {
+        display: none;
+    }
+
+    #rimario .sri-query-word {
+        font-size: 2.1em;
+    }
+}
+
+/* Narrow cards: the "Differenze" label gets its own line above the buttons. */
+@container sri-panel (max-width: 300px) {
+    #rimario .sri-groups-label {
+        flex-basis: 100%;
+    }
+
+    #rimario .sri-group {
+        flex: 1 1 auto;
+        justify-content: center;
+        padding-inline: .5em;
+    }
+}
+
+@container sri (min-width: 960px) {
+    #rimario .sri-panels {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+
+/* ---------------------------------------------------------------------------
+   Pointer and motion preferences
+   --------------------------------------------------------------------------- */
+
+/* On touch screens hover states would stick after a tap. */
+@media (hover: none) {
+    #rimario .sri-chip:not(.sri-reading, .sri-candidate):hover {
+        background: var(--sri-chip-bg);
+        color: var(--sri-ink);
+    }
+
+    #rimario .sri-chip[aria-pressed="true"]:hover {
+        background: var(--sri-selected-bg);
+        color: var(--sri-accent-ink);
+    }
+
+    #rimario .sri-tab:hover {
+        background: transparent;
+    }
+
+    #rimario .sri-tab:not([aria-selected="true"]):hover {
+        color: var(--sri-ink-muted);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #rimario *,
+    #rimario *::before,
+    #rimario *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+    }
+
+    #rimario .sri-progress[data-indeterminate] .sri-progress-bar {
+        width: 100%;
+        transform: none;
+        background: repeating-linear-gradient(-45deg,
+            var(--sri-accent) 0 8px, #f7a3a7 8px 16px);
+    }
+}

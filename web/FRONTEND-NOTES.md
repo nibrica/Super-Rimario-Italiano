@@ -25,11 +25,15 @@ The authoritative spec is §8 of `dictionary/OVERHAUL-PLAN.md`. In short:
 
 - The dictionary file has a fixed name in the repo (`dictionary/out/parole-accenti-frequenze.csv`). The site build step publishes it under a content-hashed name and injects that name into the JS, so `rimario.js` should stop hard-coding the filename. See `BUILD-STEP.md` at the repository root.
 
+**Status:** done. The 4th field is optional (flags default to 0); the URL comes from `data-dictionary-url` on `#rimario`.
+
 ## 2. Homographs
 
 - **Choosing the default:** pick the row **without** flag 1. Today `GetFirstAccent` picks whichever row comes first, which depends on sort order.
 - **More than two readings:** collect every adjacent row with the same word. Today only the previous and next row are checked, so a third reading is lost.
 - **Vowel-quality pairs** (flag 2 or 4, same word and stress): show *pèsca* / *pésca* with the right accent. `ExplicitAccent` always adds a grave accent (`̀`); it should use an acute (`́`) for closed vowels.
+
+**Status:** done.
 
 ## 3. qu/cu equivalence
 
@@ -37,12 +41,16 @@ Endings with *qu* and *cu* before a vowel sound almost the same but are spelled 
 
 Caveat: after *c*, the *u* is usually a separate syllable (*co-spì-cu-o*), while after *q* it glides (*i-nì-quo*). They sound the same at the end but differ by one syllable. You might decide to show these matches with the near-rhymes instead of the perfect rhymes.
 
+**Status:** done. The qu/cu matches are mixed into the perfect rhymes.
+
 ## 4. Using the flags
 
 All of these are UI choices that the data makes possible:
 - Hide vulgar/offensive words (16) by default, behind a toggle. Probably useful when the page is embedded in a blog.
 - Toggles for archaic/poetic (32) and proper nouns (64).
 - A subtle marker on words with predicted stress (8), plus a way to report a wrong accent.
+
+**Status:** done for the three toggles and the predicted-stress marker (°). The "report a wrong accent" link was decided against.
 
 ## 5. Memory and speed
 
@@ -52,6 +60,10 @@ The site already uses a lot of memory. Main causes in today's `rimario.js`:
   - keep the raw text and an `Int32Array` of line offsets, and decode rows only when they're read.
 - **`[...segmenter.segment(...)]` on every binary-search step** allocates arrays during every search. The new dictionary contains only NFC lowercase letters plus precomposed accented vowels, all single UTF-16 code units, and the build sorts by code point. So the comparison can walk the two strings backwards by `charCodeAt`, with no segmenter, no `alphabetical_order` map and no allocations. The binary search itself stays the same.
 
+**Status:** done. The raw text is kept with parallel typed arrays (word offset, length, stress, zipf, flags), and comparisons walk backwards by `charCodeAt`.
+
 ## 6. Attribution (required)
 
 The data comes from CC BY-SA and CC BY sources, which require credit. The build writes `ATTRIBUTION.md` next to the CSV. The page footer (and the L'AvisioBlog version) must show or link it, replacing the current Wiktionary/CoLFIS credits.
+
+**Status:** done in the page footer (link from `data-attribution-url`). The L'AvisioBlog version depends on the build step.

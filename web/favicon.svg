@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-labelledby="t">
+  <title id="t">Super Rimario Italiano</title>
+  <style>@media (prefers-color-scheme: dark) { .k { fill: #f1f1f1; } }</style>
+  <!-- two verses ending on the same rhyme, accent on the stressed vowel -->
+  <path class="k" fill="#1b1b1f" d="M5 14h13v6H5a3 3 0 0 1 0-6zM11 24h7v6h-7a3 3 0 0 1 0-6z"/>
+  <path fill="#ee1c25" d="M18 14h9a3 3 0 0 1 0 6h-9zM18 24h9a3 3 0 0 1 0 6h-9z"/>
+  <path d="M21 4l6 6" stroke="#ee1c25" stroke-width="5" stroke-linecap="round"/>
+</svg>
