@@ -371,17 +371,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     transform: scale(.97);
 }
 
-#rimario .sri-search-hint {
-    margin: .5em 0 0;
-    color: var(--sri-ink-muted);
-    font-size: .85em;
-}
-
-/* Once there is a result or a message, the hint only takes room. */
-#rimario .sri-app:has(> :is(.sri-results, .sri-message):not([hidden])) .sri-search-hint {
-    display: none;
-}
-
 
 /* ---------------------------------------------------------------------------
    Loading
