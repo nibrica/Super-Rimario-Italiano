@@ -3,7 +3,7 @@
 The loaders (``lexicon.load_overrides``, ``report.load_gold``,
 ``report.load_freq_pairs``) validate fields, stress indexes and actions; the
 format tests add only what they don't check. The accuracy checks need
-``out/parole-accenti-frequenze.csv`` and skip without it.
+``web/parole-accenti-frequenze.csv`` and skip without it.
 """
 
 from collections import Counter

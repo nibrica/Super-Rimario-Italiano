@@ -1,6 +1,6 @@
 # "More common than" judgements, checked by tests/test_curation.py.
 # Agreement = fraction of pairs where the default reading of `more` has a higher
-# zipf than the default reading of `less` in out/parole-accenti-frequenze.csv.
+# zipf than the default reading of `less` in web/parole-accenti-frequenze.csv.
 # It is a check on the frequency merge, not used to tune it.
 #
 # Columns (tab-separated): more, less, note. Forms are NFC lowercase spellings.

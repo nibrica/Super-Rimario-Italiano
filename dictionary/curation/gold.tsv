@@ -1,5 +1,5 @@
 # Gold standard for stress and homographs, checked by tests/test_curation.py.
-# Every (form, stress_idx) below must appear in out/parole-accenti-frequenze.csv.
+# Every (form, stress_idx) below must appear in web/parole-accenti-frequenze.csv.
 #
 # Columns (tab-separated):
 #   form        NFC lowercase spelling, as in the output (città, perché, capitano)

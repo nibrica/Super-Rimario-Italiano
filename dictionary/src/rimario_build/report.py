@@ -1,4 +1,4 @@
-"""QA report (out/report.md): curation scores, counts, diff against the previous build, worklists."""
+"""QA report (dictionary/report.md): curation scores, counts, diff against the previous build, worklists."""
 
 import gzip
 import hashlib
@@ -403,5 +403,5 @@ def render_report(ctx: dict, previous_rows: pl.DataFrame | None, built: str | No
 
 
 def write_report(ctx: dict, previous_rows: pl.DataFrame | None, path: Path = config.OUT_REPORT) -> None:
-    """Write ``out/report.md`` from the pipeline's full context."""
+    """Write ``report.md`` from the pipeline's full context."""
     fetch.atomic_write(path, render_report(ctx, previous_rows).encode("utf-8"))

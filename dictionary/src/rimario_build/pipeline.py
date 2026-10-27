@@ -253,7 +253,7 @@ def stages(runner: Runner, sources: list[dict], lock: dict, raw_dir: Path) -> di
 
 
 def build(lock_before: dict, warnings: list[str], only: str | None = None, parallel: bool = True) -> dict:
-    """Run the stages, write out/ (CSV, ATTRIBUTION.md, report.md); returns the report ctx.
+    """Run the stages, write the CSV and ATTRIBUTION.md (web/) and report.md; returns the report ctx.
 
     ``lock_before`` is the lock before this run's fetch: the report's baseline
     when git HEAD has no lock (see ``_baseline``).
@@ -266,7 +266,7 @@ def build(lock_before: dict, warnings: list[str], only: str | None = None, paral
     ctx = stages(runner, sources, lock_new, config.RAW_DIR)
     lock_old, previous_rows = _baseline(lock_before)
     rows = export.to_rows(ctx["entries"])
-    config.OUT_DIR.mkdir(parents=True, exist_ok=True)
+    config.OUT_CSV.parent.mkdir(parents=True, exist_ok=True)
     ctx |= {
         "rows": rows, "csv_sha256": export.write_csv(rows, config.OUT_CSV),
         "csv_bytes": config.OUT_CSV.stat().st_size,
@@ -292,7 +292,7 @@ def _git_show(path: Path) -> bytes | None:
 def _baseline(lock_before: dict) -> tuple[dict, pl.DataFrame]:
     """(lock, CSV rows) the report diffs against: both as committed at git HEAD.
 
-    Without a committed lock: ``lock_before``. Without a committed CSV: the out/
+    Without a committed lock: ``lock_before``. Without a committed CSV: the
     CSV on disk (empty if there is none).
     """
     from . import export
@@ -304,7 +304,7 @@ def _baseline(lock_before: dict) -> tuple[dict, pl.DataFrame]:
 
 
 def regenerate_report() -> dict:
-    """Rewrite out/report.md from cached stage outputs, diffing against git HEAD."""
+    """Rewrite report.md from cached stage outputs, diffing against git HEAD."""
     from . import export, report
 
     lock_new = fetch.load_lock(config.SOURCES_LOCK)

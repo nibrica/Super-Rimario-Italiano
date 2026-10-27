@@ -15,8 +15,9 @@ def main(argv: list[str] | None = None) -> int:
         description="Build the Super Rimario Italiano dictionary (default: fetch, then build).",
     )
     parser.add_argument("command", nargs="?", choices=("fetch", "build", "report"),
-                        help="fetch: update data/raw/ and sources.lock.json; build: build out/ "
-                             "from the local files; report: rewrite out/report.md from the cache")
+                        help="fetch: update data/raw/ and sources.lock.json; build: build the CSV and "
+                             "ATTRIBUTION.md in web/ from the local files; report: rewrite report.md "
+                             "from the cache")
     parser.add_argument("--offline", action="store_true", help="skip fetching, use the files on disk")
     parser.add_argument("--only", metavar="ID", help="fetch only this source and rerun its extractor")
     parser.add_argument("-v", "--verbose", action="store_true", help="debug logging")

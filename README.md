@@ -20,7 +20,7 @@ Il rimario è disponibile online su L'AvisioBlog all'indirizzo https://www.lavis
 
 ## Generazione del dizionario
 
-Il dizionario utilizzato da Super Rimario Italiano (`dictionary/out/parole-accenti-frequenze.csv`) è generato combinando diverse fonti, tutte scaricate automaticamente nella loro versione più recente:
+Il dizionario utilizzato da Super Rimario Italiano (`web/parole-accenti-frequenze.csv`) è generato combinando diverse fonti, tutte scaricate automaticamente nella loro versione più recente:
 
 - Le voci italiane del Wiktionary inglese e del Wikizionario italiano, già estratte da [Kaikki.org](https://kaikki.org/) (wiktextract): accenti, pronuncia IPA, sillabazione e coniugazioni
 - [Morph-it!](https://docs.sslmit.unibo.it/doku.php?id=resources:morph-it), con circa 505.000 forme flesse dell'italiano
@@ -34,14 +34,14 @@ Per migliorare la qualità di questo dizionario è consigliabile contribuire al 
 
 ## Installazione e uso locale
 
-Il sito non ha passaggi di compilazione: i file in `web/` (HTML, CSS, SVG e moduli JavaScript) si usano così come sono. Il dizionario viene letto da `dictionary/out/parole-accenti-frequenze.csv`, che quindi deve essere già stato generato.
+Durante lo sviluppo i file in `web/` (HTML, CSS, SVG, moduli JavaScript e il dizionario `web/parole-accenti-frequenze.csv`, già incluso nel repository) si usano così come sono, senza passaggi di compilazione. Per la pubblicazione si usa `build.py` (vedi [Compilazione per la pubblicazione](#compilazione-per-la-pubblicazione)).
 
 1. Clona questo repository
 2. Dalla cartella principale del repository avvia un server locale: `python3 -m http.server 8000` (aprire `index.html` direttamente come file non funziona, perché il dizionario viene scaricato dalla pagina)
 3. Apri http://localhost:8000/web/ in un browser
 4. Per rigenerare il dizionario:
    - Installa [uv](https://docs.astral.sh/uv/) (installa da solo Python e le dipendenze; non servono pacchetti di sistema)
-   - Dalla cartella `dictionary/`, esegui `uv run rimario-build`: scarica le versioni più recenti delle fonti e genera `dictionary/out/`
+   - Dalla cartella `dictionary/`, esegui `uv run rimario-build`: scarica le versioni più recenti delle fonti e aggiorna `web/parole-accenti-frequenze.csv`, `web/ATTRIBUTION.md` e il resoconto `dictionary/report.md`
    - Con `uv run rimario-build --offline` il dizionario viene rigenerato usando le fonti già scaricate
 
 ### Requisiti del browser
@@ -54,12 +54,35 @@ Il rimario è tutto dentro l'elemento `#rimario` di `web/index.html`, compreso t
 
 | Attributo | Significato | Valore predefinito |
 |---|---|---|
-| `data-dictionary-url` | URL del file CSV del dizionario (gli URL relativi partono dalla pagina) | `../dictionary/out/parole-accenti-frequenze.csv` |
-| `data-attribution-url` | URL della pagina con fonti e licenze del dizionario | `../dictionary/out/ATTRIBUTION.md` |
+| `data-dictionary-url` | URL del file CSV del dizionario (gli URL relativi partono dalla pagina) | `parole-accenti-frequenze.csv` |
+| `data-attribution-url` | URL della pagina con fonti e licenze del dizionario | `ATTRIBUTION.md` |
 | `data-title-suffix` | Testo dopo "Rime con X \| " nel titolo della pagina | il titolo iniziale della pagina |
 | `data-dictionary-bytes` | Dimensione del CSV decompresso, per mostrare l'avanzamento del download quando il server lo comprime | nessuno |
 
 Tutto il CSS è limitato a `#rimario` e annulla gli stili del tema che lo ospita, quindi il rimario si può inserire in una pagina esistente (per esempio WordPress) senza conflitti. Se il sito ha un'intestazione fissa in alto, impostane l'altezza nella variabile CSS `--sri-sticky-top` (per esempio `#rimario { --sri-sticky-top: 64px; }`), così le schede dei risultati restano visibili sotto di essa.
+
+### Compilazione per la pubblicazione
+
+Servono Python 3.14 (solo la libreria standard) ed [esbuild](https://esbuild.github.io/) 0.28 nel `PATH`. Dalla cartella principale del repository:
+
+```sh
+python3 build.py                     # URL di caricamento: la cartella di WordPress del mese corrente
+python3 build.py --upload-base URL   # un'altra cartella, es. https://www.lavisioblog.it/wp-content/uploads/2026/10/
+```
+
+La cartella `build/` (ignorata da git) viene cancellata e ricreata a ogni esecuzione; se un controllo fallisce, lo script si ferma con un errore e non lascia nessuna `build/`. Contiene:
+
+- `build/web/`: il sito autonomo. Ogni file tranne `index.html` ha nel nome i primi 10 caratteri del suo sha256 (es. `parole-accenti-frequenze-<hash>.csv`), quindi cambia nome solo quando cambia il contenuto e il browser può tenerlo in cache senza scadenza. Il CSS è minificato; `js/app.js` e i moduli che importa sono riuniti e minificati in un unico `js/app-<hash>.js`. Per provarlo in locale: `python3 -m http.server 8001 --directory build/web`
+- `build/wordpress.html`: la versione per L'AvisioBlog, un unico frammento HTML con CSS e JavaScript incorporati e il logo come data URI
+- `build/wordpress-uploads/`: i file da caricare su WordPress, con gli stessi nomi con hash. WordPress non accetta file `.md`, quindi l'attribuzione viene caricata come `ATTRIBUTION-<hash>.txt`, con lo stesso contenuto preceduto da un BOM UTF-8 (il blog serve i file statici senza indicare la codifica, e il testo contiene lettere accentate), quindi con un hash diverso da quello del `.md`
+
+La compilazione imposta `data-dictionary-bytes` in entrambe le versioni e, per il blog, `data-title-suffix` e gli URL assoluti del dizionario e dell'attribuzione. Il tema del blog impone con `!important` alcune proprietà ai pulsanti (colore, maiuscolo, dimensione e peso del carattere, arrotondamento), quindi nella versione per il blog tutte le dichiarazioni del CSS del rimario su quelle proprietà diventano `!important` (l'elenco è `WORDPRESS_IMPORTANT` in `build.py`).
+
+Per pubblicare su WordPress:
+
+1. Carica i file di `build/wordpress-uploads/` da Media › Aggiungi nuovo, non dall'editor della pagina: WordPress mette i file caricati da una pagina nella cartella del mese di quella pagina, e l'URL cambierebbe
+2. Controlla che l'URL di ogni file caricato sia esattamente quello stampato da `build.py`; se non lo è, rilancia lo script con `--upload-base` impostato sulla cartella usata da WordPress
+3. Incolla il contenuto di `build/wordpress.html` in un blocco "HTML personalizzato" della pagina. Il frammento contiene `<script>` e `<style>`, quindi serve un utente con il permesso `unfiltered_html` (amministratore o editor su un sito singolo)
 
 ## Contribuire
 
@@ -87,4 +110,4 @@ Il dizionario è generato a partire dalle seguenti fonti, utilizzate secondo le 
 - **FrequencyWords** - Hermit Dave, liste di frequenza dai sottotitoli di OpenSubtitles 2018: CC BY-SA 4.0
 - **Leipzig Corpora Collection** - Università di Lipsia (Goldhahn, Eckart, Quasthoff, LREC 2012), notizie in italiano: Creative Commons Attribution 4.0 (CC BY 4.0)
 
-L'elenco completo, con il testo di attribuzione di ogni fonte, le pubblicazioni da citare e le versioni usate per l'ultima generazione, è in [`dictionary/out/ATTRIBUTION.md`](dictionary/out/ATTRIBUTION.md), che va mostrato o collegato ovunque venga usato il dizionario.
+L'elenco completo, con il testo di attribuzione di ogni fonte, le pubblicazioni da citare e le versioni usate per l'ultima generazione, è in [`web/ATTRIBUTION.md`](web/ATTRIBUTION.md), che va mostrato o collegato ovunque venga usato il dizionario.

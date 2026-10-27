@@ -1,6 +1,6 @@
 # Dictionary build
 
-This folder builds `out/parole-accenti-frequenze.csv`, the dictionary behind Super Rimario Italiano: every Italian word form the sources know, with the position of its stressed vowel, a modern frequency, and separate rows for homographs (*àncora*/*ancòra*, *prìncipi*/*princìpi*).
+This folder builds `web/parole-accenti-frequenze.csv`, the dictionary behind Super Rimario Italiano: every Italian word form the sources know, with the position of its stressed vowel, a modern frequency, and separate rows for homographs (*àncora*/*ancòra*, *prìncipi*/*princìpi*).
 
 One command fetches the latest version of every source and rebuilds the file. This README is the reference for the build and for the output format (see [Output](#output)), which the frontend in `web/` relies on; later work is in [`FOLLOW-UPS.md`](FOLLOW-UPS.md).
 
@@ -16,18 +16,18 @@ Run everything from this folder:
 
 ```sh
 cd dictionary
-uv run rimario-build                  # fetch the latest sources, then build out/
+uv run rimario-build                  # fetch the latest sources, then build the dictionary
 uv run rimario-build --offline        # build from the files already in data/raw/ (no network)
 uv run rimario-build fetch            # only update data/raw/ and sources.lock.json
-uv run rimario-build build            # only build out/ from the files on disk (same as --offline)
-uv run rimario-build report           # only rewrite out/report.md from the cache, diffing against git HEAD
+uv run rimario-build build            # only build the dictionary from the files on disk (same as --offline)
+uv run rimario-build report           # only rewrite report.md from the cache, diffing against git HEAD
 uv run rimario-build --only morphit   # fetch only this source, then rebuild its extractor and every later stage
 uv run rimario-build -v ...           # debug logging
 ```
 
 Usage: `rimario-build [fetch|build|report] [--offline] [--only ID] [-v]`. `--only` takes a source id from `sources.toml`; with `fetch` it fetches just that source, with `--offline` nothing is fetched but the source's extractor and every later stage rerun even if cached. `fetch --offline` is an error, and so is `--only` with `report` (it reruns no stage). `report` fails if a stage has no cached output for the current inputs; run a build first.
 
-**Baseline.** `build` and `report` diff the new CSV and lock against `out/parole-accenti-frequenze.csv` and `sources.lock.json` as committed at git HEAD, so the report shows what a commit would change. Without a committed CSV (a fresh repository, or a checkout outside git), the baseline is the `out/` CSV on disk before it's overwritten, or nothing; without a committed lock, it is the lock as it was before this run's fetch.
+**Baseline.** `build` and `report` diff the new CSV and lock against `web/parole-accenti-frequenze.csv` and `sources.lock.json` as committed at git HEAD, so the report shows what a commit would change. Without a committed CSV (a fresh repository, or a checkout outside git), the baseline is the CSV on disk before it's overwritten, or nothing; without a committed lock, it is the lock as it was before this run's fetch.
 
 **Fetching.** Sources are declared in `sources.toml`. A download is conditional (ETag / Last-Modified from `sources.lock.json`), so a source is downloaded again only when the server has a newer version; it's verified (size, sha256) and moved atomically into `data/raw/<id>/`. If a source can't be reached, the local copy is used and the report says so; without a local copy the build stops. `sources.lock.json` is committed: it records exactly which data produced the committed dictionary.
 
@@ -48,7 +48,7 @@ fetch ─► sources/* ─► forms, freq, contexts
               │
          frequency/merge ─► frequency/homographs
               │
-         export ─► out/   +   report
+         export ─► web/   +   report
 ```
 
 | Stage | What it does |
@@ -61,7 +61,7 @@ fetch ─► sources/* ─► forms, freq, contexts
 | `frequency/merge.py` | Merges the three frequency sources into one Zipf value per spelling: a weighted mean with reliability and robustness checks, where a missing word counts as "rarer than this source's floor" (only when that bound is below the word's real observations). The unaccented twin of a final-accent word (*cosi* for *così*), mostly the same word typed without its accent, is capped below the accented spelling where edited news text confirms it is the rarer one. Forms found only in lexicons get a small value below every corpus estimate. |
 | `frequency/homographs.py` | Splits a spelling's frequency among its readings and picks the default reading. The first rule that applies splits the readings into two groups, each split again the same way: capitalization in the news sentences (proper noun vs. common word), function word vs. content word, archaic/literary/rare readings vs. the others, participle vs. imperative + clitic (*trovàti*/*tròvati*), context words before noun vs. verb readings (only with at least `CONTEXT_MIN_CUES` cues), lemma frequencies, else 50/50. Readings that differ only in vowel quality (*pèsca*/*pésca*) are one row, with the summed frequency. |
 | `export.py` | Writes the CSV and `ATTRIBUTION.md`. |
-| `report.py` | Writes `out/report.md`: source versions, counts, gold accuracy, model accuracy, frequency agreement, the diff against the build committed at git HEAD, and worklists (conflicts, 50/50 splits, low-confidence predictions, frequent forms without attested stress). |
+| `report.py` | Writes `report.md`: source versions, counts, gold accuracy, model accuracy, frequency agreement, the diff against the build committed at git HEAD, and worklists (conflicts, 50/50 splits, low-confidence predictions, frequent forms without attested stress). |
 
 Every tunable number (weights, thresholds, cue words) lives in `src/rimario_build/config.py`.
 
@@ -76,7 +76,7 @@ Every tunable number (weights, thresholds, cue words) lives in `src/rimario_buil
 | `opensubtitles` | [FrequencyWords](https://github.com/hermitdave/FrequencyWords): OpenSubtitles 2018 word counts | CC BY-SA 4.0 |
 | `leipzig_news` | [Leipzig Corpora Collection](https://wortschatz.uni-leipzig.de/en/download/Italian): 1M Italian news sentences, newest year available | CC BY 4.0 |
 
-Every source is redistributable, usable commercially inside a GPL project, and downloaded automatically. The build writes `out/ATTRIBUTION.md` with each source, its licence, the papers to cite and the fetched versions; wherever the dictionary is shown, that file must be shown or linked too.
+Every source is redistributable, usable commercially inside a GPL project, and downloaded automatically. The build writes `web/ATTRIBUTION.md` with each source, its licence, the papers to cite and the fetched versions; wherever the dictionary is shown, that file must be shown or linked too.
 
 **Morph-it! mirror.** Since 2026 the Morph-it! server answers automated downloads with HTTP 402 (a bot check), so the original archive is committed unchanged at `mirror/morphit/morph-it.tgz` (with its `lgpl.txt` and readme), redistributed under its licence (CC BY-SA 2.0 / LGPL); `ATTRIBUTION.md` says so. `fetch` still tries the upstream URL first; when it can't download the file and there is no local copy in `data/raw/morphit/`, it copies the mirror there, checks its sha256 against `mirror_sha256` in `sources.toml`, and records `"via": "mirror"` in `sources.lock.json`. When the mirror is restored and upstream answers a HEAD request with a different Last-Modified or size than `mirror_last_modified`, the build warns that the mirror needs refreshing. Once `data/raw/morphit/` holds a copy, an upstream change that can't be downloaded only shows the usual "using the local copy" warning.
 
@@ -85,15 +85,15 @@ To refresh the mirror (only needed if Morph-it! publishes a new version; the las
 1. Download `morph-it.tgz` by hand in a browser from the [Morph-it! page](https://docs.sslmit.unibo.it/doku.php?id=resources:morph-it).
 2. Replace `mirror/morphit/morph-it.tgz` with it, unchanged.
 3. In `sources.toml`, set `mirror_sha256` to its `sha256sum` and `mirror_last_modified` to the server's `Last-Modified` header for it (browser developer tools, network tab). If the lexicon member inside was renamed, update `MORPHIT_MEMBER` in `config.py`.
-4. Run `uv run rimario-build --only morphit`: the lock still records the old mirror's sha256, so fetch copies the new mirror into `data/raw/morphit/` and the build reruns from Morph-it! on. Commit the mirror, `sources.toml`, `sources.lock.json` and `out/`.
+4. Run `uv run rimario-build --only morphit`: the lock still records the old mirror's sha256, so fetch copies the new mirror into `data/raw/morphit/` and the build reruns from Morph-it! on. Commit the mirror, `sources.toml`, `sources.lock.json`, `report.md` and the two files in `web/`.
 
 ## Output
 
-`out/` is committed, so each dictionary update is an ordinary diff:
+The build writes three files, all committed, so each dictionary update is an ordinary diff:
 
-- `parole-accenti-frequenze.csv`: the dictionary (format below);
-- `ATTRIBUTION.md`: sources and licences;
-- `report.md`: the QA report of the last build, including the CSV's sha256.
+- `web/parole-accenti-frequenze.csv`: the dictionary (format below), in the site folder so the frontend reads it as is;
+- `web/ATTRIBUTION.md`: sources and licences, linked from the site's footer;
+- `dictionary/report.md`: the QA report of the last build, including the CSV's sha256 (not part of the site).
 
 `parole-accenti-frequenze.csv` is UTF-8 with `\n` line endings and **no header**, sorted by the **reversed** word (code-point order), then stress index, then flags. Each row has **3 fields, or 4 when it has flags**:
 
@@ -125,7 +125,7 @@ Flags mark exceptions only, so the normal case is a 3-field row. A row's value i
 
 **Deterministic.** The same raw sources produce a byte-identical CSV: the sort key above is total, the model has a fixed seed (`MODEL_SEED`), sets and dicts are never iterated unsorted on the way to the output, and nothing variable (no build date) goes inside the file. A rebuild with unchanged sources therefore leaves the committed file untouched.
 
-**Fixed filename.** The file keeps the same name, so git shows each dictionary update as an ordinary line diff. Cache busting happens later, in the site build step ([`BUILD-STEP.md`](../BUILD-STEP.md)), which publishes it under a name with its content hash; since the output is deterministic, that hash changes only when the dictionary really changes. `report.md` states the CSV's sha256, so a deployed file can be matched to a build.
+**Fixed filename.** The file keeps the same name, so git shows each dictionary update as an ordinary line diff. Cache busting happens later, in the site build step ([`build.py`](../README.md#compilazione-per-la-pubblicazione)), which publishes it under a name with its content hash; since the output is deterministic, that hash changes only when the dictionary really changes. `report.md` states the CSV's sha256, so a deployed file can be matched to a build.
 
 **Size.** The pipeline trims nothing; `report.md` gives the file size and the row counts per Zipf band and per flag.
 
@@ -154,9 +154,9 @@ Then add the row (`rubrica`, `1`, `fix`, a note saying why) and rebuild with `uv
 uv run pytest
 ```
 
-`tests/test_curation.py` checks that the curation files are well-formed and that the committed dictionary meets the thresholds in `config.py` (`GOLD_MIN_ACCURACY`, `FREQ_PAIRS_MIN_AGREEMENT`); the tests that need `out/parole-accenti-frequenze.csv` are skipped until it has been built.
+`tests/test_curation.py` checks that the curation files are well-formed and that the committed dictionary meets the thresholds in `config.py` (`GOLD_MIN_ACCURACY`, `FREQ_PAIRS_MIN_AGREEMENT`); the tests that need `web/parole-accenti-frequenze.csv` are skipped until it has been built.
 
 ## Beyond this folder
 
 - How the frontend (`web/`) is told the URLs of the dictionary and of `ATTRIBUTION.md`: the "Integrazione" section of the [repository README](../README.md#integrazione).
-- Copying the dictionary into the site with a cache-busted name, and the L'AvisioBlog version: [`BUILD-STEP.md`](../BUILD-STEP.md).
+- Publishing the dictionary under a cache-busted name, and the L'AvisioBlog version: `build.py`, described in the [repository README](../README.md#compilazione-per-la-pubblicazione).

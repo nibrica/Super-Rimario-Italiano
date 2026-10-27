@@ -1,6 +1,6 @@
 # Sources of the dictionary build (see README.md, "Sources" and "Fetching").
 #
-# Read by fetch.py (download) and export.py (out/ATTRIBUTION.md, together with
+# Read by fetch.py (download) and export.py (web/ATTRIBUTION.md, together with
 # sources.lock.json, which records the version actually used).
 #
 # One [[source]] table per source, in attribution order:

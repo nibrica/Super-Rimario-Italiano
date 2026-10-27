@@ -25,8 +25,8 @@ import { loadDictionary } from './dictionary.js';
 import { resolve, run } from './search.js';
 import { createUI } from './ui.js';
 
-const DEFAULT_DICTIONARY_URL = '../dictionary/out/parole-accenti-frequenze.csv';
-const DEFAULT_ATTRIBUTION_URL = '../dictionary/out/ATTRIBUTION.md';
+const DEFAULT_DICTIONARY_URL = 'parole-accenti-frequenze.csv';
+const DEFAULT_ATTRIBUTION_URL = 'ATTRIBUTION.md';
 const PREFS_KEY = 'superRimario.filters.v1';
 const DEFAULT_PREFS = Object.freeze({ proper: true, archaic: false, vulgar: false });
 

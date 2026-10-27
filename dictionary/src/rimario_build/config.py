@@ -14,10 +14,10 @@ FREQ_PAIRS_TSV = CURATION_DIR / "freq_pairs.tsv"
 DATA_DIR = ROOT / "data"
 RAW_DIR = DATA_DIR / "raw"                           # raw/<source id>/
 CACHE_DIR = DATA_DIR / "cache"                       # parquet output of each stage
-OUT_DIR = ROOT / "out"
-OUT_CSV = OUT_DIR / "parole-accenti-frequenze.csv"
-OUT_ATTRIBUTION = OUT_DIR / "ATTRIBUTION.md"
-OUT_REPORT = OUT_DIR / "report.md"
+WEB_DIR = ROOT.parent / "web"                        # the site: the CSV and attribution are served from here
+OUT_CSV = WEB_DIR / "parole-accenti-frequenze.csv"
+OUT_ATTRIBUTION = WEB_DIR / "ATTRIBUTION.md"
+OUT_REPORT = ROOT / "report.md"                      # QA report, not a site file
 UV_LOCK = ROOT / "uv.lock"                           # its sha256 is part of every cache key
 RAW_HASHES_JSON = "raw_sha256.json"                  # under CACHE_DIR: raw file sha256 by path, size, mtime
 

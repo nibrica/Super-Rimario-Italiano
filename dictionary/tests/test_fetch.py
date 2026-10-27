@@ -525,7 +525,7 @@ def stubbed(monkeypatch, tmp_path):
           to_rows=lambda entries: entries.select(word="form", stress="stress_idx"),
           write_csv=write_csv, write_attribution=lambda s, lock, path: written.update(lock=lock))
     _stub(monkeypatch, "report", write_report=lambda ctx, prev, path: reports.append((ctx, prev)))
-    for name in ("RAW_DIR", "CACHE_DIR", "OUT_DIR"):
+    for name in ("RAW_DIR", "CACHE_DIR"):
         monkeypatch.setattr(config, name, tmp_path / name.lower())
     monkeypatch.setattr(config, "OUT_CSV", tmp_path / "out_dir" / "out.csv")
     monkeypatch.setattr(config, "SOURCES_LOCK", tmp_path / "lock.json")
@@ -551,7 +551,7 @@ def test_pipeline_wiring_and_cache(stubbed):
                 "csv_bytes", "lock_old", "lock_new", "fetch_warnings"}
     assert expected <= set(ctx)
     assert ctx["csv_bytes"] > 0 and ctx["fetch_warnings"] == [] and ctx["lock_new"]["morphit"]["sha256"]
-    assert stubbed[0][1]["word"].to_list() == ["old"]     # no committed CSV: the out/ CSV on disk
+    assert stubbed[0][1]["word"].to_list() == ["old"]     # no committed CSV: the CSV on disk
     assert ctx["lock_old"] == ctx["lock_new"]               # no committed lock: the one on disk
 
     CALLS.clear()
@@ -576,7 +576,7 @@ def test_build_diffs_against_git_head(stubbed, monkeypatch):
     assert stubbed[-1][1]["word"].to_list() == ["committed"]
     monkeypatch.setattr(pipeline, "_git_show", lambda path: None)
     on_disk = config.OUT_CSV.read_text()
-    ctx = pipeline.build({"before": {}}, [], parallel=False)   # nothing committed: the out/ CSV on disk
+    ctx = pipeline.build({"before": {}}, [], parallel=False)   # nothing committed: the CSV on disk
     assert ctx["lock_old"] == {"before": {}} and stubbed[-1][1]["word"].to_list() == [on_disk]
     config.OUT_CSV.unlink()
     pipeline.build({}, [], parallel=False)                     # no CSV at all: empty

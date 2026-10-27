@@ -1,4 +1,4 @@
-"""The output CSV (format: README "Output") and out/ATTRIBUTION.md."""
+"""The output CSV (format: README "Output") and ATTRIBUTION.md, both written to web/."""
 
 import hashlib
 from pathlib import Path
