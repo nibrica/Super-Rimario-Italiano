@@ -37,7 +37,8 @@ const TEXT = {
     preparing: 'Preparazione del dizionario…',
     queued: (term) => `La ricerca di «${term}» partirà appena il dizionario è pronto.`,
     empty: 'Scrivi una parola per cercarne le rime.',
-    notFound: (term) => `«${term}» non è nel dizionario. Dove cade l'accento?`,
+    notFound: (term) => `«${term}» non è nel dizionario.`,
+    askStress: "Dove cade l'accento?",
     notFoundHint: "Puoi anche scriverla con l'accento, es. italiàno.",
     retry: 'Riprova',
     noteUnknownWord: "Questa parola non è nel dizionario: uso l'accento che hai indicato.",
@@ -47,7 +48,6 @@ const TEXT = {
     skipped: 'Terminazione troppo lunga per questa ricerca.',
     skippedCount: '–',
     groupsLabel: 'Differenze',
-    predictedTitle: 'Accento stimato automaticamente: potrebbe essere sbagliato',
     predictedVh: ' (accento stimato)',
     copied: 'Link copiato',
     copiedAnnounce: 'Link copiato negli appunti',
@@ -69,7 +69,7 @@ const NOUNS = {
     consonances: ['consonanza', 'consonanze'],
 };
 
-const numberFormat = new Intl.NumberFormat('it-IT');
+const numberFormat = new Intl.NumberFormat('it-IT', { useGrouping: 'always' });
 const mbFormat = new Intl.NumberFormat('it-IT', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
 function fmt(n) {
@@ -86,7 +86,7 @@ function countNoun(cat, n) {
 }
 
 function matches(query) {
-    return typeof window.matchMedia === 'function' && window.matchMedia(query).matches;
+    return window.matchMedia(query).matches;
 }
 
 function el(tag, className, text) {
@@ -94,6 +94,16 @@ function el(tag, className, text) {
     if (className) node.className = className;
     if (text !== undefined) node.textContent = text;
     return node;
+}
+
+/** <li><button class="sri-chip …" data-q="q">label</button></li> */
+function chipItem(className, label, q) {
+    const btn = el('button', `sri-chip ${className}`, label);
+    btn.type = 'button';
+    btn.dataset.q = q;
+    const li = el('li');
+    li.append(btn);
+    return li;
 }
 
 /**
@@ -154,7 +164,7 @@ export function createUI(root, handlers) {
         };
     }
 
-    const shareLabelText = shareLabel ? shareLabel.textContent : '';
+    const shareLabelText = shareLabel.textContent;
     const reducedMotion = matches('(prefers-reduced-motion: reduce)');
     const scrollBehavior = reducedMotion ? 'auto' : 'smooth';
 
@@ -163,6 +173,7 @@ export function createUI(root, handlers) {
     let view = null;             // { activeTab, group: {cat: g}, shown: {cat: n} }
     let queuedTerm = null;       // term shown in the loading label while waiting
     let fatal = false;
+    let retryClicked = false;    // the current load was started by the Riprova button
     let liveTimer = 0;
     let copiedTimer = 0;
     let touchStart = null;
@@ -199,6 +210,23 @@ export function createUI(root, handlers) {
         input.focus({ preventScroll: true });
     }
 
+    // Runs a view change; if it hides or removes the focused element inside the
+    // widget, focus moves to fallback instead of dropping to <body>.
+    function keepFocus(fallback, change) {
+        const before = root.contains(document.activeElement) ? document.activeElement : null;
+        change();
+        if (!before) return;
+        const active = document.activeElement;
+        if (active !== before && root.contains(active)) return;   // already moved on purpose
+        if (before.isConnected && before.getClientRects().length > 0) return;
+        fallback.focus({ preventScroll: true });
+    }
+
+    function clearQueued() {
+        queuedTerm = null;
+        loadingLabel.textContent = TEXT.loading;
+    }
+
     function hideMessage() {
         message.hidden = true;
         message.replaceChildren();
@@ -214,16 +242,16 @@ export function createUI(root, handlers) {
     // ---- loading ----------------------------------------------------------
 
     function showLoading(loaded, total) {
-        if (fatal) hideMessage();
+        if (fatal) keepFocus(input, hideMessage);
         loading.hidden = false;
 
-        const known = typeof total === 'number' && total > 0;
+        const known = total > 0;
         if (queuedTerm === null) {
             loadingLabel.textContent = known && loaded >= total ? TEXT.preparing : TEXT.loading;
         }
 
         if (known) {
-            const fraction = Math.min(1, Math.max(0, loaded / total));
+            const fraction = Math.min(1, loaded / total);
             progress.removeAttribute('data-indeterminate');
             progress.style.setProperty('--sri-progress', String(fraction));
             progress.setAttribute('aria-valuenow', String(Math.round(fraction * 100)));
@@ -242,8 +270,8 @@ export function createUI(root, handlers) {
 
     function hideLoading() {
         loading.hidden = true;
-        queuedTerm = null;
-        loadingLabel.textContent = TEXT.loading;
+        clearQueued();
+        retryClicked = false;
         refreshState();
     }
 
@@ -254,55 +282,54 @@ export function createUI(root, handlers) {
         idle.hidden = true;
         hideMessage();
         refreshState();
+        announce(TEXT.queued(term));
     }
 
     // ---- idle / messages ----------------------------------------------------
 
     function showIdle() {
-        hideMessage();
-        results.hidden = true;
-        idle.hidden = false;
+        keepFocus(input, () => {
+            hideMessage();
+            clearQueued();
+            results.hidden = true;
+            idle.hidden = false;
+        });
         refreshState();
     }
 
     function showFatal(text, canRetry) {
         loading.hidden = true;
-        queuedTerm = null;
+        clearQueued();
         results.hidden = true;
         idle.hidden = true;
         const children = [el('p', 'sri-message-text', text)];
+        let retryBtn = null;
         if (canRetry) {
-            const btn = el('button', 'sri-button sri-retry', TEXT.retry);
-            btn.type = 'button';
-            children.push(btn);
+            retryBtn = el('button', 'sri-button sri-retry', TEXT.retry);
+            retryBtn.type = 'button';
+            children.push(retryBtn);
         }
         renderMessage('error', children);
         fatal = true;
         refreshState();
         announce(text);
+        if (retryBtn && retryClicked) retryBtn.focus({ preventScroll: true });
+        retryClicked = false;
     }
 
     function showMessage(resolution) {
-        results.hidden = true;
-        idle.hidden = true;
-        fatal = false;
         const children = [];
         let spoken;
-        if (resolution && resolution.reason === 'not-found') {
-            const head = TEXT.notFound(resolution.term);
+        if (resolution.reason === 'not-found') {
+            const { term, candidates } = resolution;
+            const head = candidates.length > 0
+                ? `${TEXT.notFound(term)} ${TEXT.askStress}`
+                : TEXT.notFound(term);
             children.push(el('p', 'sri-message-text', head));
-            const candidates = resolution.candidates || [];
             if (candidates.length > 0) {
                 const list = el('ul', 'sri-chips sri-candidates');
                 list.setAttribute('role', 'list');
-                for (const candidate of candidates) {
-                    const btn = el('button', 'sri-chip sri-candidate', candidate);
-                    btn.type = 'button';
-                    btn.dataset.q = candidate;
-                    const li = el('li');
-                    li.append(btn);
-                    list.append(li);
-                }
+                list.append(...candidates.map((c) => chipItem('sri-candidate', c, c)));
                 children.push(list);
             }
             children.push(el('p', 'sri-message-text', TEXT.notFoundHint));
@@ -311,7 +338,13 @@ export function createUI(root, handlers) {
             children.push(el('p', 'sri-message-text', TEXT.empty));
             spoken = TEXT.empty;
         }
-        renderMessage('info', children);
+        keepFocus(input, () => {
+            results.hidden = true;
+            idle.hidden = true;
+            fatal = false;
+            clearQueued();
+            renderMessage('info', children);
+        });
         refreshState();
         announce(spoken);
     }
@@ -319,7 +352,7 @@ export function createUI(root, handlers) {
     // ---- results ------------------------------------------------------------
 
     function groupsOf(cat) {
-        return current.result.groups[cat] || [];
+        return current.result.groups[cat];
     }
 
     function firstNonEmptyGroup(cat) {
@@ -343,7 +376,7 @@ export function createUI(root, handlers) {
             const oldGroup = old ? old.group[cat] : undefined;
             if (oldGroup !== undefined && groups[oldGroup] && groups[oldGroup].length > 0) {
                 next.group[cat] = oldGroup;
-                next.shown[cat] = Math.max(PAGE_SIZE, old.shown[cat] || 0);
+                next.shown[cat] = Math.max(PAGE_SIZE, old.shown[cat]);
             } else {
                 next.group[cat] = firstNonEmptyGroup(cat);
                 next.shown[cat] = PAGE_SIZE;
@@ -353,17 +386,20 @@ export function createUI(root, handlers) {
     }
 
     function wordChip(dict, row) {
-        const btn = el('button', 'sri-chip sri-word', dict.displayWord(row));
-        btn.type = 'button';
-        btn.dataset.q = dict.queryTerm(row);
+        const li = chipItem('sri-word', dict.displayWord(row), dict.queryTerm(row));
         if (dict.flags(row) & FLAGS.PREDICTED) {
+            const btn = li.firstChild;
             btn.classList.add('sri-word--predicted');
-            btn.title = TEXT.predictedTitle;
             btn.append(el('span', 'sri-vh', TEXT.predictedVh));
         }
-        const li = el('li');
-        li.append(btn);
         return li;
+    }
+
+    /** Fragment with the word chips of rows[start..end). */
+    function wordChips(rows, start, end) {
+        const fragment = document.createDocumentFragment();
+        for (let i = start; i < end; i++) fragment.append(wordChip(current.dict, rows[i]));
+        return fragment;
     }
 
     function renderReadings() {
@@ -381,17 +417,11 @@ export function createUI(root, handlers) {
             if (entry) entry.pressed = entry.pressed || r === row;
             else byTerm.set(term, { row: r, pressed: r === row });
         }
-        const fragment = document.createDocumentFragment();
         for (const [term, entry] of byTerm) {
-            const btn = el('button', 'sri-chip sri-reading', dict.displayWord(entry.row));
-            btn.type = 'button';
-            btn.dataset.q = term;
-            btn.setAttribute('aria-pressed', String(entry.pressed));
-            const li = el('li');
-            li.append(btn);
-            fragment.append(li);
+            const li = chipItem('sri-reading', dict.displayWord(entry.row), term);
+            li.firstChild.setAttribute('aria-pressed', String(entry.pressed));
+            readingsList.append(li);
         }
-        readingsList.append(fragment);
     }
 
     function renderNotes() {
@@ -406,7 +436,7 @@ export function createUI(root, handlers) {
     }
 
     function renderHiddenNote() {
-        const n = current.result.hidden || 0;
+        const n = current.result.hidden;
         if (n === 0) hiddenNote.textContent = '';
         else if (n === 1) hiddenNote.textContent = '1 parola nascosta dai filtri';
         else hiddenNote.textContent = `${fmt(n)} parole nascoste dai filtri`;
@@ -460,7 +490,7 @@ export function createUI(root, handlers) {
     }
 
     function selectedRows(cat) {
-        return groupsOf(cat)[view.group[cat]] || [];
+        return groupsOf(cat)[view.group[cat]];
     }
 
     function updateMore(cat) {
@@ -477,12 +507,9 @@ export function createUI(root, handlers) {
 
     function renderWords(cat) {
         const { wordsEl, emptyEl } = cats[cat];
-        const { dict } = current;
         const rows = selectedRows(cat);
         const end = Math.min(rows.length, view.shown[cat]);
-        const fragment = document.createDocumentFragment();
-        for (let i = 0; i < end; i++) fragment.append(wordChip(dict, rows[i]));
-        wordsEl.replaceChildren(fragment);
+        wordsEl.replaceChildren(wordChips(rows, 0, end));
         wordsEl.hidden = end === 0;
 
         let empty = '';
@@ -494,24 +521,34 @@ export function createUI(root, handlers) {
         updateMore(cat);
     }
 
-    function renderPanel(cat) {
+    // True when the chips on screen for cat match the new result (prevRows =
+    // the rows selected before), so a filter change can keep them.
+    function wordsUnchanged(cat, prevRows) {
+        const rows = selectedRows(cat);
+        const n = Math.min(rows.length, view.shown[cat]);
+        if (n !== Math.min(prevRows.length, view.shown[cat])) return false;
+        for (let i = 0; i < n; i++) if (rows[i] !== prevRows[i]) return false;
+        return true;
+    }
+
+    function renderPanel(cat, keepWords) {
         const { tabCount, panelCount } = cats[cat];
-        const text = isSkipped(cat) ? TEXT.skippedCount : fmt(current.result.totals[cat]);
-        if (tabCount) tabCount.textContent = text;
-        if (panelCount) panelCount.textContent = text;
+        const total = current.result.totals[cat];
+        const text = isSkipped(cat) ? TEXT.skippedCount : fmt(total);
+        tabCount.textContent = text;
+        panelCount.textContent = text;
         renderGroups(cat);
-        renderWords(cat);
+        if (keepWords) updateMore(cat);
+        else renderWords(cat);
     }
 
     function showMore(cat) {
         const { wordsEl } = cats[cat];
-        const { dict } = current;
         const rows = selectedRows(cat);
         const start = Math.min(rows.length, view.shown[cat]);
         const end = Math.min(rows.length, start + PAGE_SIZE);
         if (end <= start) return;
-        const fragment = document.createDocumentFragment();
-        for (let i = start; i < end; i++) fragment.append(wordChip(dict, rows[i]));
+        const fragment = wordChips(rows, start, end);
         const first = fragment.firstElementChild;
         wordsEl.append(fragment);
         wordsEl.hidden = false;
@@ -521,7 +558,7 @@ export function createUI(root, handlers) {
     }
 
     function selectGroup(cat, g) {
-        if (!current || view.group[cat] === g) return;
+        if (view.group[cat] === g) return;
         view.group[cat] = g;
         view.shown[cat] = PAGE_SIZE;
         updateGroupPressed(cat);
@@ -538,29 +575,38 @@ export function createUI(root, handlers) {
     }
 
     function showResults(dict, result, { source, preserveView } = {}) {
+        // Rows on screen before a filter change, to keep the chips that don't change.
+        const prevRows = preserveView && view
+            ? Object.fromEntries(CATEGORY_IDS.map((cat) => [cat, selectedRows(cat)]))
+            : null;
         current = { dict, result };
-        hideMessage();
-        idle.hidden = true;
-        results.hidden = false;
 
-        queryWord.textContent = result.query.label;
-        renderReadings();
-        renderNotes();
-        renderHiddenNote();
+        keepFocus(queryHeading, () => {
+            hideMessage();
+            idle.hidden = true;
+            results.hidden = false;
 
-        computeView(Boolean(preserveView) && view !== null);
-        updateTabs();
-        for (const cat of CATEGORY_IDS) renderPanel(cat);
+            queryWord.textContent = result.query.label;
+            renderReadings();
+            renderNotes();
+            renderHiddenNote();
+
+            computeView(preserveView);
+            updateTabs();
+            for (const cat of CATEGORY_IDS) {
+                renderPanel(cat, prevRows !== null && wordsUnchanged(cat, prevRows[cat]));
+            }
+
+            if (source === 'chip') {
+                root.scrollIntoView({ block: 'start', behavior: scrollBehavior });
+                queryHeading.focus({ preventScroll: true });
+            }
+        });
 
         refreshState();
         announce(summary());
 
-        if (source === 'chip') {
-            root.scrollIntoView({ block: 'start', behavior: scrollBehavior });
-            queryHeading.focus({ preventScroll: true });
-        } else if (source === 'form') {
-            if (matches('(pointer: coarse)')) input.blur();
-        }
+        if (source === 'form' && matches('(pointer: coarse)')) input.blur();
     }
 
     // ---- tabs -----------------------------------------------------------------
@@ -570,7 +616,7 @@ export function createUI(root, handlers) {
     }
 
     function selectTab(cat, focus) {
-        if (!current || !cats[cat]) return;
+        if (!current) return;
         view.activeTab = cat;
         updateTabs();
         if (focus) cats[cat].tab.focus();
@@ -636,12 +682,12 @@ export function createUI(root, handlers) {
             ok = false;
         }
         area.remove();
-        if (previous && typeof previous.focus === 'function') previous.focus({ preventScroll: true });
+        previous?.focus?.({ preventScroll: true });
         return ok;
     }
 
     async function copyText(text) {
-        if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        if (navigator.clipboard?.writeText) {
             try {
                 await navigator.clipboard.writeText(text);
                 return true;
@@ -653,11 +699,9 @@ export function createUI(root, handlers) {
     }
 
     function showCopied() {
-        if (shareLabel) {
-            shareLabel.textContent = TEXT.copied;
-            clearTimeout(copiedTimer);
-            copiedTimer = setTimeout(() => { shareLabel.textContent = shareLabelText; }, COPIED_MS);
-        }
+        shareLabel.textContent = TEXT.copied;
+        clearTimeout(copiedTimer);
+        copiedTimer = setTimeout(() => { shareLabel.textContent = shareLabelText; }, COPIED_MS);
         announce(TEXT.copiedAnnounce);
     }
 
@@ -669,11 +713,11 @@ export function createUI(root, handlers) {
                 await navigator.share(data);
                 return;
             } catch (err) {
-                if (err && err.name === 'AbortError') return;
+                if (err?.name === 'AbortError') return;
             }
         }
         if (await copyText(url)) showCopied();
-        else window.prompt(TEXT.copyPrompt, url);
+        else window.prompt(TEXT.copyPrompt, url);   // throws where prompt() is unsupported
     }
 
     // ---- events -------------------------------------------------------------------
@@ -710,7 +754,7 @@ export function createUI(root, handlers) {
         const more = target.closest('[data-more]');
         if (more) {
             const panel = more.closest('.sri-panel');
-            if (panel && current) showMore(panel.dataset.cat);
+            if (panel) showMore(panel.dataset.cat);
             return;
         }
 
@@ -721,7 +765,7 @@ export function createUI(root, handlers) {
         }
 
         if (target.closest('#sri-share')) {
-            share();
+            share().catch(() => {});
             return;
         }
 
@@ -738,6 +782,7 @@ export function createUI(root, handlers) {
         }
 
         if (target.closest('.sri-retry')) {
+            retryClicked = true;
             handlers.onRetry();
         }
     });
@@ -759,9 +804,7 @@ export function createUI(root, handlers) {
     root.addEventListener('change', (event) => {
         if (!(event.target instanceof Element) || !event.target.matches('input[data-pref]')) return;
         const prefs = { proper: false, archaic: false, vulgar: false };
-        for (const box of filterInputs) {
-            if (box.dataset.pref in prefs) prefs[box.dataset.pref] = box.checked;
-        }
+        for (const box of filterInputs) prefs[box.dataset.pref] = box.checked;
         handlers.onFiltersChange(prefs);
     });
 
@@ -769,7 +812,7 @@ export function createUI(root, handlers) {
 
     function setFilters(prefs) {
         for (const box of filterInputs) {
-            box.checked = Boolean(prefs && prefs[box.dataset.pref]);
+            box.checked = Boolean(prefs[box.dataset.pref]);
         }
     }
 

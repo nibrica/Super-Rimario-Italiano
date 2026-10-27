@@ -23,7 +23,7 @@
 // one string; rows are described by parallel typed arrays pointing into it, so
 // the only per-row cost is 9 bytes.
 
-import { FLAGS, capitalize, markStress } from './text.js';
+import { FLAGS, capitalize, isAccented, markStress } from './text.js';
 
 const MAX_WORD_LENGTH = 255;
 const PROGRESS_INTERVAL_MS = 50;
@@ -365,7 +365,8 @@ export function parseDictionary(text) {
                 && s >= 0 && s < wordLength && z >= 0 && z <= 0xffff && f >= 0 && f <= 0xff) {
                 start[count] = pos;
                 len[count] = wordLength;
-                stress[count] = s;
+                // A written final accent is always the stress, whatever the column says.
+                stress[count] = isAccented(text[c1 - 1]) ? wordLength - 1 : s;
                 zipf[count] = z;
                 flags[count] = f;
                 count++;
@@ -407,14 +408,16 @@ export async function loadDictionary(url, { onProgress, expectedBytes = null } =
     let text;
     if (response.body && typeof response.body.getReader === 'function') {
         const reader = response.body.getReader();
-        const chunks = [];
+        // Decode while streaming so the raw bytes never have to be held all at once.
+        const decoder = new TextDecoder('utf-8');
+        const parts = [];
         let loaded = 0;
         let lastReport = -Infinity;
         onProgress?.(0, total);
         for (;;) {
             const { done, value } = await reader.read();
             if (done) break;
-            chunks.push(value);
+            parts.push(decoder.decode(value, { stream: true }));
             loaded += value.byteLength;
             if (total !== null && loaded > total) total = null;
             const now = Date.now();
@@ -423,23 +426,12 @@ export async function loadDictionary(url, { onProgress, expectedBytes = null } =
                 onProgress?.(loaded, total);
             }
         }
+        parts.push(decoder.decode());
         onProgress?.(loaded, loaded);
-
-        let bytes;
-        if (chunks.length === 1) {
-            bytes = chunks[0];
-        } else {
-            bytes = new Uint8Array(loaded);
-            let offset = 0;
-            for (const chunk of chunks) {
-                bytes.set(chunk, offset);
-                offset += chunk.byteLength;
-            }
-        }
-        chunks.length = 0;
+        text = parts.join('');
+        parts.length = 0;
         // Let the UI paint "Preparazione del dizionario…" before the blocking work.
         await new Promise((resolve) => setTimeout(resolve));
-        text = new TextDecoder('utf-8').decode(bytes);
     } else {
         text = await response.text();
         onProgress?.(text.length, text.length);

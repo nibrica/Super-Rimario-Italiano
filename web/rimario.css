@@ -34,9 +34,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #rimario {
     all: revert;
-}
 
-#rimario {
     --sri-accent: #ee1c25;          /* brand red: decorative only */
     --sri-accent-ink: #c4121a;      /* red for text and borders on white */
     --sri-accent-ink-hover: #a30f16;
@@ -44,7 +42,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     --sri-ink-muted: #5c5f66;
     --sri-line: #e3e5e8;
     --sri-line-strong: #c9ccd1;
+    --sri-line-input: #8a8f98;      /* 3:1 on white, for the search field */
     --sri-bg: #ffffff;
+    --sri-on-accent: #ffffff;
     --sri-chip-bg: #f3f4f6;
     --sri-chip-bg-hover: #e7e9ec;
     --sri-selected-bg: #fdecec;
@@ -62,15 +62,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     --sri-ease: 160ms ease;
     --sri-column: 42em;             /* width of the centered single-column blocks */
 
-    display: block;
     container: sri / inline-size;
     scroll-margin-top: calc(var(--sri-sticky-top) + 16px);
-    margin: 0;
-    padding: 0;
     background: var(--sri-bg);
     color: var(--sri-ink);
-    font-family: inherit;
-    font-size: 16px;
+    font-size: medium;              /* the user's default size, whatever the theme sets on html */
     font-style: normal;
     font-weight: 400;
     font-variant: normal;
@@ -101,8 +97,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 }
 
 /* Themes love decorating list items, links and headings with pseudo-elements. */
-#rimario :is(div, p, span, a, ul, ol, li, h1, h2, h3, button, label, section, dt, dd)::before,
-#rimario :is(div, p, span, a, ul, ol, li, h1, h2, h3, button, label, section, dt, dd)::after {
+#rimario *::before,
+#rimario *::after {
     all: revert;
 }
 
@@ -135,8 +131,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     height: 18px;
     max-width: none;
     margin: 0;
-    fill: none;
-    stroke: currentColor;
 }
 
 #rimario .sri-icon * {
@@ -161,11 +155,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     padding: 1em 16px 2em;
 }
 
-/* Single-column blocks are centered and kept to a readable width. */
-#rimario :is(.sri-header, .sri-search, .sri-loading, .sri-message, .sri-idle, .sri-help, .sri-footer) {
-    width: 100%;
-    max-width: var(--sri-column);
-    margin-inline: auto;
+/* In wide containers single-column blocks are centered at a readable width
+   (below that they span the full width, aligned with the results). */
+@container sri (min-width: 1000px) {
+    #rimario :is(.sri-header, .sri-search, .sri-loading, .sri-message, .sri-idle, .sri-help, .sri-footer) {
+        width: 100%;
+        max-width: var(--sri-column);
+        margin-inline: auto;
+    }
 }
 
 /* Sections fade in when JS reveals them. */
@@ -226,20 +223,48 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     text-wrap: balance;
 }
 
+@container sri (max-width: 599.98px) {
+    #rimario .sri-app:has(> .sri-results:not([hidden])) .sri-title {
+        width: min(100%, 220px);
+    }
+
+    #rimario .sri-app:has(> .sri-results:not([hidden])) .sri-tagline {
+        display: none;
+    }
+}
+
+
+/* ---------------------------------------------------------------------------
+   Filled button (Cerca, Riprova)
+   --------------------------------------------------------------------------- */
+
+#rimario .sri-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: .45em 1.3em;
+    border: 0;
+    border-radius: var(--sri-radius-pill);
+    background: var(--sri-accent-ink);
+    color: var(--sri-on-accent);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color var(--sri-ease);
+}
+
+#rimario .sri-button:hover {
+    background: var(--sri-accent-ink-hover);
+}
+
 
 /* ---------------------------------------------------------------------------
    Search
    --------------------------------------------------------------------------- */
 
-#rimario .sri-search {
-    display: block;
-    margin-block: 0;
-}
-
 #rimario .sri-search-label {
     display: block;
     margin: 0 0 .45em;
-    padding-inline: 1.1em;
     font-size: .9em;
     font-weight: 600;
     cursor: pointer;
@@ -251,7 +276,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     gap: .25em;
     min-height: 58px;
     padding: 4px;
-    border: 1.5px solid var(--sri-line-strong);
+    border: 1.5px solid var(--sri-line-input);
     border-radius: var(--sri-radius-pill);
     background: var(--sri-bg);
     box-shadow: var(--sri-shadow);
@@ -259,7 +284,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 }
 
 #rimario .sri-search-field:hover {
-    border-color: #a9adb4;
+    border-color: var(--sri-ink-muted);
 }
 
 #rimario .sri-search-field:focus-within {
@@ -325,25 +350,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 }
 
 #rimario .sri-submit {
-    display: inline-flex;
     flex: none;
-    align-items: center;
-    justify-content: center;
     min-height: 48px;
-    margin: 0;
     padding: 0 1.4em;
-    border: 0;
-    border-radius: var(--sri-radius-pill);
-    background: var(--sri-accent-ink);
-    color: #fff;
-    font-weight: 600;
     letter-spacing: .01em;
-    cursor: pointer;
     transition: background-color var(--sri-ease), transform var(--sri-ease);
-}
-
-#rimario .sri-submit:hover {
-    background: var(--sri-accent-ink-hover);
 }
 
 #rimario .sri-submit:active {
@@ -352,19 +363,19 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #rimario .sri-search-hint {
     margin: .5em 0 0;
-    padding-inline: 1.1em;
     color: var(--sri-ink-muted);
     font-size: .85em;
+}
+
+/* Once there is a result or a message, the hint only takes room. */
+#rimario .sri-app:has(> :is(.sri-results, .sri-message):not([hidden])) .sri-search-hint {
+    display: none;
 }
 
 
 /* ---------------------------------------------------------------------------
    Loading
    --------------------------------------------------------------------------- */
-
-#rimario .sri-loading {
-    display: block;
-}
 
 #rimario .sri-loading-label {
     margin: 0 0 .55em;
@@ -373,17 +384,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 }
 
 #rimario .sri-progress {
-    position: relative;
-    display: block;
     height: 6px;
     overflow: hidden;
     border-radius: var(--sri-radius-pill);
     background: var(--sri-line);
 }
 
-/* --sri-progress (0–1) is set by JS on the bar or its parent. */
+/* --sri-progress (0–1) is set by JS on .sri-progress and inherited. */
 #rimario .sri-progress-bar {
-    display: block;
     width: calc(var(--sri-progress, 0) * 100%);
     height: 100%;
     border-radius: inherit;
@@ -416,7 +424,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
    --------------------------------------------------------------------------- */
 
 #rimario .sri-message {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .75em;
     margin-block: 0;
     padding: .9em 1.1em;
     border: 1px solid var(--sri-line);
@@ -431,41 +442,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     color: var(--sri-error-ink);
 }
 
-#rimario .sri-message > * {
-    margin-block: 0;
-}
-
-#rimario .sri-message > * + * {
-    margin-top: .75em;
-}
-
 #rimario .sri-message-text {
-    display: block;
-}
-
-
-#rimario .sri-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 40px;
-    margin-inline: 0;
-    padding: .45em 1.3em;
-    border: 0;
-    border-radius: var(--sri-radius-pill);
-    background: var(--sri-accent-ink);
-    color: #fff;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color var(--sri-ease);
-}
-
-#rimario .sri-retry {
-    margin-top: .25em;
-}
-
-#rimario .sri-button:hover {
-    background: var(--sri-accent-ink-hover);
+    margin: 0;
 }
 
 
@@ -507,9 +485,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     transition: background-color var(--sri-ease), color var(--sri-ease), border-color var(--sri-ease);
 }
 
-#rimario .sri-chip:hover {
-    background: var(--sri-chip-bg-hover);
-    color: var(--sri-accent-ink);
+@media (hover: hover) {
+    #rimario .sri-chip:hover {
+        background: var(--sri-chip-bg-hover);
+    }
 }
 
 #rimario .sri-chip:active {
@@ -522,9 +501,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     background: var(--sri-bg);
 }
 
-#rimario :is(.sri-reading, .sri-candidate):hover {
-    border-color: var(--sri-accent-ink);
-    background: var(--sri-bg);
+@media (hover: hover) {
+    #rimario :is(.sri-reading, .sri-candidate):hover {
+        border-color: var(--sri-ink-muted);
+        background: var(--sri-bg);
+    }
 }
 
 #rimario .sri-chip[aria-pressed="true"] {
@@ -536,6 +517,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #rimario .sri-word--predicted::after {
     content: "°";
+    content: "°" / "";              /* the visually hidden text already says it */
     margin-left: .1em;
     color: var(--sri-ink-muted);
 }
@@ -546,7 +528,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
    --------------------------------------------------------------------------- */
 
 #rimario .sri-idle {
-    display: block;
     text-align: center;
 }
 
@@ -574,8 +555,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #rimario .sri-results-head {
     display: flex;
-    flex-wrap: wrap;
-    align-items: flex-end;
+    align-items: flex-start;
     justify-content: space-between;
     gap: .75em 1em;
     padding-bottom: 1em;
@@ -583,6 +563,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 }
 
 #rimario .sri-query {
+    flex: 1;
     min-width: 0;
     margin: 0;
     font-size: 1em;
@@ -603,10 +584,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #rimario .sri-query-word {
     display: block;
-    font-size: 1.8em;
+    font-size: clamp(1.35em, 8cqi, 1.8em);
     font-weight: 700;
     letter-spacing: -.01em;
     overflow-wrap: anywhere;
+    hyphens: auto;
 }
 
 #rimario .sri-share {
@@ -632,11 +614,34 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     background: var(--sri-chip-bg);
 }
 
+/* Narrow: icon-only share button, so long words keep the line. */
+@container sri (max-width: 479.98px) {
+    #rimario .sri-share {
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        padding: 0;
+    }
+
+    #rimario .sri-share-label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+}
+
 #rimario .sri-readings {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: .5em;
+}
+
+#rimario :is(.sri-readings-label, .sri-filters-legend) {
+    min-width: 4.5em;
 }
 
 #rimario .sri-readings-label {
@@ -674,6 +679,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     border: 0;
 }
 
+#rimario .sri-toggles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4em;
+    min-width: 0;
+}
+
 /* Floated, the legend becomes an ordinary flex item that sits inline. */
 #rimario .sri-filters-legend {
     float: left;
@@ -700,13 +712,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     transition: border-color var(--sri-ease), background-color var(--sri-ease);
 }
 
-#rimario .sri-toggle:hover {
+#rimario .sri-toggle:hover,
+#rimario .sri-toggle:has(input:checked) {
     border-color: var(--sri-ink-muted);
 }
 
 #rimario .sri-toggle:has(input:checked) {
-    border-color: var(--sri-accent-ink);
-    background: var(--sri-selected-bg);
+    background: var(--sri-chip-bg);
 }
 
 #rimario .sri-toggle input {
@@ -714,7 +726,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     width: 1.05em;
     height: 1.05em;
     margin: 0;
-    accent-color: var(--sri-accent-ink);
+    accent-color: var(--sri-ink);
     cursor: pointer;
 }
 
@@ -725,6 +737,27 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #rimario .sri-filters-note:empty {
     display: none;
+}
+
+/* Narrow: the toggles scroll sideways on one row; the note goes below. */
+@container sri (max-width: 599.98px) {
+    #rimario .sri-toggles {
+        flex: 1 1 0;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        scrollbar-width: none;
+        /* room for the focus ring inside the scroller */
+        margin: -4px;
+        padding: 4px;
+    }
+
+    #rimario .sri-toggle {
+        flex: none;
+    }
+
+    #rimario .sri-filters-note {
+        flex-basis: 100%;
+    }
 }
 
 
@@ -741,6 +774,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     margin-top: -.25em;
     border-bottom: 1px solid var(--sri-line);
     background: var(--sri-bg);
+    box-shadow: 0 6px 8px -8px rgb(0 0 0 / .25);
 }
 
 #rimario .sri-tab {
@@ -758,7 +792,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     border-radius: var(--sri-radius-sm) var(--sri-radius-sm) 0 0;
     background: transparent;
     color: var(--sri-ink-muted);
-    text-align: center;
     cursor: pointer;
     transition: color var(--sri-ease), background-color var(--sri-ease);
 }
@@ -774,9 +807,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     transition: transform var(--sri-ease);
 }
 
-#rimario .sri-tab:hover {
-    background: var(--sri-chip-bg);
-    color: var(--sri-ink);
+@media (hover: hover) {
+    #rimario .sri-tab:hover {
+        background: var(--sri-chip-bg);
+        color: var(--sri-ink);
+    }
 }
 
 #rimario .sri-tab[aria-selected="true"] {
@@ -790,13 +825,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #rimario .sri-tab-name {
     display: block;
     max-width: 100%;
-    font-size: .8em;
-    /* shrink with the widget so "Consonanze" fits four columns at 320px */
+    /* shrink with the widget so "Consonanze" fits four columns at 320px;
+       with larger text it wraps instead of being cut */
     font-size: clamp(.7em, 3.5cqi, .8em);
     font-weight: 600;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+    hyphens: auto;
 }
 
 #rimario .sri-count {
@@ -816,32 +851,32 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
    --------------------------------------------------------------------------- */
 
 #rimario .sri-panels {
-    display: block;
     scroll-margin-top: calc(var(--sri-sticky-top) + 4.5em);
 }
 
 #rimario .sri-panel {
-    display: block;
-    min-width: 0;
-    border-radius: var(--sri-radius);
     container: sri-panel / inline-size;
 }
 
-#rimario .sri-panel:not([data-active]) {
-    display: none;
+/* Keep focused words clear of the sticky tab bar. */
+#rimario .sri-panel :is(button, [tabindex]) {
+    scroll-margin-top: calc(var(--sri-sticky-top) + 64px);
 }
 
-/* In the narrow layout the tab already names the panel. */
-#rimario .sri-panel-title {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    padding: 0;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    clip-path: inset(50%);
-    white-space: nowrap;
+@container sri (max-width: 599.98px) {
+    #rimario .sri-panel:not([data-active]) {
+        display: none;
+    }
+
+    /* The tab already names the panel. */
+    #rimario .sri-panel-title {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
 }
 
 #rimario .sri-groups {
@@ -899,17 +934,18 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #rimario .sri-group[aria-pressed="true"]:hover {
     border-color: var(--sri-ink);
     background: var(--sri-ink);
-    color: #fff;
+    color: var(--sri-on-accent);
 }
 
 #rimario .sri-group[aria-pressed="true"] .sri-count {
-    color: #fff;
+    color: var(--sri-on-accent);
 }
 
 #rimario .sri-group:disabled {
-    border-color: var(--sri-line);
-    background: var(--sri-bg);
+    border-style: dashed;
+    background: transparent;
     color: var(--sri-ink-muted);
+    opacity: .55;
     cursor: default;
 }
 
@@ -919,9 +955,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #rimario .sri-empty {
     margin: .25em 0;
+    padding: 1em;
+    border: 1px dashed var(--sri-line-strong);
+    border-radius: var(--sri-radius-sm);
     color: var(--sri-ink-muted);
     font-size: .9em;
-    font-style: italic;
+    text-align: center;
 }
 
 #rimario .sri-more {
@@ -930,20 +969,19 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     min-height: 40px;
     margin: .9em 0 0;
     padding: .5em 1em;
-    border: 1px solid var(--sri-line);
-    border-radius: var(--sri-radius-sm);
-    background: var(--sri-info-bg);
+    border: 1.5px solid var(--sri-line-strong);
+    border-radius: var(--sri-radius-pill);
+    background: var(--sri-bg);
     color: var(--sri-ink);
     font-size: .9em;
     font-weight: 600;
-    text-align: center;
     cursor: pointer;
     transition: background-color var(--sri-ease), border-color var(--sri-ease);
 }
 
 #rimario .sri-more:hover {
-    border-color: var(--sri-line-strong);
-    background: var(--sri-chip-bg-hover);
+    border-color: var(--sri-ink-muted);
+    background: var(--sri-chip-bg);
 }
 
 #rimario .sri-top {
@@ -955,7 +993,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     border: 0;
     border-radius: var(--sri-radius-pill);
     background: transparent;
-    color: var(--sri-accent-ink);
+    color: var(--sri-ink-muted);
     font-size: .9em;
     font-weight: 600;
     cursor: pointer;
@@ -972,7 +1010,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
    --------------------------------------------------------------------------- */
 
 #rimario .sri-help {
-    display: block;
     border: 1px solid var(--sri-line);
     border-radius: var(--sri-radius);
     background: var(--sri-bg);
@@ -1046,12 +1083,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 }
 
 #rimario .sri-help dt {
-    display: block;
     font-weight: 700;
 }
 
 #rimario .sri-help dd {
-    display: block;
     margin: 0 0 .5em;
 }
 
@@ -1061,20 +1096,18 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
    --------------------------------------------------------------------------- */
 
 #rimario .sri-footer {
-    display: block;
     color: var(--sri-ink-muted);
     font-size: .85em;
     text-align: center;
-    text-wrap: balance;
+    text-wrap: pretty;
 }
 
 #rimario .sri-footer p {
     margin: .4em 0;
 }
 
-#rimario .sri-footer a,
-#rimario .sri-footer a:visited {
-    color: var(--sri-accent-ink);
+#rimario .sri-footer a {
+    color: inherit;
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: .15em;
@@ -1096,8 +1129,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     outline-offset: 2px;
 }
 
-#rimario .sri-input:focus,
-#rimario .sri-input:focus-visible {
+#rimario .sri-input:focus {
     outline: none;
 }
 
@@ -1138,35 +1170,25 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     #rimario .sri-panels {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        align-items: start;
         gap: 1em;
     }
 
-    #rimario .sri-panel,
-    #rimario .sri-panel:not([data-active]) {
-        display: block;
+    #rimario .sri-panel {
         padding: 1em;
         border: 1px solid var(--sri-line);
+        border-radius: var(--sri-radius);
         background: var(--sri-bg);
     }
 
     #rimario .sri-panel-title {
-        position: static;
         display: flex;
         align-items: baseline;
         justify-content: space-between;
         gap: .5em;
-        width: auto;
-        height: auto;
         margin: 0 0 .75em;
-        padding: 0;
-        overflow: visible;
-        clip: auto;
-        clip-path: none;
         font-size: 1em;
         font-weight: 700;
         line-height: 1.3;
-        white-space: normal;
     }
 
     #rimario .sri-panel-title .sri-count {
@@ -1211,24 +1233,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
    Pointer and motion preferences
    --------------------------------------------------------------------------- */
 
-/* On touch screens hover states would stick after a tap. */
-@media (hover: none) {
-    #rimario .sri-chip:not(.sri-reading, .sri-candidate):hover {
-        background: var(--sri-chip-bg);
-        color: var(--sri-ink);
+/* Selected states are drawn with backgrounds, which forced colors remove. */
+@media (forced-colors: active) {
+    #rimario .sri-tab[aria-selected="true"]::after {
+        background: Highlight;
     }
 
-    #rimario .sri-chip[aria-pressed="true"]:hover {
-        background: var(--sri-selected-bg);
-        color: var(--sri-accent-ink);
-    }
-
-    #rimario .sri-tab:hover {
-        background: transparent;
-    }
-
-    #rimario .sri-tab:not([aria-selected="true"]):hover {
-        color: var(--sri-ink-muted);
+    #rimario :is(.sri-chip, .sri-group)[aria-pressed="true"] {
+        border: 2px solid Highlight;
     }
 }
 
@@ -1238,12 +1250,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     #rimario *::after {
         animation: none !important;
         transition: none !important;
-        scroll-behavior: auto !important;
     }
 
     #rimario .sri-progress[data-indeterminate] .sri-progress-bar {
         width: 100%;
-        transform: none;
         background: repeating-linear-gradient(-45deg,
             var(--sri-accent) 0 8px, #f7a3a7 8px 16px);
     }

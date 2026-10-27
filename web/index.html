@@ -29,14 +29,21 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     /* standalone page only; the WordPress build drops this block */
     body { margin: 0; background: #fff; font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
   </style>
+  <link rel="modulepreload" href="js/text.js">
+  <link rel="modulepreload" href="js/dictionary.js">
+  <link rel="modulepreload" href="js/search.js">
+  <link rel="modulepreload" href="js/ui.js">
+  <!-- keep this href equal to data-dictionary-url below -->
+  <link rel="preload" href="../dictionary/out/parole-accenti-frequenze.csv" as="fetch" crossorigin>
   <script type="module" src="js/app.js"></script>
 </head>
 <body>
+<main>
 <!-- rimario:begin -->
 <div id="rimario" class="sri" lang="it"
      data-dictionary-url="../dictionary/out/parole-accenti-frequenze.csv"
      data-attribution-url="../dictionary/out/ATTRIBUTION.md">
-  <div class="sri-app">
+  <section class="sri-app" aria-label="Super Rimario Italiano">
 
     <header class="sri-header">
       <h1 class="sri-title">
@@ -65,7 +72,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
             <path d="M18 6L6 18M6 6l12 12"/>
           </svg>
         </button>
-        <button class="sri-submit" id="sri-submit" type="submit">Cerca</button>
+        <button class="sri-button sri-submit" id="sri-submit" type="submit">Cerca</button>
       </div>
       <p class="sri-search-hint" id="sri-search-hint">Per le parole che non sono nel dizionario indica l'accento, es. <em>italiàno</em>.</p>
     </form>
@@ -92,7 +99,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         <li><button class="sri-chip sri-example" type="button" data-q="pésca">pésca</button></li>
         <li><button class="sri-chip sri-example" type="button" data-q="iniquo">iniquo</button></li>
         <li><button class="sri-chip sri-example" type="button" data-q="perché">perché</button></li>
-        <li><button class="sri-chip sri-example" type="button" data-q="canzone">canzone</button></li>
       </ul>
     </section>
 
@@ -112,15 +118,17 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         </button>
       </div>
       <div class="sri-readings" id="sri-readings" hidden>
-        <span class="sri-readings-label" id="sri-readings-label">Letture:</span>
+        <span class="sri-readings-label" id="sri-readings-label">Letture</span>
         <ul class="sri-chips" id="sri-readings-list" role="list" aria-labelledby="sri-readings-label"></ul>
       </div>
       <ul class="sri-notes" id="sri-notes" role="list" hidden></ul>
       <fieldset class="sri-filters" id="sri-filters">
         <legend class="sri-filters-legend">Mostra</legend>
-        <label class="sri-toggle"><input type="checkbox" id="sri-filter-proper" data-pref="proper"><span>Nomi propri</span></label>
-        <label class="sri-toggle"><input type="checkbox" id="sri-filter-archaic" data-pref="archaic"><span>Parole arcaiche e poetiche</span></label>
-        <label class="sri-toggle"><input type="checkbox" id="sri-filter-vulgar" data-pref="vulgar"><span>Parole volgari e offensive</span></label>
+        <div class="sri-toggles">
+          <label class="sri-toggle"><input type="checkbox" id="sri-filter-proper" data-pref="proper"><span>Nomi propri</span></label>
+          <label class="sri-toggle"><input type="checkbox" id="sri-filter-archaic" data-pref="archaic"><span>Parole arcaiche e poetiche</span></label>
+          <label class="sri-toggle"><input type="checkbox" id="sri-filter-vulgar" data-pref="vulgar"><span>Parole volgari e offensive</span></label>
+        </div>
         <span class="sri-filters-note" id="sri-hidden-note"></span>
       </fieldset>
 
@@ -182,14 +190,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     <details class="sri-help" id="sri-help">
       <summary>Come funziona</summary>
       <dl>
-        <dt>Rime</dt><dd>Stessa terminazione a partire dalla vocale accentata: amore → cuore, fiore.</dd>
-        <dt>Assonanze atone</dt><dd>Cambia solo la vocale accentata, il resto è uguale: amore → mare, dire.</dd>
-        <dt>Assonanze semplici</dt><dd>Stesse vocali, con consonanti simili: amore → sole, persone.</dd>
-        <dt>Consonanze</dt><dd>Stesse consonanti, con vocali diverse: amore → ora, cara.</dd>
+        <dt>Rime</dt><dd>Stessa terminazione a partire dalla vocale accentata: <em>amore</em>, <em>cuore</em>, <em>fiore</em>.</dd>
+        <dt>Assonanze atone</dt><dd>Cambia solo la vocale accentata, il resto è uguale: <em>amore</em>, <em>mare</em>, <em>dire</em>.</dd>
+        <dt>Assonanze semplici</dt><dd>Stesse vocali, con consonanti simili: <em>amore</em>, <em>sole</em>, <em>persone</em>.</dd>
+        <dt>Consonanze</dt><dd>Stesse consonanti, con vocali diverse: <em>amore</em>, <em>ora</em>, <em>cara</em>.</dd>
       </dl>
       <p>Assonanze e consonanze sono raggruppate per numero di differenze. I risultati sono ordinati per frequenza d'uso.</p>
-      <p>Le parole con più letture mostrano l'accento (àncora, ancòra). Il segno ° indica un accento stimato automaticamente.</p>
-      <p>Se una parola non è nel dizionario, scrivila con l'accento: italiàno.</p>
+      <p>Le parole con più letture mostrano l'accento (<em>àncora</em>, <em>ancòra</em>). Il segno ° indica un accento stimato automaticamente.</p>
+      <p>Se una parola non è nel dizionario, scrivila con l'accento: <em>italiàno</em>.</p>
     </details>
 
     <p class="sri-vh" id="sri-live" role="status" aria-live="polite"></p>
@@ -202,8 +210,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         <a href="../dictionary/out/ATTRIBUTION.md" data-sri-attribution target="_blank" rel="noopener">fonti e licenze</a>.</p>
     </footer>
 
-  </div>
+  </section>
 </div>
 <!-- rimario:end -->
+</main>
 </body>
 </html>

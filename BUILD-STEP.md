@@ -38,6 +38,7 @@ What the frontend (`web/`) provides for the build:
   - `data-attribution-url`: the published URL of `ATTRIBUTION.md` (dev value `../dictionary/out/ATTRIBUTION.md`); also rewrite the matching static `href` of the footer link, which is the no-JS fallback;
   - `data-dictionary-bytes` (optional): the decompressed CSV size, so the progress bar stays determinate when the server gzips the file;
   - `data-title-suffix` (optional): the text after "Rime con X | " in the page title; defaults to the page's initial `document.title`.
+- **Preloads:** `index.html`'s `<head>` has a `<link rel="preload" … as="fetch" crossorigin>` for the dictionary, so the download starts before the JS modules load. Write the same URL into its `href` as into `data-dictionary-url`, or the file downloads twice. The blog version can keep it (a preload link is allowed in `<body>`) or drop it. The `modulepreload` links are for the unbundled standalone site only.
 - **Standalone-only styles:** the inline `<style>` block in `index.html`'s `<head>` (body margin, background, font) is for the standalone page only; drop it in the blog version.
 - **JS:** native ES modules, entry `web/js/app.js` (imports `text.js`, `dictionary.js`, `search.js`, `ui.js`). Bundle them into one script for the blog (for example with esbuild), or keep `<script type="module">` for the standalone site.
 - **CSS:** `web/rimario.css`, entirely scoped under `#rimario`, with container queries instead of viewport media queries. A theme with a sticky header can set `--sri-sticky-top` on `#rimario`.

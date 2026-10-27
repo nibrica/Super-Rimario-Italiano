@@ -19,12 +19,6 @@
 // Pure string helpers shared by the engine and the UI. No DOM access.
 
 /**
- * Every character a dictionary word may contain, in code-point order.
- * @type {string}
- */
-export const ALPHABET = 'abcdefghijklmnopqrstuvwxyzàèéìíòóùú';
-
-/**
  * Bits of the optional fourth CSV column.
  * @type {Readonly<{NON_DEFAULT: number, OPEN: number, CLOSED: number, PREDICTED: number,
  *                  VULGAR: number, ARCHAIC: number, PROPER: number}>}
@@ -33,8 +27,9 @@ export const FLAGS = Object.freeze({
     NON_DEFAULT: 1, OPEN: 2, CLOSED: 4, PREDICTED: 8, VULGAR: 16, ARCHAIC: 32, PROPER: 64,
 });
 
-const VOWELS = 'aeiouàèéìíòóùú';
-const ACCENTED = 'àèéìíòóùú';
+// Every character a dictionary word may contain, in code-point order.
+const ALPHABET = 'abcdefghijklmnopqrstuvwxyzàèéìíòóùú';
+const VOWELS = new Set('aeiouàèéìíòóùú');
 const BASE_OF = Object.freeze({
     'à': 'a', 'è': 'e', 'é': 'e', 'ì': 'i', 'í': 'i', 'ò': 'o', 'ó': 'o', 'ù': 'u', 'ú': 'u',
 });
@@ -46,9 +41,11 @@ const QUALITY_SWAP = Object.freeze({
 });
 const GRAVE = Object.freeze({ a: 'à', e: 'è', i: 'ì', o: 'ò', u: 'ù' });
 const ACCENTED_RE = /[àèéìíòóùú]/g;
-const NOT_IN_ALPHABET_RE = /[^a-zàèéìíòóùú]+/;
+const NOT_IN_ALPHABET_RE = new RegExp(`[^${ALPHABET}]+`);
 // A plain vowel followed by an apostrophe that ends the token ("perche'").
-const APOSTROPHE_ACCENT_RE = /([aeiou])'(?=$|[^a-zàèéìíòóùú])/g;
+const APOSTROPHE_ACCENT_RE = new RegExp(`([aeiou])'(?=$|[^${ALPHABET}])`, 'g');
+// Combining marks other than grave (U+0300) and acute (U+0301): "naïve" → "naive", "ç" → "c".
+const OTHER_MARKS_RE = /[\u0302-\u036f]/g;
 const MAX_QUERY_LENGTH = 50;
 
 /**
@@ -57,7 +54,7 @@ const MAX_QUERY_LENGTH = 50;
  * @returns {boolean}
  */
 export function isVowel(ch) {
-    return typeof ch === 'string' && ch.length === 1 && VOWELS.includes(ch);
+    return VOWELS.has(ch);
 }
 
 /**
@@ -66,7 +63,7 @@ export function isVowel(ch) {
  * @returns {boolean}
  */
 export function isAccented(ch) {
-    return typeof ch === 'string' && ch.length === 1 && ACCENTED.includes(ch);
+    return ch in BASE_OF;
 }
 
 /**
@@ -75,7 +72,7 @@ export function isAccented(ch) {
  * @returns {string}
  */
 export function baseVowel(ch) {
-    return isAccented(ch) ? BASE_OF[ch] : ch;
+    return BASE_OF[ch] ?? ch;
 }
 
 /**
@@ -125,7 +122,7 @@ export function stripAccentsExceptFinal(s) {
  */
 export function lastAccentIndex(s) {
     for (let i = s.length - 1; i >= 0; i--) {
-        if (ACCENTED.includes(s[i])) return i;
+        if (isAccented(s[i])) return i;
     }
     return -1;
 }
@@ -137,7 +134,7 @@ export function lastAccentIndex(s) {
  */
 export function swapFinalQuality(s) {
     const last = s[s.length - 1];
-    if (!isAccented(last) || !(last in QUALITY_SWAP)) return null;
+    if (!(last in QUALITY_SWAP)) return null;
     return s.slice(0, -1) + QUALITY_SWAP[last];
 }
 
@@ -152,7 +149,7 @@ export function swapFinalQuality(s) {
  */
 export function markStress(word, stress, quality = null) {
     const ch = word[stress];
-    if (ch === undefined || !isVowel(ch)) return word;
+    if (!isVowel(ch)) return word;
     if (isAccented(ch) && (quality === null || qualityOf(ch) === quality)) return word;
     const base = baseVowel(ch);
     let marked;
@@ -164,14 +161,16 @@ export function markStress(word, stress, quality = null) {
 
 /**
  * Normalizes raw user input into a single dictionary-alphabet token:
- * NFC + lower case, typographic apostrophes → "'", "e'" at a token end → "è",
+ * lower case, other diacritics dropped (ï → i, ç → c), NFC, typographic
+ * apostrophes → "'", "e'" at a token end → "è",
  * "á" → "à", every other character is a separator, last non-empty token,
  * at most 50 characters.
  * @param {string} raw
  * @returns {string} '' when nothing usable remains
  */
 export function cleanQuery(raw) {
-    let s = String(raw ?? '').normalize('NFC').toLowerCase().replace(/[’‘`´]/g, "'");
+    let s = String(raw ?? '').toLowerCase().normalize('NFD').replace(OTHER_MARKS_RE, '').normalize('NFC');
+    s = s.replace(/[’‘`´]/g, "'");
     s = s.replace(APOSTROPHE_ACCENT_RE, (m, v) => GRAVE[v]);
     s = s.replace(/á/g, 'à');
     const tokens = s.split(NOT_IN_ALPHABET_RE);

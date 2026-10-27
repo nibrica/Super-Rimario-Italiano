@@ -48,7 +48,7 @@ function readConfig(root) {
         attributionUrl: data.attributionUrl || DEFAULT_ATTRIBUTION_URL,
         expectedBytes: Number.isFinite(bytes) && bytes > 0 ? bytes : null,
         baseTitle,
-        titleSuffix: data.titleSuffix || baseTitle,
+        titleSuffix: (data.titleSuffix || baseTitle).trim(),
     };
 }
 
@@ -114,11 +114,7 @@ function boot() {
         start(root, holder);
     } catch (error) {
         console.error('Super Rimario: boot failed', error);
-        try {
-            holder.ui?.showFatal(MSG_UNEXPECTED, false);
-        } catch {
-            // Nothing more we can do.
-        }
+        holder.ui?.showFatal(MSG_UNEXPECTED, false);
     }
 }
 
@@ -149,7 +145,15 @@ function start(root, holder) {
     ui.setHomeUrl(urlWithQ(null));
 
     function setTitle(label) {
-        document.title = label === null ? config.baseTitle : `Rime con ${label} | ${config.titleSuffix}`;
+        if (label === null) document.title = config.baseTitle;
+        else if (config.titleSuffix) document.title = `Rime con ${label} | ${config.titleSuffix}`;
+        else document.title = `Rime con ${label}`;
+    }
+
+    function fail(error) {
+        console.error('Super Rimario: search failed', error);
+        current = null;
+        ui.showFatal(MSG_UNEXPECTED, false);
     }
 
     /**
@@ -196,9 +200,7 @@ function start(root, holder) {
             setTitle(res.query.label);
             ui.showResults(dict, result, { source, preserveView: false });
         } catch (error) {
-            console.error('Super Rimario: search failed', error);
-            current = null;
-            ui.showFatal(MSG_UNEXPECTED, false);
+            fail(error);
         }
     }
 
@@ -213,20 +215,14 @@ function start(root, holder) {
     }
 
     function onFiltersChange(newPrefs) {
-        prefs = {
-            proper: Boolean(newPrefs.proper),
-            archaic: Boolean(newPrefs.archaic),
-            vulgar: Boolean(newPrefs.vulgar),
-        };
+        prefs = newPrefs;
         savePrefs(prefs);
         if (!dict || !current) return;
         try {
             const result = run(dict, current.query, { hideFlags: hideFlagsOf(prefs) });
             ui.showResults(dict, result, { source: 'filter', preserveView: true });
         } catch (error) {
-            console.error('Super Rimario: search failed', error);
-            current = null;
-            ui.showFatal(MSG_UNEXPECTED, false);
+            fail(error);
         }
     }
 
@@ -292,24 +288,17 @@ function start(root, holder) {
         load();
     }
 
+    window.addEventListener('popstate', onPopState);
+    load();   // synchronously marks the load as in flight, so the search below is queued
+
     // Initial ?q= handling.
     const initialQ = currentQ();
     if (initialQ !== null) {
         ui.setQueryText(initialQ);
-        pending = { term: initialQ, source: 'initial', mode: 'replace' };
-        const cleaned = cleanQuery(initialQ);
-        if (cleaned) {
-            ui.showQueued(cleaned);
-        } else {
-            pending = null;
-            ui.showMessage({ ok: false, reason: 'empty', term: '' });
-        }
+        search(initialQ, 'initial', 'replace');
     } else {
         ui.showIdle();
     }
-
-    window.addEventListener('popstate', onPopState);
-    load();
 
     // Focus the input on desktop when the widget is visible; never on touch, never scroll.
     if (initialQ === null && window.matchMedia('(pointer: fine)').matches) {

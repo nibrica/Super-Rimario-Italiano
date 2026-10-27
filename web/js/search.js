@@ -23,7 +23,7 @@
 // v's length (so the stress falls on the same letter).
 
 import {
-    FLAGS, baseVowel, cleanQuery, isAccented, isVowel, lastAccentIndex, markStress,
+    FLAGS, baseVowel, cleanQuery, isVowel, lastAccentIndex, markStress,
     qualityOf, stressCandidates, stripAccents, stripAccentsExceptFinal, swapFinalQuality,
     vowelClass,
 } from './text.js';
@@ -158,8 +158,7 @@ export function resolve(dict, raw) {
     if (k >= 0) {
         const typedQuality = qualityOf(term[k]);
         const kept = stripAccentsExceptFinal(term);
-        const spellings = [...new Set([kept, swapFinalQuality(kept), stripAccents(term)])];
-        for (const spelling of spellings) {
+        for (const spelling of [kept, swapFinalQuality(kept), stripAccents(term)]) {
             if (spelling === null) continue;
             const g = dict.findWord(spelling);
             if (g.start === g.end) continue;
@@ -176,51 +175,35 @@ export function resolve(dict, raw) {
 
 // Every combination of the qu / cu / cqu spellings before a vowel in s.
 function quVariants(s) {
-    const parts = [''];
+    let parts = [''];
     let i = 0;
-    let found = false;
     while (i < s.length) {
         let token = null;
         if (s.startsWith('cqu', i)) token = 'cqu';
         else if (s.startsWith('qu', i) || s.startsWith('cu', i)) token = s.slice(i, i + 2);
         if (token !== null && isVowel(s[i + token.length] ?? '')) {
-            const next = [];
-            for (const prefix of parts) {
-                for (const spelling of QU_SPELLINGS) next.push(prefix + spelling);
-            }
-            parts.length = 0;
-            parts.push(...next);
+            parts = parts.flatMap((prefix) => QU_SPELLINGS.map((spelling) => prefix + spelling));
             i += token.length;
-            found = true;
         } else {
             for (let p = 0; p < parts.length; p++) parts[p] += s[i];
             i++;
         }
     }
-    return found ? parts : [s];
+    return parts;
 }
 
 /**
- * Suffix spellings that count as perfect rhymes of `suffix`: the vowel class for a
- * final stress, the unaccented form of an accented stressed vowel, and every
- * qu / cu / cqu spelling before a vowel. Deduplicated, `suffix` first.
+ * Suffix spellings that count as perfect rhymes of `suffix`: every spelling of the
+ * stressed vowel ("ìo" ↔ "io", "è" ↔ "e" ↔ "é") and every qu / cu / cqu spelling
+ * before a vowel. Deduplicated, `suffix` first.
  * @param {string} suffix
  * @returns {string[]}
  */
 export function perfectVariants(suffix) {
-    let spellings;
-    if (suffix.length === 1) {
-        spellings = vowelClass(suffix);
-        spellings.splice(spellings.indexOf(suffix), 1);
-        spellings.unshift(suffix);
-    } else {
-        spellings = [suffix];
-        if (isAccented(suffix[0])) spellings.push(baseVowel(suffix[0]) + suffix.slice(1));
-    }
-    const out = new Set();
-    for (const spelling of spellings) {
-        out.add(spelling);
-        for (const v of quVariants(spelling)) out.add(v);
+    const rest = suffix.slice(1);
+    const out = new Set([suffix]);
+    for (const vowel of vowelClass(suffix[0])) {
+        for (const v of quVariants(vowel + rest)) out.add(v);
     }
     return [...out];
 }
@@ -300,15 +283,16 @@ export function run(dict, query, { hideFlags = 0 } = {}) {
     const word = query.word;
     const suffix = word.slice(query.stress);
     const imperfectSkipped = suffix.length > MAX_IMPERFECT_SUFFIX;
-    const groups = {
-        rhymes: [[]], atonal: [[]], assonances: [[], [], []], consonances: [[], [], []],
-    };
+    const groups = {};
+    for (const { id, groups: count } of CATEGORIES) {
+        groups[id] = Array.from({ length: count }, () => []);
+    }
     let hidden = 0;
 
     const collect = (variant, target) => {
         const n = variant.length;
-        const size = dict.size;
-        for (let r = dict.lowerBound(variant); r < size && dict.endsWith(r, variant); r++) {
+        const { start, end } = dict.suffixRange(variant);
+        for (let r = start; r < end; r++) {
             if (dict.wordLength(r) - dict.stress(r) !== n || dict.equals(r, word)) continue;
             if (dict.flags(r) & hideFlags) hidden++;
             else target.push(r);
