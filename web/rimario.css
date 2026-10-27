@@ -156,6 +156,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     padding: 1em 16px 2em;
 }
 
+/* The tabbed layout shows one panel: past a readable width its rows of words
+   get too long, so the whole app is centered at that width. */
+@container sri (max-width: 959.98px) {
+    #rimario .sri-app {
+        max-width: calc(var(--sri-column) + 32px);
+    }
+}
+
 /* In wide containers single-column blocks are centered at a readable width
    (below that they span the full width, aligned with the results). */
 @container sri (min-width: 1000px) {
