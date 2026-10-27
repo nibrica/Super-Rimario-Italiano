@@ -23,8 +23,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
  * never viewport media queries.
  *
  * Narrow layout (default): one tab bar + one visible panel.
- * >= 600px container: tab bar hidden, panels as cards in 2 columns.
- * >= 960px container: 4 columns.
+ * >= 960px container: tab bar hidden, all four panels as cards side by side.
+ * (No 2x2 stage: each panel lists up to 100 words, so the bottom row would
+ * start thousands of pixels down, out of sight and with no tab to reach it.)
  */
 
 
@@ -863,7 +864,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     scroll-margin-top: calc(var(--sri-sticky-top) + 64px);
 }
 
-@container sri (max-width: 599.98px) {
+@container sri (max-width: 959.98px) {
     #rimario .sri-panel:not([data-active]) {
         display: none;
     }
@@ -1157,19 +1158,25 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     }
 }
 
-/* Wide: all four categories visible at once, as cards. */
 @container sri (min-width: 600px) {
     #rimario .sri-app {
         padding-top: 1.5em;
     }
 
+    #rimario .sri-query-word {
+        font-size: 2.1em;
+    }
+}
+
+/* Wide: all four categories visible at once, as cards. */
+@container sri (min-width: 960px) {
     #rimario .sri-tabs {
         display: none;
     }
 
     #rimario .sri-panels {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 1em;
     }
 
@@ -1203,10 +1210,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     #rimario .sri-panel-title .sri-count:empty {
         display: none;
     }
-
-    #rimario .sri-query-word {
-        font-size: 2.1em;
-    }
 }
 
 /* Narrow cards: the "Differenze" label gets its own line above the buttons. */
@@ -1219,12 +1222,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         flex: 1 1 auto;
         justify-content: center;
         padding-inline: .5em;
-    }
-}
-
-@container sri (min-width: 960px) {
-    #rimario .sri-panels {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 }
 
