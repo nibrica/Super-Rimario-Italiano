@@ -749,22 +749,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     display: none;
 }
 
-/* Narrow: the toggles scroll sideways on one row; the note goes below. */
+/* Narrow: the note goes below the toggles. */
 @container sri (max-width: 599.98px) {
-    #rimario .sri-toggles {
-        flex: 1 1 0;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        scrollbar-width: none;
-        /* room for the focus ring inside the scroller */
-        margin: -4px;
-        padding: 4px;
-    }
-
-    #rimario .sri-toggle {
-        flex: none;
-    }
-
     #rimario .sri-filters-note {
         flex-basis: 100%;
     }
