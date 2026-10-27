@@ -29,7 +29,7 @@ ENCLITIC = "paradigm.enclitic"             # verb + clitics (portàndoglielo): r
 # (in this order) among its readings; a form with no reading at all gets
 # "chars", "low_confidence" (the model's prediction was withheld) or "no_stress".
 REASONS = (
-    "chars", "abbreviation", "misspelling", "roman_numeral", "loanword", "proper_no_kaikki",
+    "chars", "atonic", "abbreviation", "misspelling", "roman_numeral", "loanword", "proper_no_kaikki",
     "proper_no_freq", "low_confidence", "not_in_lexicon", "few_lexicons", "no_stress",
     "override_remove",
 )
@@ -149,7 +149,7 @@ def _loanwords(r: pl.DataFrame) -> pl.DataFrame:
     (their stress is predicted or from the single-vowel rule) are suspects.
     Such a form is out when it is spelled with j/k/w/x/y and has no Italian
     suffix (jihadisti stays), or when English uses it clearly more than
-    Italian (the, time, performance) and it is no Italian function word (i).
+    Italian (the, time, performance) and it is no Italian function word (me).
     """
     tier = pl.col("tier")
     suspects = r.group_by("form").agg(
@@ -207,6 +207,7 @@ def select(
     tags = pl.col("tags")
     r = r.with_columns(
         reason=pl.when(~pl.col("form").str.contains(text.ALLOWED_RE)).then(pl.lit("chars"))
+        .when(pl.col("form").is_in(config.ATONIC_FORMS)).then(pl.lit("atonic"))
         .when(tags.list.contains("abbreviation")).then(pl.lit("abbreviation"))
         .when(tags.list.contains("misspelling") | pl.col("misspelled")).then(pl.lit("misspelling"))
         .when((pl.col("pos") == "num") & pl.col("form").str.contains(_ROMAN_RE)).then(pl.lit("roman_numeral"))

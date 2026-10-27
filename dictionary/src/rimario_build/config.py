@@ -281,8 +281,20 @@ READING_MIN_ZIPF = 0.01
 
 # --- Lexicon, export and report ----------------------------------------------
 
+# Unstressed function words: the articles and the clitic pronouns. They never
+# carry stress of their own, so they can't end a line or rhyme, and their high
+# frequency puts them above the real rhymes (si, mi, ci, ti before così). The
+# whole form goes, with its other readings (the note la, the letter i, glìe
+# plural of glia): frequencies are split among readings later, so a reading
+# left alone would get the clitic's whole frequency. Stressed pronouns (me, te,
+# sé, lui, noi) and uno/una (also numerals: nessuno, luna) are good rhymes and stay.
+ATONIC_FORMS = frozenset({
+    "il", "lo", "la", "i", "gli", "le", "un",
+    "mi", "ti", "si", "ci", "vi", "li", "ne", "ce", "ve", "glie",
+})
+
 # Loanwords among forms whose stress is only predicted or from the
-# single-vowel rule, unless they have a reading in LOANWORD_ITALIAN_POS (i):
+# single-vowel rule, unless they have a reading in LOANWORD_ITALIAN_POS (me):
 # out if spelled with LOANWORD_CHARS and not ending in an Italian suffix after
 # at least LOANWORD_MIN_STEM letters (juventini, mixare), or if wordfreq's
 # English Zipf exceeds the Italian one by more than LOANWORD_EN_MARGIN. At 0.25

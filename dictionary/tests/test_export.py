@@ -218,7 +218,7 @@ def test_vowel_quality_never_splits_rows():
 
 def test_loanwords():
     forms = forms_df(*({"form": f} for f in (
-        "weekend", "jazz", "yogurt", "juventini", "jihadisti", "performance", "micro", "the", "i")))
+        "weekend", "jazz", "yogurt", "juventini", "jihadisti", "performance", "micro", "the", "me")))
     pred = {"tier": "predicted", "confidence": 0.95, "evidence": "none", "sources": ["model"]}
     single = {"tier": "propagated", "evidence": "none", "sources": ["paradigm.single_vowel"]}
     readings = readings_df(
@@ -231,10 +231,10 @@ def test_loanwords():
         {"form": "performance", "stress_idx": 7, **pred},                       # English 5.2 vs 4.3
         {"form": "micro", "stress_idx": 1, **pred},                             # English 4.08 vs 4.00
         {"form": "the", "stress_idx": 2, **single},                             # English 7.7 vs 5.5
-        {"form": "i", "stress_idx": 0, "pos": "article", **single},             # English 7.1 vs 6.9
+        {"form": "me", "stress_idx": 1, "pos": "pron", **single},               # English 6.5 vs 6.1
     )
     entries, excluded = run_select(forms, readings)
-    assert sorted(entries["form"]) == ["i", "jihadisti", "juventini", "micro", "weekend", "yogurt"]
+    assert sorted(entries["form"]) == ["jihadisti", "juventini", "me", "micro", "weekend", "yogurt"]
     assert excluded.rows() == [("jazz", "loanword"), ("performance", "loanword"), ("the", "loanword")]
 
 
@@ -244,15 +244,15 @@ def test_exclusions_and_tiers():
         {"form": "striscie", "lemma": "strisce", "tags": ["misspelling"]},
         {"form": "striscie", "lemma": "striscia", "source": "morphit"},
         {"form": "c'è"}, {"form": "'ndrangheta"}, {"form": "dubbio"}, {"form": "nulla"},
-        {"form": "ii", "pos": "num", "source": "morphit"}, {"form": "vi", "pos": "num", "source": "morphit"},
-        {"form": "vi", "pos": "pron", "source": "morphit"}, {"form": "mi", "pos": "pron"},
+        {"form": "ii", "pos": "num", "source": "morphit"}, {"form": "di", "pos": "num", "source": "morphit"},
+        {"form": "di", "pos": "prep", "source": "morphit"}, {"form": "me", "pos": "pron"},
     )
     readings = readings_df(
         {"form": "sig", "stress_idx": 1}, {"form": "perchè", "stress_idx": 5}, {"form": "c'è", "stress_idx": 2},
         {"form": "striscie", "stress_idx": 3, "lemma": "striscia", "tier": "propagated", "evidence": "none",
          "sources": ["paradigm.nominal"]},
-        {"form": "ii", "stress_idx": 0, "pos": "num"}, {"form": "vi", "stress_idx": 1, "pos": "pron"},
-        {"form": "vi", "stress_idx": 1, "pos": "num"}, {"form": "mi", "stress_idx": 1, "pos": "pron"},
+        {"form": "ii", "stress_idx": 0, "pos": "num"}, {"form": "di", "stress_idx": 1, "pos": "prep"},
+        {"form": "di", "stress_idx": 1, "pos": "num"}, {"form": "me", "stress_idx": 1, "pos": "pron"},
         {"form": "generato", "stress_idx": 4, "tier": "propagated"},
         {"form": "inventato", "stress_idx": 4},
         {"form": "previsto", "stress_idx": 3, "tier": "predicted", "confidence": 0.97},
@@ -263,7 +263,27 @@ def test_exclusions_and_tiers():
                                      "c'è": "chars", "'ndrangheta": "chars", "dubbio": "low_confidence",
                                      "nulla": "no_stress", "ii": "roman_numeral", "inventato": "not_in_lexicon"}
     got = {f: t for f, t in entries.select("form", "tier").rows()}
-    assert got == {"generato": "propagated", "mi": "attested", "previsto": "predicted", "vi": "attested"}
+    assert got == {"di": "attested", "generato": "propagated", "me": "attested", "previsto": "predicted"}
+
+
+def test_atonic_function_words_go_with_all_their_readings():
+    """la/si: the note goes with the article or clitic; so does glìe (plural of glia), stressed elsewhere."""
+    forms = forms_df(
+        {"form": "la", "pos": "article"}, {"form": "la", "pos": "pron"}, {"form": "la", "pos": "noun"},
+        {"form": "si", "pos": "pron"}, {"form": "si", "pos": "noun"}, {"form": "si", "pos": "num"},
+        {"form": "glie", "pos": "pron"}, {"form": "glie", "lemma": "glia"}, {"form": "me", "pos": "pron"},
+        {"form": "luna"},
+    )
+    readings = readings_df(
+        {"form": "la", "stress_idx": 1, "pos": "article"}, {"form": "la", "stress_idx": 1, "pos": "pron"},
+        {"form": "la", "stress_idx": 1}, {"form": "si", "stress_idx": 1, "pos": "pron"},
+        {"form": "si", "stress_idx": 1}, {"form": "si", "stress_idx": 1, "pos": "num"},
+        {"form": "glie", "stress_idx": 3, "pos": "pron"}, {"form": "glie", "stress_idx": 2, "lemma": "glia"},
+        {"form": "me", "stress_idx": 1, "pos": "pron"}, {"form": "luna", "stress_idx": 1},
+    )
+    entries, excluded = run_select(forms, readings)
+    assert keys(entries) == [("luna", 1), ("me", 1)]
+    assert excluded.rows() == [("glie", "atonic"), ("la", "atonic"), ("si", "atonic")]
 
 
 def test_tags_need_every_row_of_a_source_except_vulgar_form_of():
