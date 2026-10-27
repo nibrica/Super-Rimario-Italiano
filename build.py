@@ -31,8 +31,8 @@ Outputs:
   asset references rewritten, the ``modulepreload`` links removed and
   ``data-dictionary-bytes`` set.
 - ``build/wordpress.html``: the version for L'AvisioBlog, to paste into a
-  Custom HTML block: the widget fragment with the CSS and JS inlined, the logo
-  as a data URI, and the dictionary and attribution pointing at their upload
+  Custom HTML block: the widget fragment with the CSS inlined, the JS bundle of
+  build/web and the logo as data URIs, and the dictionary and attribution pointing at their upload
   URLs under ``--upload-base`` (default: this month's WordPress uploads folder).
   The CSS makes the properties the blog's theme forces important too
   (WORDPRESS_IMPORTANT).
@@ -478,6 +478,21 @@ def important_css(css: str, label: str) -> str:
     return css
 
 
+# wptexturize, which WordPress runs on the whole post, <script> and <style> included,
+# takes each "<" up to the next ">" (or the end) as a tag, except comments, and
+# turns every "&" in it that doesn't start an entity into "&#038;": inline JS
+# like "a<b&&c>d" stops parsing.
+_WPTEXTURIZE_TAG = re.compile(r"<(?:!--.*?(?:-->|\Z)|[^>]*>?)", re.DOTALL)
+_WPTEXTURIZE_AMPERSAND = re.compile(r"&(?!#(?:\d+|x[a-f0-9]+);|[a-z1-4]{1,8};)", re.IGNORECASE)
+
+
+def check_wptexturize(page: str) -> None:
+    for match in _WPTEXTURIZE_TAG.finditer(page):
+        if not match.group().startswith("<!--") and _WPTEXTURIZE_AMPERSAND.search(match.group()):
+            fail(f"build/wordpress.html: '&' in {match.group()[:60]!r}…, which WordPress "
+                 f"would rewrite as '&#038;'")
+
+
 def build_wordpress(esbuild: str, index_src: str, header: str, assets: dict, base: str) -> dict:
     """Write build/wordpress.html and build/wordpress-uploads/; returns the uploads."""
     csv_name, csv_bytes = assets[DICTIONARY]
@@ -541,22 +556,20 @@ def build_wordpress(esbuild: str, index_src: str, header: str, assets: dict, bas
     css_src = important_css((WEB / CSS).read_text(encoding="utf-8"), f"web/{CSS}")
     css = run_esbuild(esbuild, [f"--sourcefile=web/{CSS}", "--loader=css", "--minify", f"--target={TARGET}",
                                 "--legal-comments=none"], stdin=css_src).removesuffix("\n")
-    # No --minify-syntax: it turns "\n" strings into template literals with real newlines.
-    js = run_esbuild(esbuild, [f"web/{JS_ENTRY}", "--bundle", "--minify-whitespace", "--minify-identifiers",
-                               "--format=esm", f"--target={TARGET}", "--legal-comments=none"]).removesuffix("\n")
-    if "\n" in js or "</script" in js.lower() or "<!--" in js:
-        fail("bundled JS contains a newline, '</script' or '<!--': it can't be inlined in WordPress")
     if "\n" in css or "</style" in css.lower():
         fail("minified CSS contains a newline or '</style': it can't be inlined in WordPress")
+    # The standalone bundle as a data URI, not inline: wptexturize would mangle it (see check_wptexturize).
+    js_uri = "data:text/javascript;base64," + base64.b64encode(assets[JS_ENTRY][1]).decode()
 
     notice = "\n".join(line for line in header.split("\n") if line.strip())
     page = (f"<!--\n{notice}\n-->\n"
             f'<div id="main-body"><link rel="preload" href="{html.escape(csv_url)}" as="fetch" crossorigin>'
             f'<h2 id="descrizionerimario">{html.escape(SEO_HEADING)}</h2>'
             f"<style>#descrizionerimario{{display:none}}{css}</style>"
-            f'{fragment}<script type="module">{js}</script></div>\n')
+            f'{fragment}<script type="module" src="{js_uri}"></script></div>\n')
     if any(not line.strip() for line in page.split("\n")[:-1]):
         fail("build/wordpress.html has a blank line: WordPress would split the block there")
+    check_wptexturize(page)
     for name in SHORTCODES:
         if "[" + name in page:
             fail(f"build/wordpress.html contains '[{name}': WordPress would run it as a shortcode")
