@@ -8,9 +8,15 @@ Il rimario è disponibile online su L'AvisioBlog all'indirizzo https://www.lavis
 
 ## Caratteristiche
 
-- Ricerca rapida di rime, assonanze e consonanze
-- Ordinamento dei risultati per frequenza d'uso
-- Gestione delle parole omografe come àncora/ancòra
+- Ricerca rapida di rime, assonanze atone, assonanze semplici e consonanze
+- Ordinamento dei risultati per frequenza d'uso, con assonanze e consonanze raggruppate per numero di differenze
+- Gestione delle parole omografe con tutte le loro letture, come àncora/ancòra o prìncipi/princìpi
+- Rime tra terminazioni in *qu* e *cu*, come iniquo/cospicuo
+- Ricerca di parole non presenti nel dizionario indicando l'accento, es. *italiàno*
+- Filtri per nomi propri, parole arcaiche e poetiche, parole volgari e offensive (le preferenze vengono ricordate)
+- Segnalazione delle parole con accento stimato automaticamente
+- Ogni ricerca ha un proprio link, condivisibile con il pulsante "Condividi"; i tasti avanti e indietro del browser funzionano
+- Utilizzabile da tastiera e con i lettori di schermo
 
 ## Generazione del dizionario
 
@@ -28,12 +34,32 @@ Per migliorare la qualità di questo dizionario è consigliabile contribuire al 
 
 ## Installazione e uso locale
 
+Il sito non ha passaggi di compilazione: i file in `web/` (HTML, CSS, SVG e moduli JavaScript) si usano così come sono. Il dizionario viene letto da `dictionary/out/parole-accenti-frequenze.csv`, che quindi deve essere già stato generato.
+
 1. Clona questo repository
-2. Apri `index.html` in un browser moderno (è necessario un ambiente server)
-3. Per rigenerare il dizionario:
+2. Dalla cartella principale del repository avvia un server locale: `python3 -m http.server 8000` (aprire `index.html` direttamente come file non funziona, perché il dizionario viene scaricato dalla pagina)
+3. Apri http://localhost:8000/web/ in un browser
+4. Per rigenerare il dizionario:
    - Installa [uv](https://docs.astral.sh/uv/) (installa da solo Python e le dipendenze; non servono pacchetti di sistema)
    - Dalla cartella `dictionary/`, esegui `uv run rimario-build`: scarica le versioni più recenti delle fonti e genera `dictionary/out/`
    - Con `uv run rimario-build --offline` il dizionario viene rigenerato usando le fonti già scaricate
+
+### Requisiti del browser
+
+Serve un browser recente che supporti i moduli ES (`<script type="module">`) e le container query CSS: Chrome ed Edge 105 o successivi, Firefox 110 o successivi, Safari 16 o successivi. `Intl.Segmenter` non è più necessario.
+
+### Integrazione
+
+Il rimario è tutto dentro l'elemento `#rimario` di `web/index.html`, compreso tra i commenti `<!-- rimario:begin -->` e `<!-- rimario:end -->`, e si configura con questi attributi:
+
+| Attributo | Significato | Valore predefinito |
+|---|---|---|
+| `data-dictionary-url` | URL del file CSV del dizionario (gli URL relativi partono dalla pagina) | `../dictionary/out/parole-accenti-frequenze.csv` |
+| `data-attribution-url` | URL della pagina con fonti e licenze del dizionario | `../dictionary/out/ATTRIBUTION.md` |
+| `data-title-suffix` | Testo dopo "Rime con X \| " nel titolo della pagina | il titolo iniziale della pagina |
+| `data-dictionary-bytes` | Dimensione del CSV decompresso, per mostrare l'avanzamento del download quando il server lo comprime | nessuno |
+
+Tutto il CSS è limitato a `#rimario` e annulla gli stili del tema che lo ospita, quindi il rimario si può inserire in una pagina esistente (per esempio WordPress) senza conflitti. Se il sito ha un'intestazione fissa in alto, impostane l'altezza nella variabile CSS `--sri-sticky-top` (per esempio `#rimario { --sri-sticky-top: 64px; }`), così le schede dei risultati restano visibili sotto di essa.
 
 ## Contribuire
 
