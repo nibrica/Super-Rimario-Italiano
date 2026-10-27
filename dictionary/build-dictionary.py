@@ -32,30 +32,9 @@ print("Italian dictionary builder by Nicolò Brigadoi Calamari [2024]")
 # INPUT FILES
 wiktionary_xml_dump_path = "input/itwiktionary-20260201-pages-articles.xml" # https://dumps.wikimedia.org/backup-index.html
 colfis_frequencies_path = "input/formario_minuscolo_colfis.txt" # encoding: ISO-8859 (iso-8859-1) https://linguistica.sns.it/CoLFIS/Formario.htm
-word_list_paths = [
-    "input/280000_parole_italiane_napolux.txt", # https://github.com/napolux/paroleitaliane/blob/master/paroleitaliane/280000_parole_italiane.txt
-    "input/parole_witalian.txt", # https://packages.debian.org/sid/witalian
-    "input/dictionary_ita_pazqo.txt"# https://dumps.wikimedia.org/backup-index.html
-]
 
 #OUTPUT FILE
 compiled_dictionary_path = datetime.now().strftime("parole-accenti-frequenze_%Y-%m-%d.csv")
-
-def load_big_word_set():
-
-    def file_to_set(file):
-        result = set()
-        for line in file:
-            result.add(line.strip().lower())
-        return result
-
-    results = set()
-    for path in word_list_paths:
-        with open(path, 'r', encoding="utf-8") as f:
-            print(f"Loaded '{path}'")
-            results = results.union(file_to_set(f))
-    print(f"Big word set created [{len(results)} words]")
-    return results
 
 # Analyze the Wiktionary XML dump to extract words and accents
 def parse_wiktionary():
@@ -99,8 +78,6 @@ def parse_wiktionary():
         sill_tag = re.search(r"{{-sill-}}(.+?)(?:{|$)", text, re.DOTALL)
         if sill_tag:
             accent1, accent2 = parse_sill_tag(sill_tag.group(1), len(word))
-        if word not in big_word_set and not accent1:
-            return None
         return {"word": word, "accent1": accent1, "accent2": accent2}
 
     word_set = set()
@@ -132,7 +109,7 @@ def parse_colfis():
                 continue
             if re.search(r"[-.,!?;:']", words[0]):
                 continue
-            if not (words[0] in big_word_set or words[0] in wiktionary_set):
+            if words[0] not in wiktionary_set:
                 continue
             word_frequency_list.append({"word": words[0], "frequency": words[1]})
     print(f"CoLFIS successfully parsed [{len(word_frequency_list)} words]")
@@ -228,7 +205,6 @@ def sort_and_save_final_list(final_list):
     print(f"Written '{compiled_dictionary_path}'")
 
 script_start_time = time.time()
-big_word_set = load_big_word_set()
 wiktionary_set, wiktionary_words_accents = parse_wiktionary()
 colfis_words_frequency = parse_colfis()
 sort_and_save_final_list(find_missing_accents(build_list()))

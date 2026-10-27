@@ -18,7 +18,6 @@ Il dizionario utilizzato da Super Rimario Italiano è generato utilizzando diver
 
 - Dump XML del Wikizionario italiano
 - Lista di frequenze CoLFIS
-- Altre liste di parole italiane
 
 Il processo di generazione è gestito dallo script Python `build-dictionary.py`, che combina queste fonti e utilizza `espeak` per determinare gli accenti delle parole quando necessario. Questo significa che alcuni accenti saranno errati.
 Per migliorare la qualità di questo dizionario è consigliabile contribuire al Wikizionario.
@@ -59,8 +58,3 @@ Questo progetto fa uso di dati dal Wikizionario italiano (https://it.wiktionary.
 Questo progetto include anche materiale dalle seguenti fonti
 
 - [Corpus e Lessico di Frequenza dell'Italiano Scritto (CoLFIS)] - Bertinetto Pier Marco, Burani Cristina, Laudanna Alessandro, Marconi Lucia, Ratti Daniela, Rolando Claudia, Thornton Anna Maria. 2005.
-- [WItalian] - Copyright (c) [1997-2018] [Davide G. M. Salvetti] (Licenza GPL-3+)
-- [paroleitaliane] - Copyright (c) [2016] [napolux] (Licenza MIT)
-- [scalaWords] by [pazqo]
-
-Il testo completo delle licenze per queste fonti è incluso nella cartella 'licenses' di questo progetto.
