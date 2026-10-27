@@ -24,7 +24,7 @@
 
 import {
     FLAGS, baseVowel, cleanQuery, isVowel, lastAccentIndex, markStress,
-    qualityOf, stressCandidates, stripAccents, stripAccentsExceptFinal, swapFinalQuality,
+    stressCandidates, stripAccents, stripAccentsExceptFinal, swapFinalQuality,
     vowelClass,
 } from './text.js';
 
@@ -76,7 +76,6 @@ const QU_SPELLINGS = Object.freeze(['qu', 'cu', 'cqu']);
  * @typedef {object} QueryInfo
  * @property {string} word spelling searched
  * @property {number} stress index of the stressed vowel in word
- * @property {'open' | 'closed' | null} quality
  * @property {number} row chosen dictionary row, or -1 when the reading is not in the dictionary
  * @property {number[]} readings all rows of the word's group (ascending); [] when unknown
  * @property {string} label display form
@@ -106,30 +105,23 @@ function range(start, end) {
     return rows;
 }
 
-function queryInfo(dict, word, stress, quality, row, readings) {
+function queryInfo(dict, word, stress, row, readings) {
     return {
         word,
         stress,
-        quality,
         row,
         readings,
-        label: row >= 0 ? dict.displayWord(row) : markStress(word, stress, quality),
+        label: row >= 0 ? dict.displayWord(row) : markStress(word, stress),
         predicted: row >= 0 && (dict.flags(row) & FLAGS.PREDICTED) !== 0,
     };
 }
 
-// Row of group [start, end) read with stress k; quality match first, then the
-// default reading, then the first. -1 when no row has that stress.
-function pickReading(dict, start, end, k, quality) {
-    let first = -1;
-    let nonDefault = -1;
+// Row of group [start, end) read with stress k, or -1 when no row has that stress.
+function pickReading(dict, start, end, k) {
     for (let i = start; i < end; i++) {
-        if (dict.stress(i) !== k) continue;
-        if (quality !== null && dict.quality(i) === quality) return i;
-        if (first === -1) first = i;
-        if (nonDefault === -1 && (dict.flags(i) & FLAGS.NON_DEFAULT) === 0) nonDefault = i;
+        if (dict.stress(i) === k) return i;
     }
-    return nonDefault !== -1 ? nonDefault : first;
+    return -1;
 }
 
 /**
@@ -148,25 +140,21 @@ export function resolve(dict, raw) {
         const g = dict.findWord(spelling);
         if (g.start === g.end) continue;
         const row = dict.defaultReading(g.start, g.end);
-        const stress = dict.stress(row);
-        const quality = dict.quality(row) ?? qualityOf(spelling[stress]);
-        return { ok: true, term, query: queryInfo(dict, spelling, stress, quality, row, range(g.start, g.end)) };
+        return { ok: true, term, query: queryInfo(dict, spelling, dict.stress(row), row, range(g.start, g.end)) };
     }
 
     // B. The user marked the stress explicitly.
     const k = lastAccentIndex(term);
     if (k >= 0) {
-        const typedQuality = qualityOf(term[k]);
         const kept = stripAccentsExceptFinal(term);
         for (const spelling of [kept, swapFinalQuality(kept), stripAccents(term)]) {
             if (spelling === null) continue;
             const g = dict.findWord(spelling);
             if (g.start === g.end) continue;
-            const row = pickReading(dict, g.start, g.end, k, typedQuality);
-            const quality = row >= 0 ? dict.quality(row) ?? qualityOf(spelling[k]) : typedQuality;
-            return { ok: true, term, query: queryInfo(dict, spelling, k, quality, row, range(g.start, g.end)) };
+            const row = pickReading(dict, g.start, g.end, k);
+            return { ok: true, term, query: queryInfo(dict, spelling, k, row, range(g.start, g.end)) };
         }
-        return { ok: true, term, query: queryInfo(dict, kept, k, typedQuality, -1, []) };
+        return { ok: true, term, query: queryInfo(dict, kept, k, -1, []) };
     }
 
     // C. Unknown word without an accent: ask where the stress falls.

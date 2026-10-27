@@ -10,7 +10,7 @@ Il rimario è disponibile online su L'AvisioBlog all'indirizzo https://www.lavis
 
 - Ricerca rapida di rime, assonanze atone, assonanze semplici e consonanze
 - Ordinamento dei risultati per frequenza d'uso, con assonanze e consonanze raggruppate per numero di differenze
-- Gestione delle parole omografe con tutte le loro letture, come àncora/ancòra o pèsca/pésca
+- Gestione delle parole omografe con tutte le loro letture, come àncora/ancòra o prìncipi/princìpi
 - Rime tra terminazioni in *qu* e *cu*, come iniquo/cospicuo
 - Ricerca di parole non presenti nel dizionario indicando l'accento, es. *italiàno*
 - Filtri per nomi propri, parole arcaiche e poetiche, parole volgari e offensive (le preferenze vengono ricordate)

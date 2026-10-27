@@ -117,17 +117,6 @@ export class Dictionary {
     }
 
     /**
-     * @param {number} i row
-     * @returns {'open' | 'closed' | null} vowel quality from the OPEN / CLOSED flags
-     */
-    quality(i) {
-        const f = this.#flags[i];
-        if (f & FLAGS.OPEN) return 'open';
-        if (f & FLAGS.CLOSED) return 'closed';
-        return null;
-    }
-
-    /**
      * Compares reversed(word(i)) with reversed(s) in code-unit order; on a common
      * suffix the shorter string is smaller. No allocation.
      * @param {number} i row
@@ -265,13 +254,12 @@ export class Dictionary {
     }
 
     /**
-     * Whether row i must be shown with its stress marked: it has a vowel-quality
-     * flag, or another reading of the same word has a different stress.
+     * Whether row i must be shown with its stress marked: another reading of
+     * the same word has a different stress.
      * @param {number} i row
      * @returns {boolean}
      */
     needsStressMark(i) {
-        if (this.#flags[i] & (FLAGS.OPEN | FLAGS.CLOSED)) return true;
         const { start, end } = this.groupBounds(i);
         const stress = this.#stress[i];
         for (let j = start; j < end; j++) {
@@ -288,7 +276,7 @@ export class Dictionary {
      */
     queryTerm(i) {
         const word = this.word(i);
-        return this.needsStressMark(i) ? markStress(word, this.#stress[i], this.quality(i)) : word;
+        return this.needsStressMark(i) ? markStress(word, this.#stress[i]) : word;
     }
 
     /**

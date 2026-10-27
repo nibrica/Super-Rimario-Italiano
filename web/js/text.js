@@ -20,11 +20,11 @@
 
 /**
  * Bits of the optional fourth CSV column.
- * @type {Readonly<{NON_DEFAULT: number, OPEN: number, CLOSED: number, PREDICTED: number,
- *                  VULGAR: number, ARCHAIC: number, PROPER: number}>}
+ * @type {Readonly<{NON_DEFAULT: number, PREDICTED: number, VULGAR: number, ARCHAIC: number,
+ *                  PROPER: number}>}
  */
 export const FLAGS = Object.freeze({
-    NON_DEFAULT: 1, OPEN: 2, CLOSED: 4, PREDICTED: 8, VULGAR: 16, ARCHAIC: 32, PROPER: 64,
+    NON_DEFAULT: 1, PREDICTED: 2, VULGAR: 4, ARCHAIC: 8, PROPER: 16,
 });
 
 // Every character a dictionary word may contain, in code-point order.
@@ -73,17 +73,6 @@ export function isAccented(ch) {
  */
 export function baseVowel(ch) {
     return BASE_OF[ch] ?? ch;
-}
-
-/**
- * Vowel quality expressed by an accent: è, ò → 'open'; é, ó → 'closed'; otherwise null.
- * @param {string} ch single character
- * @returns {'open' | 'closed' | null}
- */
-export function qualityOf(ch) {
-    if (ch === 'è' || ch === 'ò') return 'open';
-    if (ch === 'é' || ch === 'ó') return 'closed';
-    return null;
 }
 
 /**
@@ -140,23 +129,15 @@ export function swapFinalQuality(s) {
 
 /**
  * Display form of a word with its stressed vowel marked (precomposed characters).
- * An already accented stressed vowel is kept unless it contradicts `quality`.
- * Plain a/i/u get a grave accent; e/o get grave (open, default) or acute (closed).
+ * An already accented stressed vowel is kept; a plain one gets a grave accent.
  * @param {string} word
  * @param {number} stress index of the stressed vowel
- * @param {'open' | 'closed' | null} [quality]
  * @returns {string}
  */
-export function markStress(word, stress, quality = null) {
+export function markStress(word, stress) {
     const ch = word[stress];
-    if (!isVowel(ch)) return word;
-    if (isAccented(ch) && (quality === null || qualityOf(ch) === quality)) return word;
-    const base = baseVowel(ch);
-    let marked;
-    if (base === 'e') marked = quality === 'closed' ? 'é' : 'è';
-    else if (base === 'o') marked = quality === 'closed' ? 'ó' : 'ò';
-    else marked = GRAVE[base];
-    return word.slice(0, stress) + marked + word.slice(stress + 1);
+    if (!isVowel(ch) || isAccented(ch)) return word;
+    return word.slice(0, stress) + GRAVE[ch] + word.slice(stress + 1);
 }
 
 /**

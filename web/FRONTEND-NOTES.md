@@ -16,12 +16,12 @@ The authoritative spec is §8 of `dictionary/OVERHAUL-PLAN.md`. In short:
 | value | meaning |
 |---|---|
 | 1 | non-default reading of a homograph |
-| 2 | stressed vowel open (è/ò), only where it's the sole difference between two readings |
-| 4 | stressed vowel closed (é/ó), same rule |
-| 8 | stress predicted by a model (lower confidence) |
-| 16 | vulgar / offensive / derogatory |
-| 32 | archaic / poetic / literary |
-| 64 | proper noun |
+| 2 | stress predicted by a model (lower confidence) |
+| 4 | vulgar / offensive / derogatory |
+| 8 | archaic / poetic / literary |
+| 16 | proper noun |
+
+There is at most one row per word and stress position: readings that differ only in vowel quality (*pèsca* / *pésca*) rhyme the same, so the build merges them.
 
 - The dictionary file has a fixed name in the repo (`dictionary/out/parole-accenti-frequenze.csv`). The site build step publishes it under a content-hashed name and injects that name into the JS, so `rimario.js` should stop hard-coding the filename. See `BUILD-STEP.md` at the repository root.
 
@@ -31,7 +31,7 @@ The authoritative spec is §8 of `dictionary/OVERHAUL-PLAN.md`. In short:
 
 - **Choosing the default:** pick the row **without** flag 1. Today `GetFirstAccent` picks whichever row comes first, which depends on sort order.
 - **More than two readings:** collect every adjacent row with the same word. Today only the previous and next row are checked, so a third reading is lost.
-- **Vowel-quality pairs** (flag 2 or 4, same word and stress): show *pèsca* / *pésca* with the right accent. `ExplicitAccent` always adds a grave accent (`̀`); it should use an acute (`́`) for closed vowels.
+- **Stress marks:** `ExplicitAccent` adds a combining grave accent (`̀`), doubling an orthographic accent that is already there. Use precomposed characters and keep existing accents.
 
 **Status:** done.
 
