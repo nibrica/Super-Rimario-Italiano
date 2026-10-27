@@ -62,6 +62,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     --sri-sticky-top: 0px;          /* embedders with a sticky header set this */
     --sri-ease: 160ms ease;
     --sri-column: 42em;             /* width of the centered single-column blocks */
+    --sri-tabbed-column: 36em;      /* width of the whole app in the tabbed layout */
 
     container: sri / inline-size;
     scroll-margin-top: calc(var(--sri-sticky-top) + 16px);
@@ -160,7 +161,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
    get too long, so the whole app is centered at that width. */
 @container sri (max-width: 959.98px) {
     #rimario .sri-app {
-        max-width: calc(var(--sri-column) + 32px);
+        max-width: calc(var(--sri-tabbed-column) + 32px);
     }
 }
 
