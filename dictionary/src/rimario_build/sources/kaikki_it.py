@@ -1,4 +1,4 @@
-"""FORMS from Italian-Wiktionary entries (kaikki_it, OVERHAUL-PLAN §0, §1, §4).
+"""FORMS from Italian-Wiktionary entries (kaikki_it).
 
 it.wiktionary has one {{-sill-}} and one pronunciation per page, and kaikki
 copies them onto every POS entry of the page. A page such as ``viola`` or
@@ -208,9 +208,9 @@ def extract(raw_dir: Path) -> pl.DataFrame:
     rows = pl.concat([r["rows"] for r in results], how="vertical_relaxed")
     stats = sum((r["stats"] for r in results), Counter())
     lemma_pages = sorted({p for r in results for p, has in r["pages"].items() if has})
-    # §0: page-level stress is not evidence for form-of entries of a page with a lemma entry.
+    # Page-level stress is not evidence for form-of entries of a page with a lemma entry.
     drop = pl.col("generic_formof") & pl.col("page").is_in(lemma_pages)
-    log.info("%s: page-level stress withheld from %d form-of rows (§0)", SOURCE,
+    log.info("%s: page-level stress withheld from %d form-of rows", SOURCE,
              rows.filter(drop).height)
     rows = rows.with_columns(
         pl.when(drop).then(None).otherwise(pl.col("stress_idx")).alias("stress_idx"),
@@ -218,7 +218,7 @@ def extract(raw_dir: Path) -> pl.DataFrame:
         pl.when(drop).then(pl.lit("none")).otherwise(pl.col("evidence")).alias("evidence"),
     )
     rows, respelt = respell(rows, set().union(*(r["known"] for r in results)))
-    log.info("%s: %d stress-marked headword/lemma spellings respelt (§4)", SOURCE, respelt)
+    log.info("%s: %d stress-marked headword/lemma spellings respelt", SOURCE, respelt)
     df = finish(inherit_misspelling(rows), SOURCE)
     log_stats(SOURCE, stats, df, t0)
     return df

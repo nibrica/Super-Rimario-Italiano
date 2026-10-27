@@ -1,4 +1,4 @@
-"""Fetch the latest version of every source (OVERHAUL-PLAN §2).
+"""Fetch the latest version of every source (declared in sources.toml).
 
 Sources are declared in ``sources.toml``; ``sources.lock.json`` records, per
 source id, what the last fetch resolved to::

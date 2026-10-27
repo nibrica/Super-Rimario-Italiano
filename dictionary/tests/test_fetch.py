@@ -517,7 +517,9 @@ def stubbed(monkeypatch, tmp_path):
         return "sha"
 
     def read_csv(source):
-        return pl.DataFrame({"word": [source.decode() if isinstance(source, bytes) else source.read_text()]})
+        if isinstance(source, bytes):
+            return pl.DataFrame({"word": [source.decode()]})
+        return pl.DataFrame({"word": [source.read_text()] if source.exists() else []}, schema={"word": pl.String})
 
     _stub(monkeypatch, "export", read_csv=read_csv,
           to_rows=lambda entries: entries.select(word="form", stress="stress_idx"),
@@ -526,7 +528,6 @@ def stubbed(monkeypatch, tmp_path):
     for name in ("RAW_DIR", "CACHE_DIR", "OUT_DIR"):
         monkeypatch.setattr(config, name, tmp_path / name.lower())
     monkeypatch.setattr(config, "OUT_CSV", tmp_path / "out_dir" / "out.csv")
-    monkeypatch.setattr(config, "PREVIOUS_CSV_FALLBACK", tmp_path / "previous.csv")
     monkeypatch.setattr(config, "SOURCES_LOCK", tmp_path / "lock.json")
     lock = {}
     for s in fetch.load_sources():
@@ -535,7 +536,8 @@ def stubbed(monkeypatch, tmp_path):
             (config.RAW_DIR / s["id"] / "f").write_text(s["id"])
             lock[s["id"]] = {"file": "f", "sha256": sha(s["id"].encode())}
     fetch.write_lock(lock, config.SOURCES_LOCK)
-    config.PREVIOUS_CSV_FALLBACK.write_text("old")
+    config.OUT_CSV.parent.mkdir()
+    config.OUT_CSV.write_text("old")                     # a previous build, not committed
     return reports
 
 
@@ -549,7 +551,7 @@ def test_pipeline_wiring_and_cache(stubbed):
                 "csv_bytes", "lock_old", "lock_new", "fetch_warnings"}
     assert expected <= set(ctx)
     assert ctx["csv_bytes"] > 0 and ctx["fetch_warnings"] == [] and ctx["lock_new"]["morphit"]["sha256"]
-    assert stubbed[0][1]["word"].to_list() == ["old"]     # no committed CSV: the fallback
+    assert stubbed[0][1]["word"].to_list() == ["old"]     # no committed CSV: the out/ CSV on disk
     assert ctx["lock_old"] == ctx["lock_new"]               # no committed lock: the one on disk
 
     CALLS.clear()
@@ -573,11 +575,12 @@ def test_build_diffs_against_git_head(stubbed, monkeypatch):
     assert ctx["lock_old"] == {"morphit": {"sha256": "committed"}}
     assert stubbed[-1][1]["word"].to_list() == ["committed"]
     monkeypatch.setattr(pipeline, "_git_show", lambda path: None)
-    ctx = pipeline.build({"before": {}}, [], parallel=False)
-    assert ctx["lock_old"] == {"before": {}} and stubbed[-1][1]["word"].to_list() == ["old"]
-    config.PREVIOUS_CSV_FALLBACK.unlink()
-    pipeline.build({}, [], parallel=False)                     # no fallback: the out/ CSV on disk
-    assert stubbed[-1][1]["word"].to_list() == [config.OUT_CSV.read_text()]
+    on_disk = config.OUT_CSV.read_text()
+    ctx = pipeline.build({"before": {}}, [], parallel=False)   # nothing committed: the out/ CSV on disk
+    assert ctx["lock_old"] == {"before": {}} and stubbed[-1][1]["word"].to_list() == [on_disk]
+    config.OUT_CSV.unlink()
+    pipeline.build({}, [], parallel=False)                     # no CSV at all: empty
+    assert stubbed[-1][1].is_empty()
 
 
 def test_build_offline_without_raw_files_is_a_clear_error(stubbed):

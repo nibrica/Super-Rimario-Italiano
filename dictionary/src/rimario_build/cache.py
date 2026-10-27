@@ -1,4 +1,4 @@
-"""Skip stages whose inputs are unchanged (OVERHAUL-PLAN §3).
+"""Skip stages whose inputs are unchanged.
 
 A stage's cache key hashes its name, the source code of its module and of
 every ``rimario_build`` module that module uses (always including schema,

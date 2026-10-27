@@ -1,4 +1,4 @@
-"""OpenSubtitles 2018 word counts (source "opensubtitles", §6.1)."""
+"""OpenSubtitles 2018 word counts (source "opensubtitles")."""
 
 from pathlib import Path
 

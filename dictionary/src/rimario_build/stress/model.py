@@ -1,4 +1,4 @@
-"""Learned stress fallback (§5.3): a per-vowel classifier with confidence.
+"""Learned stress fallback: a per-vowel classifier with confidence.
 
 Every vowel of a form is a candidate (i/u in diphthongs too: the model learns
 when they glide). A ``HistGradientBoostingClassifier`` scores each candidate

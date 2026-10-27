@@ -1,4 +1,4 @@
-"""FORMS from English-Wiktionary Italian entries (kaikki_en, OVERHAUL-PLAN §1, §4, §5.1).
+"""FORMS from English-Wiktionary Italian entries (kaikki_en).
 
 One row per (form, lemma, pos, feats, evidence): the headword of every entry
 (lemma rows, or form-of rows with the target as lemma) and every inflected
@@ -6,7 +6,7 @@ form of its conjugation/inflection table. Stress comes from stress-marked
 table/head forms ("table"), hyphenation ("hyphenation") and IPA ("ipa"), one
 row per evidence type so vote.py sees them separately. Stress-marked
 spellings (table cells, headwords such as ``abéto``, lemmas such as
-``destinàre``) become real spellings (§4).
+``destinàre``) become real spellings (``kaikki_common.respell``).
 """
 
 import functools
@@ -207,7 +207,7 @@ def _en_worker(chunk: bytes) -> dict:
 
 
 def _resolve(marked: str, link: str | None, is_known: Callable[[str], bool]) -> tuple | None:
-    """Real spelling + stress of a stress-marked table form (§4).
+    """Real spelling + stress of a stress-marked table form.
 
     The table's link target is the real spelling when present (unless it is
     stress-marked itself: ``alchìmie``), except for monosyllables, whose links
@@ -255,7 +255,7 @@ def extract(raw_dir: Path) -> pl.DataFrame:
     table, dropped = resolve_pending(pending, known)
     log.info("%s: %d stress-marked table forms, %d unresolved", SOURCE, len(pending), dropped)
     df, respelt = respell(pl.concat([rows, table], how="vertical_relaxed"), known)
-    log.info("%s: %d stress-marked headword/lemma spellings respelt (§4)", SOURCE, respelt)
+    log.info("%s: %d stress-marked headword/lemma spellings respelt", SOURCE, respelt)
     df = finish(inherit_misspelling(df), SOURCE)
     log_stats(SOURCE, stats, df, t0)
     return df

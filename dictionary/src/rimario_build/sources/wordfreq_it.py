@@ -1,4 +1,4 @@
-"""wordfreq's Italian list as Zipf values (source "wordfreq", §6.1)."""
+"""wordfreq's Italian list as Zipf values (source "wordfreq")."""
 
 from pathlib import Path
 

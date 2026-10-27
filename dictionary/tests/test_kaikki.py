@@ -93,7 +93,7 @@ EN = [
     {"word": "Roma", "pos": "name", "lang_code": "it", "sounds": [{"ipa": "/ˈro.ma/"}],
      "senses": [{"glosses": ["Rome"]}]},
     {"word": "made in Italy", "pos": "phrase", "lang_code": "it", "senses": [{"glosses": ["x"]}]},
-    # Stress-marked headwords: a twin of a known spelling is respelt (§4)...
+    # Stress-marked headwords: a twin of a known spelling is respelt...
     {"word": "abeto", "pos": "noun", "lang_code": "it", "sounds": [{"ipa": "/aˈbe.to/"}],
      "senses": [{"glosses": ["fir"], "tags": ["masculine"]}]},
     {"word": "abéto", "pos": "noun", "lang_code": "it", "forms": [{"form": "abéti", "tags": ["plural"]}],
@@ -188,7 +188,7 @@ IT = [
                    ("capitino", ["present"], "che essi/che esse"),
                    ("capita", ["imperative"], "tu")]]},
     {"word": "Roma", "lang_code": "en", "pos": "name", "senses": [{"glosses": ["Rome"]}]},
-    # A verb-form entry without the form-of tag or links: the gloss names the lemma (§0 applies).
+    # A verb-form entry without the form-of tag or links: the gloss names the lemma, so it is form-of.
     {"word": "argentino", "lang_code": "it", "pos": "adj", "pos_title": "Aggettivo",
      "hyphenations": [{"parts": ["ar", "gen", "tì", "no"]}], "senses": [{"glosses": ["d'argento"]}]},
     {"word": "argentino", "lang_code": "it", "pos": "verb", "pos_title": IT_VERB_FORM,
@@ -417,7 +417,7 @@ def test_en_tags_and_compounds(en):
 
 
 def test_en_stress_marked_spellings(en):
-    """§4: abéto and dèi are respelt; élite keeps its accent, which is no stress."""
+    """Stress-marked spellings: abéto and dèi are respelt; élite keeps its accent, which is no stress."""
     forms = set(en["form"])
     assert {"abéto", "abéti", "dèi"}.isdisjoint(forms) and "abeti" not in forms
     assert rows(en, "abeto") == {("abeto", None, 2, "closed", "ipa")}
@@ -443,7 +443,7 @@ def test_it_schema(it):
 
 
 def test_it_page_stress_not_given_to_verb_forms(it):
-    """§0: viola has one {{-sill-}} (viòla); the verb form of violare must not get it."""
+    """viola has one {{-sill-}} (viòla); the verb form of violare must not get it."""
     assert rows(it, "viola", pos="noun") == {("viola", None, 2, None, "hyphenation"),
                                             ("viola", None, 2, "open", "ipa")}
     assert rows(it, "viola", pos="verb") == {("violare", "ind+pres+3+s", None, None, "none"),
@@ -472,7 +472,7 @@ def test_it_conjugation_appendix(it):
 
 
 def test_it_gloss_form_of(it):
-    # No form-of tag or link, but the gloss is a verb form's: §0 withholds the page stress.
+    # No form-of tag or link, but the gloss is a verb form's: the page stress is withheld.
     assert rows(it, "argentino", pos="verb") == {("argentare", "sub+pres+3+p", None, None, "none")}
     assert rows(it, "tantissimo") == {("tanto", "sup+m+s", 7, None, "hyphenation")}
     assert rows(it, "tantissimi") == {("tanto", "sup+m+p", None, None, "none")}

@@ -2,7 +2,7 @@
 
 The newest ``ita_news_<year>_1M.tar.gz`` on disk is streamed; only its
 ``*-sentences.txt`` member (``id\\tsentence``) is read, nothing is extracted.
-Sentences are tokenized in parallel chunks exactly like wordfreq (§6.1).
+Sentences are tokenized in parallel chunks exactly like wordfreq (``text.tokenize``).
 """
 
 import re

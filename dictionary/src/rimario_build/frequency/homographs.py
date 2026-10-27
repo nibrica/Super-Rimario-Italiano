@@ -1,7 +1,7 @@
-"""Split a spelling's merged frequency among its output rows (OVERHAUL-PLAN §6.4).
+"""Split a spelling's merged frequency among its output rows.
 
 ``zipf(row) = zipf(form) + log10(share(row))``, one row per (form, stress_idx)
-(vowel-quality variants are already one row, §5.4). A form with one row gets
+(vowel-quality variants are already one row). A form with one row gets
 share 1 ("single"). For several rows the first applicable rule below splits
 them into two groups, and each group is split again recursively by the same
 rules:

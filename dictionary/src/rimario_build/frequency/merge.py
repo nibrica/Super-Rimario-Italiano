@@ -1,17 +1,17 @@
-"""Merge the frequency sources into one Zipf value per spelling (OVERHAUL-PLAN §6).
+"""Merge the frequency sources into one Zipf value per spelling.
 
 Each lexicon form gets one observation per source, all in Zipf:
 
-* present: the source's Zipf, weight ``W_s * r_s`` (§6.3), with
+* present: the source's Zipf, weight ``W_s * r_s`` (source weight times reliability), with
   ``r_s = min(1, count / RELIABLE_COUNT)`` for counted sources and, for
   wordfreq (no counts), a linear ramp from ``WORDFREQ_MIN_RELIABILITY`` at its
   floor to 1 at ``WORDFREQ_RELIABLE_ZIPF``;
 * missing from a ``complete`` source while present in another: an upper bound
   ``floor_s - MISSING_OFFSET`` with weight ``W_s * MISSING_WEIGHT_FACTOR``
-  (§6.2), used only where it lies below the weighted mean of the present
+  used only where it lies below the weighted mean of the present
   observations (it may pull a word down, never up).
 
-Robustness (§6.3): an observation (present or bound) more than
+Robustness: an observation (present or bound) more than
 ``OUTLIER_DISTANCE`` from the mean of the two others, both present and agreeing
 within ``OUTLIER_AGREEMENT``, has its weight capped at ``factor * W_s``. The
 factor ramps linearly from 1 at ``OUTLIER_DISTANCE`` to ``OUTLIER_WEIGHT_FACTOR``
@@ -30,7 +30,7 @@ merged Zipf plus the difference between the two spellings in the reference,
 and never below the lexicon-only band: *pero* gets *però*'s Zipf minus 2.25,
 while *papa*/*papà*, *se*/*sé*, *cattivo*/*cattivò* keep theirs.
 
-Forms in no corpus get the §6.5 fallback ``top - LEXICON_ONLY_STEP * (max_n - n_lexicons)``
+Forms in no corpus get the lexicon-only fallback ``top - LEXICON_ONLY_STEP * (max_n - n_lexicons)``
 with ``top = max(min_floor - LEXICON_ONLY_OFFSET, LEXICON_ONLY_MIN_ZIPF + LEXICON_ONLY_STEP * max_n)``
 and ``max_n`` the largest n_lexicons: never above ``min_floor - 0.5`` unless the
 minimum applies (see config.py for why it exists). A corpus estimate is never
@@ -67,7 +67,7 @@ def _present(freq: pl.DataFrame) -> pl.DataFrame:
 
 
 def _reliability(floor: float) -> pl.Expr:
-    """r_s (§6.3) of a present observation; ``floor`` is its source's floor."""
+    """r_s (reliability) of a present observation; ``floor`` is its source's floor."""
     counted = (pl.col("count") / config.RELIABLE_COUNT).clip(upper_bound=1.0)
     lo = config.WORDFREQ_MIN_RELIABILITY
     span = max(config.WORDFREQ_RELIABLE_ZIPF - floor, 1e-9)
@@ -76,7 +76,7 @@ def _reliability(floor: float) -> pl.Expr:
 
 
 def lexicon_only_zipf(min_floor: float, n_lexicons: pl.Expr | int, max_n: int) -> pl.Expr | float:
-    """§6.5 fallback for a form found in no corpus, ordered by n_lexicons."""
+    """Lexicon-only fallback for a form found in no corpus, ordered by n_lexicons."""
     step = config.LEXICON_ONLY_STEP
     top = max(min_floor - config.LEXICON_ONLY_OFFSET, config.LEXICON_ONLY_MIN_ZIPF + step * max_n)
     return top - step * (max_n - n_lexicons)
@@ -88,7 +88,7 @@ def spearman(a: pl.Expr, b: pl.Expr) -> pl.Expr:
 
 
 def correlations(present: pl.DataFrame, sources: list[str]) -> pl.DataFrame:
-    """§6.6: each source vs the mean of the others, on forms present in all."""
+    """Validation: Spearman of each source vs the mean of the others, on forms present in all."""
     wide = None
     for s in sources:
         col = present.filter(pl.col("source") == s).select("form", pl.col("zipf").alias(s))
@@ -131,7 +131,7 @@ def _observations(lex: pl.DataFrame, present: pl.DataFrame, meta: pl.DataFrame) 
 
 
 def _robust_weights(wide: pl.DataFrame, sources: list[str]) -> pl.DataFrame:
-    """Cap outlier weights (§6.3); c_<s> marks a weight actually cut, zo_<s> the others' mean."""
+    """Cap outlier weights (robustness); c_<s> marks a weight actually cut, zo_<s> the others' mean."""
     cols = []
     for s in sources:
         others = [o for o in sources if o != s]

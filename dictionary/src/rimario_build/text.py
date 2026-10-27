@@ -41,7 +41,7 @@ def is_allowed(form: str) -> bool:
 
 
 def tokenize(text: str) -> list[str]:
-    """Split text exactly like wordfreq does for Italian (§6.1)."""
+    """Split text exactly like wordfreq does for Italian."""
     return _wordfreq_tokenize(text, "it")
 
 
@@ -101,7 +101,7 @@ def resolve_spelling(
     ``marked`` carries exactly one accent on the stressed vowel (``càpitano``,
     ``perché``, ``dò``). The real spelling is chosen among the marked string
     itself and the string with the mark removed, never by blindly stripping
-    (§4), so orthographic accents survive:
+    every accent, so orthographic ones survive:
 
     1. a candidate that ``is_known`` accepts wins, the marked one first;
     2. without a known candidate, a polysyllable ending in its stressed vowel

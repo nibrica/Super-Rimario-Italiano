@@ -1,4 +1,4 @@
-"""QA report (§9): curation scores, counts, diff against the previous build, worklists."""
+"""QA report (out/report.md): curation scores, counts, diff against the previous build, worklists."""
 
 import gzip
 import hashlib
@@ -295,7 +295,6 @@ class _Report:
         new, old = self.rows, self.previous
         if old is None or old.is_empty():
             return "No previous CSV."
-        legacy = old.filter(pl.col("flags") != 0).is_empty()
         top = config.REPORT_TOP_N
         n, o = _per_word(new), _per_word(old)
         added = _by_top(n.join(o, on="word", how="anti"))
@@ -305,21 +304,18 @@ class _Report:
         moved = both.filter(pl.col("default") != pl.col("default_old"))
         shown = pl.concat([d.head(top).select("word") for d in (added, removed, changed, moved)])["word"]
         new_r, old_r = _readings(new, shown), _readings(old, shown)
-        value = "old count" if legacy else "old zipf×100"
-        parts = [f"Previous CSV: {old.height:,} rows, {o.height:,} words"
-                 + (" (old `word,stress,count` format: defaults not compared)." if legacy else ".")]
+        parts = [f"Previous CSV: {old.height:,} rows, {o.height:,} words."]
         parts.append(f"**Forms added:** {added.height:,} (most frequent first)\n\n" + _table(
             ["form", "zipf×100"], ((_show(w, new_r[w]), z) for w, z in added.head(top).select("word", "top").iter_rows())))
         parts.append(f"**Forms removed:** {removed.height:,} (most frequent first)\n\n" + _table(
-            ["form", value], ((_show(w, old_r[w]), z) for w, z in removed.head(top).select("word", "top").iter_rows())))
+            ["form", "old zipf×100"], ((_show(w, old_r[w]), z) for w, z in removed.head(top).select("word", "top").iter_rows())))
         parts.append(f"**Stress changed:** {changed.height:,} forms (set of stressed positions differs)\n\n" + _table(
             ["before", "after", "zipf×100"],
             ((_show(w, old_r[w]), _show(w, new_r[w]), z) for w, z in changed.head(top).select("word", "top").iter_rows())))
-        if not legacy:
-            parts.append(f"**Default reading changed:** {moved.height:,} forms\n\n" + _table(
-                ["form", "before", "after"],
-                ((w, _mark(w, a), _mark(w, b))
-                 for w, a, b in moved.head(top).select("word", "default_old", "default").iter_rows())))
+        parts.append(f"**Default reading changed:** {moved.height:,} forms\n\n" + _table(
+            ["form", "before", "after"],
+            ((w, _mark(w, a), _mark(w, b))
+             for w, a, b in moved.head(top).select("word", "default_old", "default").iter_rows())))
         return "\n\n".join(parts)
 
     def conflicts(self) -> str:
@@ -407,5 +403,5 @@ def render_report(ctx: dict, previous_rows: pl.DataFrame | None, built: str | No
 
 
 def write_report(ctx: dict, previous_rows: pl.DataFrame | None, path: Path = config.OUT_REPORT) -> None:
-    """Write ``out/report.md`` (§9) from the pipeline's full context."""
+    """Write ``out/report.md`` from the pipeline's full context."""
     fetch.atomic_write(path, render_report(ctx, previous_rows).encode("utf-8"))

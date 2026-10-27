@@ -1,6 +1,6 @@
 # Follow-ups
 
-Work for after the dictionary overhaul (`OVERHAUL-PLAN.md`). None of this blocks any phase.
+Possible later work on the dictionary build. None of it blocks a release.
 
 ## Worklist of Wiktionary fixes
 

@@ -232,7 +232,7 @@ def stages(runner: Runner, sources: list[dict], lock: dict, raw_dir: Path) -> di
                             ("model", "paradigm", "vote", "overrides", *EXTRACTORS))
 
     # Every lexicon form plus the selected entries' forms: paradigm may add forms
-    # found only in a corpus (§5.2, §7), which are in no lexicon (n_lexicons 0).
+    # found only in a corpus, which are in no lexicon (n_lexicons 0).
     entry_forms = selected["entries"].select("form", source=pl.lit(None, pl.String))
     lexicon_forms = (pl.concat([forms.select("form", "source"), entry_forms])
                      .group_by("form").agg(pl.col("source").drop_nulls().n_unique().cast(pl.Int8).alias("n_lexicons"))
@@ -290,20 +290,17 @@ def _git_show(path: Path) -> bytes | None:
 
 
 def _baseline(lock_before: dict) -> tuple[dict, pl.DataFrame]:
-    """(lock, CSV rows) the report diffs against: both as committed at git HEAD (§9).
+    """(lock, CSV rows) the report diffs against: both as committed at git HEAD.
 
-    Without a committed lock: ``lock_before``. Without a committed CSV: the old
-    pipeline's CSV (config.PREVIOUS_CSV_FALLBACK), else the out/ CSV on disk.
+    Without a committed lock: ``lock_before``. Without a committed CSV: the out/
+    CSV on disk (empty if there is none).
     """
     from . import export
 
     committed_lock = _git_show(config.SOURCES_LOCK)
     lock_old = json.loads(committed_lock) if committed_lock else lock_before
     committed_csv = _git_show(config.OUT_CSV)
-    if committed_csv is None:
-        fallback = config.PREVIOUS_CSV_FALLBACK
-        return lock_old, export.read_csv(fallback if fallback.exists() else config.OUT_CSV)
-    return lock_old, export.read_csv(committed_csv)
+    return lock_old, export.read_csv(config.OUT_CSV if committed_csv is None else committed_csv)
 
 
 def regenerate_report() -> dict:

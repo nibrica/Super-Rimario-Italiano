@@ -115,17 +115,15 @@ def test_csv_is_byte_identical_for_identical_input(tmp_path):
     assert blobs[0] == blobs[1] and shas[0] == shas[1]
 
 
-def test_read_csv_round_trip_and_old_format(tmp_path):
+def test_read_csv_round_trip(tmp_path):
     rows = rows_df(("ancora", 0, 301, 1), ("ancora", 3, 489), ("pesca", 1, 355, 2))
     path = tmp_path / "new.csv"
     export.write_csv(rows, path)
     assert export.read_csv(path).equals(export.sort_rows(rows))
     assert export.read_csv(path.read_bytes()).equals(export.sort_rows(rows))
-    old = tmp_path / "old.csv"
-    old.write_text("a,0,50699\nfiaba,2,30\n")
-    got = export.read_csv(old)
+    got = export.read_csv(b"a,0,507\nfiaba,2,30,1\n")
     assert got.columns == ["word", "stress", "zipf", "flags"]
-    assert got.rows() == [("a", 0, 50699, 0), ("fiaba", 2, 30, 0)]
+    assert got.rows() == [("a", 0, 507, 0), ("fiaba", 2, 30, 1)]
     assert export.read_csv(tmp_path / "missing.csv").is_empty() and export.read_csv(b"").is_empty()
     with pytest.raises(ValueError):
         export.read_csv(b"a,0,1\nb,1\n")
@@ -406,19 +404,19 @@ def full_ctx(entries: pl.DataFrame, tmp_path) -> dict:
     }
 
 
-def test_report_diffs_old_format_and_is_deterministic(tmp_path):
+def test_report_diffs_previous_build_and_is_deterministic(tmp_path):
     e = entries_df(entry("ancora", 3, 4.89), entry("ancora", 0, 3.01, is_default=False),
                    entry("nuovo", 1, 3.0), entry("pesca", 1, 3.55, is_default=False))
     ctx = full_ctx(e, tmp_path)
-    previous = rows_df(("ancora", 0, 4009), ("ancora", 3, 4009), ("vecchio", 1, 12), ("pesca", 0, 1))
+    previous = rows_df(("ancora", 0, 489), ("ancora", 3, 301, 1), ("vecchio", 1, 12), ("pesca", 1, 355, 1))
     md = report.render_report(ctx, previous, "X")
     assert md.count("Built:") == 1
-    assert "**Forms added:** 1" in md and "**Forms removed:** 1" in md and "**Stress changed:** 1" in md
-    assert "defaults not compared" in md and "| pèsca (1) |" in md and "Default reading changed" not in md
-    assert md == report.render_report(ctx, previous, "X")
-    new_format = rows_df(("ancora", 0, 489), ("ancora", 3, 301, 1), ("pesca", 1, 355, 1))
-    md = report.render_report(ctx, new_format, "X")
+    assert "**Forms added:** 1" in md and "**Forms removed:** 1" in md and "**Stress changed:** 0" in md
     assert "**Default reading changed:** 1 forms" in md and "| ancora | àncora | ancòra |" in md
+    assert md == report.render_report(ctx, previous, "X")
+    previous = rows_df(("ancora", 0, 489), ("ancora", 3, 301, 1), ("pesca", 0, 1))
+    md = report.render_report(ctx, previous, "X")
+    assert "**Stress changed:** 1" in md and "| pèsca (1) |" in md
 
 
 def test_report_full_ctx(tmp_path):

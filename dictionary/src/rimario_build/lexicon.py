@@ -1,4 +1,4 @@
-"""Which forms go in (§7): inclusion rules, collapsing readings into output rows, overrides (§5.5)."""
+"""Which forms go in: inclusion rules, collapsing readings into output rows, overrides."""
 
 import math
 from collections import defaultdict
@@ -141,7 +141,7 @@ def _zipf(lang: str) -> pl.DataFrame:
 
 
 def _loanwords(r: pl.DataFrame) -> pl.DataFrame:
-    """Forms left out as loanwords (§7), judged on all their stressed readings ``r``.
+    """Forms left out as loanwords, judged on all their stressed readings ``r``.
 
     Only forms with no attested reading and no reading propagated from a lemma
     (their stress is predicted or from the single-vowel rule) are suspects.
@@ -172,7 +172,7 @@ def select(
     overrides: pl.DataFrame,
     low_confidence: pl.DataFrame,
 ) -> dict[str, pl.DataFrame]:
-    """Apply the §7 inclusion rules and collapse readings into ENTRIES rows (zipf etc. null).
+    """Apply the inclusion rules and collapse readings into ENTRIES rows (zipf etc. null).
 
     ``low_confidence`` (form, stress_idx, confidence) holds the model's withheld
     predictions: a form left without any reading because of it gets that reason.

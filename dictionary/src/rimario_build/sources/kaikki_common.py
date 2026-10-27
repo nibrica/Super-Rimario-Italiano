@@ -343,7 +343,7 @@ def agreement(stats: Counter, ev: list[tuple[Stress, str]]) -> None:
                 stats[f"ipa_vs_{other}_agree"] += by["ipa"] == by[other]
 
 
-# --- Stress-marked spellings (§4) --------------------------------------------
+# --- Stress-marked spellings -------------------------------------------------
 
 def stress_marked(form: str) -> bool:
     """An accent before the last letter: a dictionary stress mark (abéto) or a foreign one (élite)."""
@@ -351,7 +351,7 @@ def stress_marked(form: str) -> bool:
 
 
 def respell(df: pl.DataFrame, known: set[str]) -> tuple[pl.DataFrame, int]:
-    """Replace stress-marked spellings in ``form`` and ``lemma`` by the real spelling (§4).
+    """Replace stress-marked spellings in ``form`` and ``lemma`` by the real spelling.
 
     ``dèi``, ``bacìa`` and ``destinàre`` become ``dei``, ``bacia`` and
     ``destinare``, the unaccented twin among the ``known`` spellings

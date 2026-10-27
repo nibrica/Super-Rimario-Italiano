@@ -1,6 +1,6 @@
 # Site build step
 
-Notes for replacing the makeshift deployment (`lavisioblog/buildhtml.py`, which is gitignored and edited by hand) with a real build step. Neither the dictionary overhaul (`dictionary/OVERHAUL-PLAN.md`) nor the frontend notes (`web/FRONTEND-NOTES.md`) cover it.
+Notes for replacing the makeshift deployment (`lavisioblog/buildhtml.py`, which is gitignored and edited by hand) with a real build step. The dictionary's format and guarantees (fixed filename, deterministic output) are in `dictionary/README.md`; how the widget is embedded and configured is in the "Integrazione" section of the repository `README.md`.
 
 ## Inputs and outputs
 
@@ -12,7 +12,7 @@ Notes for replacing the makeshift deployment (`lavisioblog/buildhtml.py`, which 
 ## Cache busting with content hashes
 
 - Copy the dictionary as `parole-accenti-frequenze_<hash>.csv`, where `<hash>` is the first 8–10 hex characters of its sha256. The name changes only when the contents change, so visitors re-download it only when needed, and two builds can never share a name with different contents.
-- Write that name into the JS when building, instead of the hard-coded `dictionary_link` in `rimario.js` and the string replacement in `buildhtml.py`. For example, replace a placeholder like `__DICTIONARY_FILE__`, or prepend a tiny generated config. *(Superseded: the URL now goes into `data-dictionary-url`, see "Frontend hooks". The JS needs no rewriting.)*
+- Write that URL into `data-dictionary-url` (see "Frontend hooks") instead of the string replacement in `buildhtml.py`. The JS needs no rewriting.
 - Optional: hash the standalone CSS/JS filenames the same way.
 - For the blog, the uploaded file's URL (`wp-content/uploads/<year>/<month>/…`) depends on the upload date. Take the base URL as a parameter and print the exact name to upload.
 
@@ -47,6 +47,5 @@ What the frontend (`web/`) provides for the build:
 
 ## Clean-up
 
-- Remove `web/parole-accenti-frequenze_2026-02-23.csv` once the build reads the dictionary from `dictionary/out/`.
 - Decide whether `lavisioblog/` stays gitignored. The build script should be tracked; only its output belongs in `dist/`.
-- Add the attribution from `ATTRIBUTION.md` to both outputs (see `web/FRONTEND-NOTES.md` §6).
+- Add the attribution from `dictionary/out/ATTRIBUTION.md` to both outputs. Its sources (CC BY-SA, CC BY) require credit wherever the dictionary is shown (`dictionary/README.md`, "Sources"). The standalone page already links it from its footer via `data-attribution-url`; the blog version needs the published URL of the file there too.

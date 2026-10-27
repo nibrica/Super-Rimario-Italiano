@@ -1,4 +1,4 @@
-"""Combine attested stress evidence into readings and detect conflicts (§5.1).
+"""Combine attested stress evidence into readings and detect conflicts.
 
 Rules, per group (form, lemma, pos):
 

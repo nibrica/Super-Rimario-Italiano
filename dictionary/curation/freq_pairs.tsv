@@ -1,7 +1,7 @@
 # "More common than" judgements, checked by tests/test_curation.py.
 # Agreement = fraction of pairs where the default reading of `more` has a higher
 # zipf than the default reading of `less` in out/parole-accenti-frequenze.csv.
-# It is a check on the frequency merge (OVERHAUL-PLAN §6.6), not used to tune it.
+# It is a check on the frequency merge, not used to tune it.
 #
 # Columns (tab-separated): more, less, note. Forms are NFC lowercase spellings.
 # Only add pairs whose order no Italian speaker would argue about.

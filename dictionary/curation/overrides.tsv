@@ -1,4 +1,4 @@
-# Manual stress fixes. They always win over every source (OVERHAUL-PLAN §5.5),
+# Manual stress fixes. They always win over every source,
 # so a reported bug becomes a one-line change here.
 #
 # Columns (tab-separated):

@@ -20,14 +20,10 @@ OUT_ATTRIBUTION = OUT_DIR / "ATTRIBUTION.md"
 OUT_REPORT = OUT_DIR / "report.md"
 UV_LOCK = ROOT / "uv.lock"                           # its sha256 is part of every cache key
 RAW_HASHES_JSON = "raw_sha256.json"                  # under CACHE_DIR: raw file sha256 by path, size, mtime
-# The report diffs against the out/ CSV committed at git HEAD. Until one is
-# committed, it diffs against the last dictionary of the old pipeline
-# (`word,stress,count` format). Unused once out/ holds a committed CSV.
-PREVIOUS_CSV_FALLBACK = ROOT.parent / "web" / "parole-accenti-frequenze_2026-02-23.csv"
 
 # --- Text --------------------------------------------------------------------
 
-# Letters allowed in an output form (§7): the Latin alphabet plus the accented
+# Letters allowed in an output form: the Latin alphabet plus the accented
 # vowels Italian spelling uses. Anything else excludes the form.
 ALLOWED_CHARS = frozenset("abcdefghijklmnopqrstuvwxyzàèéìíòóùú")
 
@@ -88,7 +84,7 @@ LEIPZIG_TARBALL_RE = r"ita_news_(\d{4})_1M\.tar\.gz"   # newest year on disk win
 LEIPZIG_CHUNK_LINES = 50_000                       # sentence lines per parallel parse task
 LEIPZIG_SENTENCES_SUFFIX = "-sentences.txt"         # the only member read
 # A capitalized word right after one of these (or first in the sentence) is
-# sentence-initial, so its capital doesn't count toward cap_count (§6.4).
+# sentence-initial, so its capital doesn't count toward cap_count.
 SENTENCE_BREAK_CHARS = frozenset(".!?:…\"'«»“”„")
 # Elided cue (left of the apostrophe in l'amica, dell'uomo, c'è) -> canonical
 # cue in CUE_CANDIDATES. Elided words not listed here are kept as they are.
@@ -101,7 +97,7 @@ ELIDED_CUES = {
 
 # --- Stress ------------------------------------------------------------------
 
-# Voting on attested stress (§5.1). Source priority: earlier wins.
+# Voting on attested stress (stress/vote.py). Source priority: earlier wins.
 STRESS_SOURCE_PRIORITY = ("kaikki_en", "kaikki_it")
 VOTE_EVIDENCE_PRIORITY = ("ortho", "table", "hyphenation", "ipa", "sill")   # inside one source, earlier wins
 # Without a written accent, a polysyllable is never stressed on one of these final
@@ -109,7 +105,7 @@ VOTE_EVIDENCE_PRIORITY = ("ortho", "table", "hyphenation", "ipa", "sill")   # in
 # polysyllables in -u are loanwords, often final-stressed (menu, parvenu, katmandu).
 VOTE_UNSTRESSED_FINALS = "aeio"
 
-# Paradigm propagation (§5.2). Rhizotonic verb features, in order of preference
+# Paradigm propagation (stress/paradigm.py). Rhizotonic verb features, in order of preference
 # as a stress source.
 PARADIGM_RHIZOTONIC = (
     "ind+pres+1+s", "ind+pres+3+s", "ind+pres+2+s", "ind+pres+3+p",
@@ -151,7 +147,7 @@ PARADIGM_ENDING_QUALITY = {
 # Nominal plurals that change the stem: form -> stress index (applied when the
 # lemma has a reading; uòmo → uòmini, bùe → buòi, dìo → dèi, mìlle → mìla).
 PARADIGM_NOMINAL_EXCEPTIONS = {"uomini": 1, "buoi": 2, "dei": 1, "mila": 1, "templi": 1, "ali": 0, "armi": 0}
-# Enclitic hosts and clitic combinations (§5.2).
+# Enclitic hosts and clitic combinations.
 PARADIGM_CLITIC_HOSTS = ("impr+pres+2+s", "impr+pres+2+p", "impr+pres+1+p", "ger+pres", "inf+pres")
 PARADIGM_CLITICS = (
     "mi", "ti", "si", "ci", "vi", "ne", "lo", "la", "li", "le", "gli",
@@ -173,7 +169,7 @@ PARADIGM_SUFFIXES = (
 PARADIGM_SUFFIX_MIN_PRECISION = 0.98
 PARADIGM_SUFFIX_MIN_SUPPORT = 50
 
-# Learned fallback (§5.3).
+# Learned fallback (stress/model.py).
 MODEL_SEED = 1234
 MODEL_FOLDS = 5                    # 1 / MODEL_FOLDS of the attested lemma groups is held out
 MODEL_CONTEXT_CHARS = 3            # characters on each side of the candidate vowel
@@ -188,7 +184,7 @@ MODEL_MAX_LEAF_NODES = 127
 # (programmà), although CV on the smaller folds looks fine. 1.0 keeps CV accuracy.
 MODEL_L2_REGULARIZATION = 1.0
 MODEL_TARGET_ACCURACY = 0.98       # the thresholds are tuned so held-out accuracy above them reaches this
-# Ship a prediction only when its confidence reaches its POS's threshold (§5.3),
+# Ship a prediction only when its confidence reaches its POS's threshold,
 # MODEL_MIN_CONFIDENCE for the POS not listed. Held-out attested accuracy above
 # them (coverage): nouns 98.8% (88%), adjectives 99.4% (95%), verbs 99.9% (98%),
 # names 98.8% (63%; at 0.90 only ~97%). Each POS must reach MODEL_TARGET_ACCURACY.
@@ -197,21 +193,21 @@ MODEL_MIN_CONFIDENCE_BY_POS = {"noun": 0.90, "adj": 0.90, "verb": 0.90, "name": 
 
 # --- Frequency ---------------------------------------------------------------
 
-# Merge (§6.2, §6.3, §6.5).
-SOURCE_WEIGHTS = {"wordfreq": 1.0, "opensubtitles": 1.0, "leipzig_news": 1.0}   # W_s (§6.3)
-RELIABLE_COUNT = 20                # r_s = min(1, count / RELIABLE_COUNT) (§6.3)
+# Merge (frequency/merge.py).
+SOURCE_WEIGHTS = {"wordfreq": 1.0, "opensubtitles": 1.0, "leipzig_news": 1.0}   # W_s, the source weight
+RELIABLE_COUNT = 20                # r_s = min(1, count / RELIABLE_COUNT): how reliable a count is
 WORDFREQ_RELIABLE_ZIPF = 2.0       # wordfreq r_s = 1 above this, falls toward its cutoff
-MISSING_OFFSET = 0.5               # a missing word counts at floor - MISSING_OFFSET (§6.2)
+MISSING_OFFSET = 0.5               # a missing word counts at floor - MISSING_OFFSET
 MISSING_WEIGHT_FACTOR = 0.5        # ...with this fraction of the source's weight
 # wordfreq r_s ramps linearly from this at its floor (cutoff) to 1 at
 # WORDFREQ_RELIABLE_ZIPF: a value at the cutoff counts like ~4 occurrences.
 WORDFREQ_MIN_RELIABILITY = 0.2
-OUTLIER_DISTANCE = 1.5             # robustness check (§6.3): the weight cut starts here...
+OUTLIER_DISTANCE = 1.5             # robustness check: the weight cut starts here...
 OUTLIER_RAMP = 1.0                 # ...and reaches OUTLIER_WEIGHT_FACTOR this much farther
 OUTLIER_AGREEMENT = 0.5
 OUTLIER_WEIGHT_FACTOR = 0.25
-LEXICON_ONLY_OFFSET = 0.5          # lexicon-only forms get min_floor - this (§6.5)
-# Lexicon-only Zipf (§6.5): min_floor - LEXICON_ONLY_OFFSET for the forms in
+LEXICON_ONLY_OFFSET = 0.5          # lexicon-only forms get min_floor - this
+# Lexicon-only Zipf: min_floor - LEXICON_ONLY_OFFSET for the forms in
 # the most lexicons, LEXICON_ONLY_STEP less per missing lexicon, and never below
 # LEXICON_ONLY_MIN_ZIPF. With the real floors (OpenSubtitles 0.61) min_floor - 0.5
 # is ~0.11, so the minimum applies (0.32-0.34): it keeps a 50/50 split
@@ -226,7 +222,7 @@ ACCENT_TWIN_REFERENCE = "leipzig_news"
 ACCENT_TWIN_MIN_GAP = 0.5          # ...only where it is this much rarer there (papa/papà: 0.14, kept)
 DISAGREEMENTS_KEEP = 2000          # largest |zipf_source - zipf_others| kept for the report
 
-# Homograph split (§6.4).
+# Homograph split (frequency/homographs.py).
 CONTEXT_PRIOR = 2.0                # α, additive smoothing of cue counts
 NOMINAL_CUES = frozenset({
     "il", "un", "una", "uno", "i", "questo", "questa", "questi", "queste",
@@ -252,7 +248,7 @@ CUE_CANDIDATES = NOMINAL_CUES | VERBAL_CUES | AMBIGUOUS_CUES
 # The capitalization rule needs at least this many Leipzig occurrences of known
 # case (capitalized mid-sentence or all lowercase); below it the next rule decides.
 CAPITALIZATION_MIN_COUNT = 3
-# Function-word rows (§6.4) take no cue side. Against content-word rows they get
+# Function-word rows take no cue side. Against content-word rows they get
 # this share outright: a function word is the common reading of its spelling
 # (glìe "glia" vs the clitic glie).
 FUNCTION_POS = frozenset({"prep", "conj", "article", "det", "pron"})
@@ -266,7 +262,7 @@ MINOR_READING_SHARE = 0.02
 # earlier, gives that row this share; the participle is far the more common.
 PARTICIPLE_ENDINGS = ("ati", "iti", "uti")
 PARTICIPLE_SHARE = 0.9
-# Context sides (§6.4): a row is nominal if it has a noun or name reading, or
+# Context sides: a row is nominal if it has a noun or name reading, or
 # an adjective reading without a verb one (a participle tagged adj + verb is
 # verbal); verbal if it has a verb or adverb reading (verbal cues such as "non",
 # "mi" precede both). A row with both a noun and a verb reading (àncora,
@@ -285,7 +281,7 @@ READING_MIN_ZIPF = 0.01
 
 # --- Lexicon, export and report ----------------------------------------------
 
-# Loanwords (§7) among forms whose stress is only predicted or from the
+# Loanwords among forms whose stress is only predicted or from the
 # single-vowel rule, unless they have a reading in LOANWORD_ITALIAN_POS (i):
 # out if spelled with LOANWORD_CHARS and not ending in an Italian suffix after
 # at least LOANWORD_MIN_STEM letters (juventini, mixare), or if wordfreq's
@@ -304,7 +300,7 @@ LOANWORD_ITALIAN_SUFFIXES = (
 )
 LOANWORD_EN_MARGIN = 0.25
 REPORT_TOP_N = 50                  # rows per bounded list in report.md
-REPORT_UNATTESTED_N = 200          # most frequent forms without attested stress (§9)
+REPORT_UNATTESTED_N = 200          # most frequent forms without attested stress
 REPORT_ZIPF_BANDS = (1, 2, 3, 4, 5, 6)   # band edges for row counts by Zipf
 
 # --- Curation tests (tests/test_curation.py) ---------------------------------

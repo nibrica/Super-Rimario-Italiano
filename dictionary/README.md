@@ -2,7 +2,7 @@
 
 This folder builds `out/parole-accenti-frequenze.csv`, the dictionary behind Super Rimario Italiano: every Italian word form the sources know, with the position of its stressed vowel, a modern frequency, and separate rows for homographs (*àncora*/*ancòra*, *prìncipi*/*princìpi*).
 
-One command fetches the latest version of every source and rebuilds the file. The design and the reasons behind it are in [`OVERHAUL-PLAN.md`](OVERHAUL-PLAN.md); later work is in [`FOLLOW-UPS.md`](FOLLOW-UPS.md).
+One command fetches the latest version of every source and rebuilds the file. This README is the reference for the build and for the output format (see [Output](#output)), which the frontend in `web/` relies on; later work is in [`FOLLOW-UPS.md`](FOLLOW-UPS.md).
 
 ## Requirements
 
@@ -27,7 +27,7 @@ uv run rimario-build -v ...           # debug logging
 
 Usage: `rimario-build [fetch|build|report] [--offline] [--only ID] [-v]`. `--only` takes a source id from `sources.toml`; with `fetch` it fetches just that source, with `--offline` nothing is fetched but the source's extractor and every later stage rerun even if cached. `fetch --offline` is an error, and so is `--only` with `report` (it reruns no stage). `report` fails if a stage has no cached output for the current inputs; run a build first.
 
-**Baseline.** `build` and `report` diff the new CSV and lock against `out/parole-accenti-frequenze.csv` and `sources.lock.json` as committed at git HEAD, so the report shows what a commit would change. Until the CSV is first committed, the baseline is the old pipeline's dictionary in `web/` (`PREVIOUS_CSV_FALLBACK` in `config.py`); without a committed lock, it is the lock as it was before this run's fetch.
+**Baseline.** `build` and `report` diff the new CSV and lock against `out/parole-accenti-frequenze.csv` and `sources.lock.json` as committed at git HEAD, so the report shows what a commit would change. Without a committed CSV (a fresh repository, or a checkout outside git), the baseline is the `out/` CSV on disk before it's overwritten, or nothing; without a committed lock, it is the lock as it was before this run's fetch.
 
 **Fetching.** Sources are declared in `sources.toml`. A download is conditional (ETag / Last-Modified from `sources.lock.json`), so a source is downloaded again only when the server has a newer version; it's verified (size, sha256) and moved atomically into `data/raw/<id>/`. If a source can't be reached, the local copy is used and the report says so; without a local copy the build stops. `sources.lock.json` is committed: it records exactly which data produced the committed dictionary.
 
@@ -57,7 +57,7 @@ fetch ─► sources/* ─► forms, freq, contexts
 | `stress/vote.py` | Combines the attested stress (IPA, stress-marked hyphenation, conjugation tables) of the two Wiktionaries; distinct lemma/POS with different stress become homographs, disagreements go to the report. |
 | `stress/paradigm.py` | Gives stress to forms no source marks: verb forms from the lemma's attested forms, enclitics (*dìmmelo*, *portàndoglielo*), inflections, productive suffixes. A generated form is kept only if a lexicon or a corpus contains it. |
 | `stress/model.py` | A classifier trained on the attested readings predicts the rest; predictions are shipped only above a confidence threshold set per POS, and flagged. |
-| `lexicon.py` | Decides which forms go in (§7 of the plan): it drops abbreviations, misspellings and Roman numerals (their `num` readings: the pronoun *vi* stays); among forms whose stress is only predicted or from the single-vowel rule, it drops loanwords (spelled with j/k/w/x/y and no Italian suffix, or clearly more frequent in English than in Italian according to wordfreq); proper nouns need a Kaikki entry and frequency data. Then it applies `curation/overrides.tsv`. |
+| `lexicon.py` | Decides which forms go in: it drops abbreviations, misspellings and Roman numerals (their `num` readings: the pronoun *vi* stays); among forms whose stress is only predicted or from the single-vowel rule, it drops loanwords (spelled with j/k/w/x/y and no Italian suffix, or clearly more frequent in English than in Italian according to wordfreq); proper nouns need a Kaikki entry and frequency data. Then it applies `curation/overrides.tsv`. |
 | `frequency/merge.py` | Merges the three frequency sources into one Zipf value per spelling: a weighted mean with reliability and robustness checks, where a missing word counts as "rarer than this source's floor" (only when that bound is below the word's real observations). The unaccented twin of a final-accent word (*cosi* for *così*), mostly the same word typed without its accent, is capped below the accented spelling where edited news text confirms it is the rarer one. Forms found only in lexicons get a small value below every corpus estimate. |
 | `frequency/homographs.py` | Splits a spelling's frequency among its readings and picks the default reading. The first rule that applies splits the readings into two groups, each split again the same way: capitalization in the news sentences (proper noun vs. common word), function word vs. content word, archaic/literary/rare readings vs. the others, participle vs. imperative + clitic (*trovàti*/*tròvati*), context words before noun vs. verb readings (only with at least `CONTEXT_MIN_CUES` cues), lemma frequencies, else 50/50. Readings that differ only in vowel quality (*pèsca*/*pésca*) are one row, with the summed frequency. |
 | `export.py` | Writes the CSV and `ATTRIBUTION.md`. |
@@ -108,8 +108,10 @@ pinca,1,32,6
 |---|---|---|
 | `word` | str | NFC lowercase spelling, with orthographic accents (*città*, *perché*) |
 | `stress` | int | character index of the stressed vowel in `word` |
-| `zipf` | int | Zipf × 100, used for ranking |
+| `zipf` | int | Zipf × 100 (1 to about 750), used for ranking: higher is more frequent |
 | `flags` | int, **optional** | bitfield, written only when ≠ 0 |
+
+`word` contains only the letters `a`–`z` and the precomposed vowels `à è é ì í ò ó ù ú` (`ALLOWED_CHARS` in `config.py`), each a single code point (and a single UTF-16 code unit), so the reversed-word order can be compared character by character from the end. There is at most one row per (`word`, `stress`): readings that differ only in vowel quality (*pèsca*/*pésca*, *bòtte*/*bótte*) rhyme the same and are merged, with the summed frequency. A word with several rows is a homograph; exactly one of its rows has no flag 1, and that is its default reading.
 
 Flags mark exceptions only, so the normal case is a 3-field row. A row's value is the sum of its flags (`pinca,1,32,6`: predicted and vulgar); vowel quality is not exported:
 
@@ -121,7 +123,11 @@ Flags mark exceptions only, so the normal case is a 3-field row. A row's value i
 | 3 | 8 | archaic / poetic / literary |
 | 4 | 16 | proper noun |
 
-The filename is fixed; the site build step publishes it under a content-hashed name.
+**Deterministic.** The same raw sources produce a byte-identical CSV: the sort key above is total, the model has a fixed seed (`MODEL_SEED`), sets and dicts are never iterated unsorted on the way to the output, and nothing variable (no build date) goes inside the file. A rebuild with unchanged sources therefore leaves the committed file untouched.
+
+**Fixed filename.** The file keeps the same name, so git shows each dictionary update as an ordinary line diff. Cache busting happens later, in the site build step ([`BUILD-STEP.md`](../BUILD-STEP.md)), which publishes it under a name with its content hash; since the output is deterministic, that hash changes only when the dictionary really changes. `report.md` states the CSV's sha256, so a deployed file can be matched to a build.
+
+**Size.** The pipeline trims nothing; `report.md` gives the file size and the row counts per Zipf band and per flag.
 
 ## Curation
 
@@ -152,5 +158,5 @@ uv run pytest
 
 ## Beyond this folder
 
-- What the frontend must change for this format: [`web/FRONTEND-NOTES.md`](../web/FRONTEND-NOTES.md).
+- How the frontend (`web/`) is told the URLs of the dictionary and of `ATTRIBUTION.md`: the "Integrazione" section of the [repository README](../README.md#integrazione).
 - Copying the dictionary into the site with a cache-busted name, and the L'AvisioBlog version: [`BUILD-STEP.md`](../BUILD-STEP.md).

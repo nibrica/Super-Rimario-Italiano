@@ -1,4 +1,4 @@
-"""frequency/merge.py and frequency/homographs.py (§6)."""
+"""frequency/merge.py and frequency/homographs.py."""
 
 import math
 

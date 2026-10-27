@@ -1,4 +1,4 @@
-"""Table schemas shared by every stage (OVERHAUL-PLAN §4).
+"""Table schemas shared by every stage.
 
 Every stage is a pure function from polars DataFrames to polars DataFrames.
 A stage that produces more than one table returns ``dict[str, pl.DataFrame]``
@@ -14,7 +14,7 @@ Conventions used by every table:
 * ``quality`` is the quality of the stressed vowel: ``"open"`` (è, ò, ɛ, ɔ),
   ``"closed"`` (é, ó, e, o) or null (a, i, u, or unknown). Extraction and
   voting keep it (it is shown in the report's conflicts); ``lexicon.py``
-  drops it, so vowel-quality variants are one output row (§5.4).
+  drops it, so vowel-quality variants (*pèsca*/*pésca*) are one output row.
 """
 
 import polars as pl
@@ -30,9 +30,9 @@ POS_VALUES = (
 TAG_VALUES = (
     "vulgar", "offensive", "derogatory",               # FLAG_VULGAR
     "archaic", "poetic", "literary", "obsolete",       # FLAG_ARCHAIC; minor homograph reading
-    "abbreviation", "misspelling",                     # excluded (§7)
+    "abbreviation", "misspelling",                     # excluded (lexicon.py)
     "proper",                                          # proper noun (FLAG_PROPER)
-    "rare",                                            # minor homograph reading (§6.4)
+    "rare",                                            # minor homograph reading
     "regional", "dialectal",                           # no effect on the output
 )
 
@@ -91,7 +91,7 @@ FREQ_META = {
     "source": pl.String,
     "total_tokens": pl.Int64,       # null for wordfreq
     "floor_zipf": pl.Float64,       # Zipf of one occurrence, or wordfreq's cutoff
-    "complete": pl.Boolean,         # True if a missing word means "below floor" (§6.2)
+    "complete": pl.Boolean,         # True if a missing word means "below floor" (frequency/merge.py)
     "truncated": pl.Boolean,        # True if the list was cut at a cutoff
 }
 
@@ -122,7 +122,7 @@ READINGS = {
     "sources": pl.List(pl.String),  # sorted source ids that support it
 }
 
-# Stress conflicts between sources (§5.1, stress/vote.py): a source's own vote
+# Stress conflicts between sources (stress/vote.py): a source's own vote
 # missing from the readings of a form with a single (lemma, pos), or a
 # kaikki_it-only reading that kaikki_en contradicts (that reading is dropped).
 CONFLICTS = {
@@ -135,9 +135,9 @@ CONFLICTS = {
 # Merged per-spelling frequency (frequency/merge.py, key "form_zipf").
 FORM_ZIPF = {
     "form": pl.String,
-    "zipf": pl.Float64,             # merged estimate (§6.3), or the §6.5 fallback
+    "zipf": pl.Float64,             # merged estimate, or the lexicon-only fallback
     "n_sources": pl.Int8,           # corpora that actually contain the form
-    "n_lexicons": pl.Int8,          # lexicons that contain the form (tie-breaker, §6.5)
+    "n_lexicons": pl.Int8,          # lexicons that contain the form (lexicon-only tie-breaker)
     "estimate": pl.String,          # "corpus" | "lexicon_only"
 }
 
@@ -146,7 +146,7 @@ FORM_ZIPF = {
 ENTRIES = {
     "form": pl.String,
     "stress_idx": pl.Int16,
-    "quality": pl.String,           # always null: vowel quality never splits rows (§5.4)
+    "quality": pl.String,           # always null: vowel quality never splits rows
     "lemmas": pl.List(pl.String),   # sorted
     "pos": pl.List(pl.String),      # sorted
     "tier": pl.String,              # best tier among collapsed readings
@@ -154,14 +154,14 @@ ENTRIES = {
     "tags": pl.List(pl.String),     # sorted union of usage tags
     "is_proper": pl.Boolean,
     "provenance": pl.String,        # e.g. "kaikki_en:ipa,kaikki_it:hyphenation"
-    "zipf": pl.Float64,             # reading Zipf (§6.4)
+    "zipf": pl.Float64,             # reading Zipf: the spelling's Zipf + log10(share)
     "share": pl.Float64,            # 1.0 for non-homographs
     "share_method": pl.String,      # "single" | "capitalization" | "function_word" | "minor" | "participle"
                                     # | "context" | "lemma_ratio" | "even" (rule of the top-level split)
     "is_default": pl.Boolean,
 }
 
-# Output flag bits (§8), summed in the CSV's 4th field.
+# Output flag bits (README "Output"), summed in the CSV's 4th field.
 FLAG_NON_DEFAULT = 1    # not the default reading of a homograph
 FLAG_PREDICTED = 2      # stress predicted by the model (tier "predicted")
 FLAG_VULGAR = 4         # VULGAR_TAGS: vulgar / offensive / derogatory

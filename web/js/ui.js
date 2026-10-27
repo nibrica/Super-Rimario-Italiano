@@ -116,7 +116,8 @@ function chipItem(className, label, q) {
  *     onHome: () => void,
  *     onRetry: () => void,
  * }} handlers Callbacks provided by app.js.
- * @returns {object} Plain object of closures (see the plan, §2.4).
+ * @returns {object} Plain object of closures that app.js calls (showLoading,
+ *     showResults, setFilters, …); no class, no `this`.
  */
 export function createUI(root, handlers) {
     const byId = (id) => {

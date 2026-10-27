@@ -127,172 +127,23 @@ Agreement: **100.00%** on 57 pairs (0 misses).
 
 ## Diff against the previous build
 
-Previous CSV: 212,750 rows, 212,497 words (old `word,stress,count` format: defaults not compared).
+Previous CSV: 899,429 rows, 896,347 words.
 
-**Forms added:** 685,848 (most frequent first)
+**Forms added:** 0 (most frequent first)
 
-| form | zipf×100 |
-|---|---|
-| è | 709 |
-| èx | 533 |
-| òh | 505 |
-| àh | 493 |
-| yòrk (16) | 492 |
-| ìi (8) | 487 |
-| jòhn (16) | 484 |
-| shòw | 482 |
-| dàvid (16) | 476 |
-| ànna (16) | 473 |
-| wèb | 469 |
-| mìchael (16) | 468 |
-| tòp | 464 |
-| sèt | 463 |
-| àpp | 461 |
-| gesù | 459 |
-| pàul (16) | 458 |
-| lùca | 456 |
-| geòrge (16) | 455 |
-| pèter (16) | 453 |
-| bè (8) | 451 |
-| bìg | 451 |
-| ìnternet, internèt (1) | 448 |
-| èl | 447 |
-| tòny (16) | 446 |
-| èmma (18) | 444 |
-| ìa (2) | 444 |
-| ròck | 444 |
-| oddìo | 442 |
-| lìve | 438 |
-| bàby | 436 |
-| còach | 435 |
-| bòb | 434 |
-| professòr | 434 |
-| ù | 434 |
-| enrìco (16) | 433 |
-| sèxy | 432 |
-| wàlter (16) | 432 |
-| kìller | 431 |
-| lèo (16) | 431 |
-| succederà | 431 |
-| dòc | 428 |
-| bàsket | 427 |
-| pàrty | 427 |
-| wèst | 427 |
-| fì | 426 |
-| chàt | 425 |
-| blòg | 424 |
-| diègo | 424 |
-| gò | 424 |
+_none_
 
-**Forms removed:** 1,998 (most frequent first)
+**Forms removed:** 0 (most frequent first)
 
-| form | old count |
-|---|---|
-| lèader | 450 |
-| mìlan | 424 |
-| thè | 256 |
-| benètton | 90 |
-| règgio | 86 |
-| pannèlla | 85 |
-| busìness | 77 |
-| màtch | 76 |
-| mìss | 67 |
-| confindùstria | 65 |
-| bòom | 59 |
-| àllen | 58 |
-| grànd | 58 |
-| teàm | 58 |
-| bànd | 56 |
-| flàsh | 52 |
-| renàult | 49 |
-| fùrlan | 47 |
-| nèlson | 47 |
-| lèadership | 41 |
-| bèatles | 40 |
-| gènoa | 40 |
-| màrie | 38 |
-| ùnder | 38 |
-| brèra | 37 |
-| brèznev | 37 |
-| hòlding | 37 |
-| còllege | 36 |
-| frèud | 36 |
-| buènos | 35 |
-| giàmpaolo | 34 |
-| mòdel | 34 |
-| audìence | 33 |
-| bèach | 33 |
-| pamèla | 33 |
-| picàsso | 33 |
-| ròland | 33 |
-| stràuss | 33 |
-| càrmen | 32 |
-| foòtball | 32 |
-| rànch | 32 |
-| flìrt | 31 |
-| hàrd | 31 |
-| persònal | 31 |
-| beèthoven | 30 |
-| berlinguèr | 30 |
-| desìgn | 30 |
-| grèen | 30 |
-| islàm | 30 |
-| desìgner | 29 |
+_none_
 
-**Stress changed:** 26,434 forms (set of stressed positions differs)
+**Stress changed:** 0 forms (set of stressed positions differs)
 
-| before | after | zipf×100 |
-|---|---|---|
-| abbìamo | abbiàmo | 599 |
-| sìamo | siàmo | 594 |
-| vìene | viène | 557 |
-| piàno | pìano (1), piàno | 548 |
-| dobbìamo | dobbiàmo | 542 |
-| possìamo | possiàmo | 541 |
-| àuto | àuto, aùto (1) | 539 |
-| pìace | piàce | 536 |
-| giòrnata | giornàta | 532 |
-| stìamo | stiàmo | 532 |
-| capìto | càpito (1), capìto | 525 |
-| sìete | siète | 523 |
-| seguìto | sèguito, seguìto (1) | 521 |
-| vengòno | vèngono | 519 |
-| vedìamo | vediàmo | 511 |
-| voglìamo | vogliàmo | 511 |
-| miglìori | migliòri | 510 |
-| sappìamo | sappiàmo | 502 |
-| tenère | tènere (1), tenère | 496 |
-| aprìle | àprile (1), aprìle | 492 |
-| esèrcito | esèrcito, esercìto (1) | 490 |
-| capitàno | càpitano (1), capitàno | 489 |
-| miglìor | migliòr | 489 |
-| chìede | chiède | 486 |
-| dettàgli | dèttagli (1), dettàgli | 486 |
-| chìedo | chièdo | 485 |
-| spìega | spièga | 482 |
-| fìanco | fiànco | 477 |
-| fèstival, festivàl | fèstival | 476 |
-| giòvanni | giovànni (16) | 474 |
-| azìende | aziènde | 472 |
-| dicìamo | diciàmo | 469 |
-| tìene | tiène | 469 |
-| vìeni | vièni | 469 |
-| destìno | dèstino (1), destìno | 467 |
-| tòur | toùr | 467 |
-| piacèrebbe | piacerèbbe | 466 |
-| trovìamo | troviàmo | 466 |
-| mattìno | màttino (9), mattìno | 463 |
-| chièdendo | chiedèndo | 462 |
-| passàti | pàssati (1), passàti | 462 |
-| pìacciono | piàcciono | 461 |
-| gìoca | giòca | 460 |
-| vestìti | vèstiti (1), vestìti | 460 |
-| biglìetti | bigliètti | 459 |
-| mèttendo | mettèndo | 458 |
-| giùseppe | giusèppe (16) | 457 |
-| chiàmate | chiamàte | 456 |
-| partìti | pàrtiti (9), partìti | 454 |
-| richìede | richiède | 453 |
+_none_
+
+**Default reading changed:** 0 forms
+
+_none_
 
 ## Stress conflicts between sources
 

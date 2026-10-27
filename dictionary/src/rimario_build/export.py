@@ -1,4 +1,4 @@
-"""The output CSV (§8) and out/ATTRIBUTION.md (§1)."""
+"""The output CSV (format: README "Output") and out/ATTRIBUTION.md."""
 
 import hashlib
 from pathlib import Path
@@ -20,7 +20,7 @@ def _bit(cond: pl.Expr, bit: int) -> pl.Expr:
 
 
 def sort_rows(rows: pl.DataFrame) -> pl.DataFrame:
-    """Sort by reversed word (code-point order), then stress, then flags (§8)."""
+    """Sort by reversed word (code-point order), then stress, then flags."""
     return (
         rows.with_columns(_rev=pl.col("word").str.reverse())
         .sort("_rev", "stress", "flags").drop("_rev")
@@ -60,10 +60,9 @@ def write_csv(rows: pl.DataFrame, path: Path = config.OUT_CSV) -> str:
 
 
 def read_csv(source: Path | bytes) -> pl.DataFrame:
-    """Read an output CSV (a path or its bytes), new or old (``word,stress,count``) format.
+    """Read an output CSV (a path or its bytes).
 
-    Flags are 0 when absent; for the old format the third column holds raw
-    counts, not Zipf × 100. A missing path or an empty file gives an empty frame.
+    Flags are 0 when absent. A missing path or an empty file gives an empty frame.
     """
     data = source if isinstance(source, bytes) else source.read_bytes() if source.exists() else b""
     if not data.strip():

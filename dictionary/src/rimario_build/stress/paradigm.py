@@ -1,4 +1,4 @@
-"""Paradigm propagation (§5.2): stress for lexicon forms that no source marks.
+"""Paradigm propagation: stress for lexicon forms that no source marks.
 
 Rules run in this order on the (form, lemma, pos) groups that have no attested
 reading; a group filled by one rule is not touched by the later ones:
@@ -117,7 +117,7 @@ def rhizotonic(source: str, source_idx: int, target: str, isc: bool = True) -> i
 
 
 def ending(form: str, key: str, lemma: str) -> int | None:
-    """Stress of an arizotonic (or strong-past) verb form from its features (§5.2).
+    """Stress of an arizotonic (or strong-past) verb form from its features.
 
     Apocopated forms (Morph-it's trasformavan, incettar) count their lost final vowel.
     In -aire/-eire/-oire verbs the thematic i is stressed (guaìto, inveìvano, gioìre).
