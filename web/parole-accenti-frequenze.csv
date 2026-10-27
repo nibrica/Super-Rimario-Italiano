@@ -1,4 +1,3 @@
-a,0,718
 aa,0,329
 ba,1,349
 baba,1,325
@@ -5298,7 +5297,6 @@ suca,1,230,4
 tartuca,4,199
 festuca,4,176
 lattuca,4,208,2
-da,1,679
 ada,0,354,18
 bada,1,378
 abada,2,33
@@ -17481,7 +17479,6 @@ muovila,2,151
 rimuovila,4,107
 promuovila,5,58
 servila,1,128
-alla,0,646
 balla,1,393
 traballa,4,251
 pizzaballa,6,208,16
@@ -17495,7 +17492,6 @@ sballa,2,243
 calla,1,213
 caracalla,5,261
 accalla,3,33
-dalla,1,604
 ridalla,3,94
 falla,1,389
 rifalla,3,151
@@ -17641,7 +17637,6 @@ smascella,5,34
 sottoascella,8,52
 fiscella,4,83
 ruscella,4,46
-della,1,672
 padella,3,366
 spadella,4,37
 fradella,4,37,16
@@ -17773,7 +17768,6 @@ mammella,4,297
 formella,4,139
 giumella,4,33
 columella,5,217
-nella,1,623
 anella,2,132
 gabbanella,6,33
 albanella,5,190
@@ -18378,7 +18372,6 @@ rifrulla,4,33
 grulla,2,121
 trulla,2,61
 citrulla,4,94
-sulla,1,594
 fasulla,3,291
 betulla,3,268
 trastulla,5,193
@@ -23732,7 +23725,6 @@ cartula,1,46,2
 blastula,2,123
 postula,1,209
 ovula,0,124
-ma,1,672
 ama,0,473
 alabama,4,328,16
 ricama,3,222
@@ -30952,7 +30944,6 @@ mazzera,1,52
 trazzera,5,188
 zazzera,1,210
 svizzera,2,436
-fra,2,531
 afra,0,198
 minafra,3,92,18
 zinefra,3,33
@@ -31474,7 +31465,6 @@ neroazzurra,7,105
 nerazzurra,6,270
 rossazzurra,7,91,2
 buzzurra,4,98
-tra,2,612
 atra,0,236
 pediatra,4,337
 psichiatra,6,382
@@ -58783,7 +58773,6 @@ picofarad,5,52
 nanofarad,5,33
 microfarad,6,33
 kaliningrad,9,207,16
-ed,0,607
 ched,2,130,8
 led,1,372
 lamed,1,128
@@ -58830,7 +58819,6 @@ centronord,7,133
 password,1,414
 talmud,4,273
 sud,1,509
-e,0,745
 dae,1,310,8
 pasifae,3,185,16
 pasifae,5,185,17
@@ -71830,7 +71818,6 @@ assurge,3,211
 auge,0,306
 coniuge,1,347
 dubhe,1,140,18
-che,2,733
 cache,1,314
 dache,1,66
 sindache,1,153
@@ -83026,7 +83013,6 @@ servile,1,276
 servile,4,120,1
 benzile,4,128
 terzile,4,33
-alle,0,607
 balle,1,365
 spaccaballe,7,33,4
 cacciaballe,7,123,2
@@ -83037,7 +83023,6 @@ rompiballe,6,271
 rotoballe,5,166,2
 calle,1,305
 percalle,4,144
-dalle,1,560
 ridalle,3,153
 falle,1,358
 rifalle,3,94
@@ -83126,7 +83111,6 @@ forcelle,4,206
 porcelle,4,101
 ascelle,3,317
 mascelle,4,275
-delle,1,637
 padelle,3,289
 mortadelle,6,170
 cittadelle,6,193
@@ -83179,7 +83163,6 @@ mammelle,4,282
 armelle,3,37,16
 formelle,4,170
 columelle,5,33
-nelle,1,575
 albanelle,5,33
 orfanelle,5,185
 raganelle,5,173
@@ -83460,7 +83443,6 @@ barulle,3,33
 brulle,2,159
 grulle,2,52
 citrulle,4,52
-sulle,1,548
 fasulle,3,281
 betulle,3,242
 sciabole,3,248
@@ -111978,7 +111960,6 @@ sozzure,4,128
 scevre,2,150
 piovre,2,198
 manovre,3,377
-se,1,654
 base,1,531
 pallabase,6,33
 casabase,5,58
@@ -195426,7 +195407,6 @@ bush,1,356,16
 heth,1,110
 roth,1,328,16
 uh,0,424
-ai,0,604
 sillabai,6,34
 abbai,3,219
 gabbai,4,62
@@ -224457,7 +224437,6 @@ bruci,2,317
 abbruci,4,64
 ribruci,4,33
 truci,2,169
-di,1,752
 badi,1,313
 abadi,2,166
 abbadi,3,33
@@ -226253,7 +226232,6 @@ romei,3,253
 vomei,3,151
 permei,1,62
 idumei,4,90
-nei,1,584
 succedanei,6,160
 suffraganei,7,118
 euganei,3,267,2
@@ -242828,7 +242806,6 @@ zeli,1,58
 affli,0,33,8
 insuffli,3,34
 confli,1,33,8
-agli,0,553
 bagli,1,181
 abbagli,3,186
 piombagli,2,52
@@ -242882,7 +242859,6 @@ rinfrescagli,5,94
 confiscagli,4,91
 riscagli,4,33
 bucagli,1,101
-dagli,1,521
 badagli,1,52
 guadagli,2,52
 medagli,3,42
@@ -243280,10 +243256,8 @@ scegli,2,417
 trascegli,5,33
 prescegli,5,33
 riscegli,4,33
-degli,1,599
 credegli,2,91
 megli,1,206,18
-negli,1,550,2
 pegli,1,286,8
 spegli,2,52
 consegli,4,52,8
@@ -245987,7 +245961,6 @@ rugli,1,34
 tafferugli,6,243
 cianfrugli,6,52
 intrugli,4,225
-sugli,1,487,2
 rimasugli,5,248
 pattugli,4,139
 ili,0,223
@@ -272722,7 +272695,6 @@ inopportuni,8,250
 ostuni,3,308,18
 ovni,0,85,2
 oboi,0,167
-coi,1,477,2
 ancoi,3,33
 incoi,3,33
 corridoi,6,371
@@ -342802,7 +342774,6 @@ imprui,4,33
 apprui,4,34
 altrui,4,404
 mestrui,1,33
-sui,1,552,2
 fatui,1,192
 infatui,3,34
 tatui,1,163
@@ -360282,10 +360253,8 @@ kupiansk,1,55,16
 nabuk,1,75
 puk,1,176
 uruk,0,198,16
-al,0,666
 pascal,4,345
 mescal,4,249
-dal,1,619
 parsifal,1,248,16
 senegal,1,321,16
 emmenthal,0,173
@@ -360322,7 +360291,6 @@ nebel,1,159
 decibel,1,287
 nobel,1,383
 incel,3,162
-del,1,685
 padel,1,239
 jodel,1,214
 crudel,2,201,2
@@ -360337,7 +360305,6 @@ nickel,1,272
 hillel,1,183,16
 semel,1,181
 rimmel,1,217
-nel,1,648
 tunnel,1,425
 kernel,1,295
 joel,1,365,16
@@ -360370,7 +360337,6 @@ skill,2,284
 drill,2,281
 autogrill,6,304
 troll,2,363
-col,1,541
 maicol,1,179,16
 glicol,2,146
 alcol,0,433
@@ -360405,7 +360371,6 @@ cul,1,272
 tucul,3,102
 seul,2,340,16
 soul,1,355
-sul,1,613
 proconsul,4,94
 cam,1,394,16
 ambaradam,7,91
@@ -361206,7 +361171,6 @@ onsen,3,202
 zen,1,354
 fohn,1,120
 john,1,484,16
-in,0,712
 ain,0,260
 spain,2,268
 cibin,1,85
@@ -361468,7 +361432,6 @@ dobermann,1,244
 bonn,1,291,16
 debbon,1,108
 bonbon,4,209
-con,1,686
 ceccon,1,202,18
 dicon,1,219
 addicon,3,58
@@ -361715,7 +361678,6 @@ nessun,4,524
 cinquantun,8,132,2
 ventun,4,265
 solzenicyn,6,133,16
-o,0,632
 ao,0,307,2
 babao,3,111
 cao,1,312,8
@@ -388580,7 +388542,6 @@ rimuovilo,4,138
 promuovilo,5,91
 smuovilo,3,104
 servilo,1,181
-allo,0,538
 ballo,1,462
 gaballo,3,80,18
 traballo,4,91
@@ -388594,7 +388555,6 @@ sballo,2,333
 callo,1,281
 sciacallo,5,302
 accallo,3,33
-dallo,1,488
 ridallo,3,145
 fallo,1,451
 rifallo,3,258
@@ -388756,7 +388716,6 @@ ramoscello,6,280
 fuscello,4,207
 ramuscello,6,114
 ruscello,4,323
-dello,1,554
 agnadello,5,123,16
 padello,3,33
 spadello,4,52
@@ -388873,7 +388832,6 @@ cammello,4,325
 lomello,3,156,16
 pomello,3,275
 formello,4,236,16
-nello,1,522
 anello,2,448
 toscanello,6,94
 fanello,3,161
@@ -389467,7 +389425,6 @@ grullo,2,190
 trullo,2,253
 petrullo,4,62,18
 citrullo,4,193
-sullo,1,473,16
 fasullo,3,302
 masullo,3,209,18
 tullo,1,208,16
@@ -552140,7 +552097,6 @@ toner,1,277
 lerner,1,294,16
 corner,1,352
 partner,1,469
-per,1,713
 saper,3,413
 camper,1,380
 proromper,4,52,2

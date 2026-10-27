@@ -18,11 +18,11 @@ Built: 2026-10-27
 |  |  |
 |---|---|
 | file | parole-accenti-frequenze.csv |
-| rows | 581,790 |
-| distinct words | 578,780 |
-| size | 10,034,765 bytes |
-| gzipped | 2,906,056 bytes |
-| sha256 | `fe3736d898499a07e800a21f3de5cb8e613434671c8b07d67f97b1bf6521a02b` |
+| rows | 581,746 |
+| distinct words | 578,736 |
+| size | 10,034,292 bytes |
+| gzipped | 2,905,815 bytes |
+| sha256 | `f0ab6aae2e3c4a578d471a37c7e8cbc4a0b93e7085400931447fa83841312e8a` |
 
 ## Row counts
 
@@ -30,22 +30,22 @@ Built: 2026-10-27
 
 | tier | rows |
 |---|---|
-| attested | 443961 |
-| predicted | 15273 |
-| propagated | 122556 |
+| attested | 443929 |
+| predicted | 15269 |
+| propagated | 122548 |
 
 **By supporting source** (a row counts once per source)
 
 | source | rows |
 |---|---|
-| kaikki_en | 409767 |
-| kaikki_it | 102573 |
-| model | 15273 |
+| kaikki_en | 409737 |
+| kaikki_it | 102559 |
+| model | 15269 |
 | morphit | 17654 |
 | paradigm.enclitic | 61245 |
-| paradigm.nominal | 33059 |
-| paradigm.single_vowel | 147 |
-| paradigm.suffix | 10960 |
+| paradigm.nominal | 33055 |
+| paradigm.single_vowel | 137 |
+| paradigm.suffix | 10957 |
 | paradigm.verb_ending | 30612 |
 | paradigm.verb_rhizotonic | 1635 |
 
@@ -53,12 +53,12 @@ Built: 2026-10-27
 
 | flag | rows |
 |---|---|
-| none | 545358 |
+| none | 545319 |
 | 1 non-default | 3010 |
-| 2 predicted | 15273 |
+| 2 predicted | 15269 |
 | 4 vulgar | 2268 |
 | 8 archaic | 11630 |
-| 16 proper | 8088 |
+| 16 proper | 8087 |
 
 **By Zipf band**
 
@@ -68,16 +68,16 @@ Built: 2026-10-27
 | 1–2 | 83111 |
 | 2–3 | 51946 |
 | 3–4 | 21562 |
-| 4–5 | 5260 |
-| 5–6 | 702 |
-| ≥ 6 | 80 |
+| 4–5 | 5256 |
+| 5–6 | 687 |
+| ≥ 6 | 55 |
 
 **Excluded lexicon forms by reason**
 
 | reason | forms |
 |---|---|
 | abbreviation | 280 |
-| atonic | 17 |
+| atonic | 61 |
 | chars | 4059 |
 | few_lexicons | 317529 |
 | loanword | 1651 |
@@ -129,33 +129,60 @@ Agreement: **100.00%** on 57 pairs (0 misses).
 
 ## Diff against the previous build
 
-Previous CSV: 581,808 rows, 578,797 words.
+Previous CSV: 581,790 rows, 578,780 words.
 
 **Forms added:** 0 (most frequent first)
 
 _none_
 
-**Forms removed:** 17 (most frequent first)
+**Forms removed:** 44 (most frequent first)
 
 | form | old zipf×100 |
 |---|---|
-| ìl | 728 |
-| là | 727 |
-| ùn | 716 |
-| ì | 686 |
-| lè | 686 |
-| sì | 686 |
-| lò | 657 |
-| mì | 651 |
-| cì | 646 |
-| glì | 645 |
-| tì | 619 |
-| nè | 605 |
-| vì | 577 |
-| lì | 572 |
-| cè | 543 |
-| vè | 459 |
-| glìe (1), gliè | 327 |
+| dì | 752 |
+| è | 745 |
+| chè | 733 |
+| à | 718 |
+| pèr | 713 |
+| ìn | 712 |
+| còn | 686 |
+| dèl | 685 |
+| dà | 679 |
+| dèlla | 672 |
+| mà | 672 |
+| àl | 666 |
+| sè | 654 |
+| nèl | 648 |
+| àlla | 646 |
+| dèlle | 637 |
+| ò | 632 |
+| nèlla | 623 |
+| dàl | 619 |
+| sùl | 613 |
+| trà | 612 |
+| àlle | 607 |
+| èd | 607 |
+| ài | 604 |
+| dàlla | 604 |
+| dègli | 599 |
+| sùlla | 594 |
+| nèi | 584 |
+| nèlle | 575 |
+| dàlle | 560 |
+| dèllo | 554 |
+| àgli | 553 |
+| sùi (2) | 552 |
+| nègli (2) | 550 |
+| sùlle | 548 |
+| còl | 541 |
+| àllo | 538 |
+| frà | 531 |
+| nèllo | 522 |
+| dàgli | 521 |
+| dàllo | 488 |
+| sùgli (2) | 487 |
+| còi (2) | 477 |
+| sùllo (16) | 473 |
 
 **Stress changed:** 0 forms (set of stressed positions differs)
 
@@ -395,210 +422,210 @@ The 1,455 largest gaps between a down-weighted source estimate and the other sou
 
 ## Most frequent forms without attested stress
 
-137,155 forms have only propagated or predicted stress; the 200 most frequent (work through these first):
+137,143 forms have only propagated or predicted stress; the 200 most frequent (work through these first):
 
 | # | form | tier | zipf | lemmas |
 |---|---|---|---|---|
-| 1 | dèl | propagated | 6.85 | del |
-| 2 | dèlle | propagated | 6.37 | della |
-| 3 | nèlla | propagated | 6.23 | nel, nella, nelle |
-| 4 | dàl | propagated | 6.19 | dal |
-| 5 | sùl | propagated | 6.13 | sul |
-| 6 | dèllo | propagated | 5.54 | del, dello |
-| 7 | sùi | predicted | 5.52 | sui, sul |
-| 8 | nègli | predicted | 5.50 | negli, nel, nelle |
-| 9 | sùlle | propagated | 5.48 | sulla |
-| 10 | nèllo | propagated | 5.22 | nel, nelle, nello |
-| 11 | unìti | propagated | 5.10 | unire, unito |
-| 12 | èh | propagated | 4.99 | eh |
-| 13 | onlìne | predicted | 4.89 | online |
-| 14 | stòrie | propagated | 4.88 | storia |
-| 15 | sùgli | predicted | 4.87 | sugli, sul |
-| 16 | còi | predicted | 4.77 | coi, col |
-| 17 | dottòr | propagated | 4.70 | dottore |
-| 18 | ricèrche | propagated | 4.64 | ricerca |
-| 19 | còlpi | propagated | 4.63 | colpo |
-| 20 | pàlle | propagated | 4.54 | palla |
-| 21 | àfrica | propagated | 4.53 | africo |
-| 22 | tàl | propagated | 4.50 | tal, tale |
-| 23 | vedèrlo | propagated | 4.49 | vedere |
-| 24 | scientìfica | propagated | 4.47 | scientifico |
-| 25 | màl | propagated | 4.46 | mal, male |
-| 26 | potèri | propagated | 4.45 | potere |
-| 27 | ìa | predicted | 4.44 | ia |
-| 28 | èmma | predicted | 4.44 | emma |
-| 29 | avvocàti | propagated | 4.43 | avvocato |
-| 30 | giornàte | propagated | 4.41 | giornata |
-| 31 | crìtiche | propagated | 4.38 | critica, critico |
-| 32 | parlàrne | propagated | 4.38 | parlare |
-| 33 | màil | predicted | 4.38 | mail |
-| 34 | lìve | propagated | 4.38 | live |
-| 35 | iniziàta | propagated | 4.37 | iniziare, iniziato |
-| 36 | partecipànti | propagated | 4.34 | partecipante, partecipare |
-| 37 | professòr | propagated | 4.34 | professore |
-| 38 | assolùta | propagated | 4.31 | assoluto |
-| 39 | leggèra | propagated | 4.31 | leggere, leggero |
-| 40 | ucràina | propagated | 4.29 | ucraino |
-| 41 | crìmini | propagated | 4.29 | crimine |
-| 42 | entràti | propagated | 4.28 | entrare |
-| 43 | califòrnia | propagated | 4.27 | californio |
-| 44 | olimpìadi | propagated | 4.27 | olimpiade |
-| 45 | colpìta | propagated | 4.27 | colpire, colpito |
-| 46 | lìngue | propagated | 4.27 | lingua |
-| 47 | intenziòni | propagated | 4.26 | intenzione |
-| 48 | fì | propagated | 4.26 | fio |
-| 49 | vedèrla | propagated | 4.25 | vedere |
-| 50 | avèrmi | propagated | 4.22 | avere |
-| 51 | pèrdite | propagated | 4.20 | perdita |
-| 52 | aiutàrti | propagated | 4.19 | aiutare |
-| 53 | occupàta | propagated | 4.18 | occupare, occupato |
-| 54 | scienziàti | propagated | 4.18 | scienziato |
-| 55 | vòn | propagated | 4.18 | von |
-| 56 | tantìssimi | propagated | 4.16 | tanto |
-| 57 | energìe | propagated | 4.16 | energia |
-| 58 | iphòne | propagated | 4.16 | iphone |
-| 59 | preoccupàrti | propagated | 4.15 | preoccupare |
-| 60 | mònica | propagated | 4.15 | monico |
-| 61 | padròni | propagated | 4.14 | padrone |
-| 62 | chiàcchiere | propagated | 4.14 | chiacchiera |
-| 63 | trovàrlo | propagated | 4.12 | trovare |
-| 64 | relatìve | propagated | 4.12 | relativo |
-| 65 | costruìta | propagated | 4.12 | costruire, costruito |
-| 66 | requisìti | propagated | 4.11 | requisire, requisito |
-| 67 | tètte | propagated | 4.11 | tetta |
-| 68 | bottìglie | propagated | 4.10 | bottiglia |
-| 69 | portàrlo | propagated | 4.10 | portare |
-| 70 | prènderlo | propagated | 4.10 | prendere |
-| 71 | àlan | propagated | 4.10 | alare |
-| 72 | dìgli | propagated | 4.10 | dicere, dire |
-| 73 | tantìssime | propagated | 4.09 | tanto |
-| 74 | versiòni | propagated | 4.09 | versione |
-| 75 | pressiòni | propagated | 4.09 | pressione |
-| 76 | potèrlo | propagated | 4.09 | poter, potere |
-| 77 | abbandonàta | propagated | 4.08 | abbandonare, abbandonato |
-| 78 | catène | propagated | 4.08 | catena |
-| 79 | nìna | predicted | 4.08 | nina |
-| 80 | futùri | propagated | 4.08 | futuro |
-| 81 | vedèrti | propagated | 4.08 | vedere |
-| 82 | matèrie | propagated | 4.07 | materia |
-| 83 | realizzàta | propagated | 4.07 | realizzare, realizzato |
-| 84 | nà | propagated | 4.07 | na |
-| 85 | seràte | propagated | 4.07 | serata |
-| 86 | sentìrmi | propagated | 4.06 | sentire |
-| 87 | iscrìtti | propagated | 4.06 | iscritto, iscrivere |
-| 88 | riguardànti | propagated | 4.06 | riguardante, riguardare |
-| 89 | pòllici | propagated | 4.06 | pollice |
-| 90 | ùltra | predicted | 4.05 | ultra |
-| 91 | lìne | propagated | 4.05 | lino |
-| 92 | appartamènti | propagated | 4.05 | appartamento |
-| 93 | dàmmi | propagated | 4.04 | dare |
-| 94 | registràta | propagated | 4.04 | registrare, registrato |
-| 95 | unìta | propagated | 4.04 | unire, unito |
-| 96 | quàrti | propagated | 4.03 | quarto |
-| 97 | teorìe | propagated | 4.03 | teoria |
-| 98 | pà | propagated | 4.02 | papà |
-| 99 | prèndermi | propagated | 4.01 | prendere |
-| 100 | fantàstici | propagated | 4.01 | fantastico |
-| 101 | avèrti | propagated | 4.00 | avere |
-| 102 | aiutàrci | propagated | 4.00 | aiutare |
-| 103 | sapèrne | propagated | 4.00 | sapere |
-| 104 | fantàsmi | propagated | 4.00 | fantasma |
-| 105 | dròni | propagated | 4.00 | drone |
-| 106 | prèstiti | propagated | 4.00 | prestito |
-| 107 | significatìva | propagated | 3.99 | significativo |
-| 108 | rènderlo | propagated | 3.99 | rendere |
-| 109 | lasciàrlo | propagated | 3.99 | lasciare |
-| 110 | fissàta | propagated | 3.99 | fissare, fissato |
-| 111 | ùsb | propagated | 3.98 | usb |
-| 112 | aiutàrla | propagated | 3.98 | aiutare |
-| 113 | amànda | predicted | 3.98 | amanda |
-| 114 | emissiòni | propagated | 3.98 | emissione |
-| 115 | nucleàri | propagated | 3.97 | nucleare |
-| 116 | mèle | propagated | 3.97 | mela, melo |
-| 117 | tenèrlo | propagated | 3.97 | tenere |
-| 118 | èssermi | propagated | 3.97 | essere |
-| 119 | ritrovàta | propagated | 3.97 | ritrovare, ritrovato |
-| 120 | trasferìti | propagated | 3.96 | trasferire, trasferito |
-| 121 | concrète | propagated | 3.96 | concreto |
-| 122 | approvàta | propagated | 3.96 | approvare |
-| 123 | ricevùte | propagated | 3.96 | ricevere, ricevuta |
-| 124 | còrde | propagated | 3.96 | corda |
-| 125 | rì | propagated | 3.95 | rio |
-| 126 | làsciami | propagated | 3.94 | lasciare |
-| 127 | aiutàrlo | propagated | 3.94 | aiutare |
-| 128 | portàrla | propagated | 3.94 | portare |
-| 129 | quartièr | propagated | 3.94 | quartiere |
-| 130 | usàrlo | propagated | 3.94 | usare |
-| 131 | capìrlo | propagated | 3.94 | capire |
-| 132 | rubàta | propagated | 3.93 | rubare, rubato |
-| 133 | aiutàrmi | propagated | 3.93 | aiutare |
-| 134 | potèrsi | propagated | 3.93 | poter, potere |
-| 135 | sconosciùta | propagated | 3.93 | sconoscere, sconosciuto |
-| 136 | mèga | predicted | 3.92 | mega |
-| 137 | deputàti | propagated | 3.92 | deputare, deputato |
-| 138 | condòtti | propagated | 3.92 | condotto, condurre |
-| 139 | chièdermi | propagated | 3.91 | chiedere |
-| 140 | ascòltami | propagated | 3.91 | ascoltare |
-| 141 | patatìne | propagated | 3.91 | patatina |
-| 142 | màra | predicted | 3.91 | mara |
-| 143 | sentìrti | propagated | 3.91 | sentire |
-| 144 | riportàta | propagated | 3.91 | riportare |
-| 145 | màschere | propagated | 3.90 | maschera |
-| 146 | uccìderlo | propagated | 3.90 | uccidere |
-| 147 | spìriti | propagated | 3.90 | spirito |
-| 148 | vedèrli | propagated | 3.90 | vedere |
-| 149 | riflettòri | propagated | 3.90 | riflettore |
-| 150 | sòmme | propagated | 3.90 | somma, sommo |
-| 151 | spaventàta | propagated | 3.90 | spaventare, spaventato |
-| 152 | pùb | propagated | 3.90 | pub |
-| 153 | causàta | propagated | 3.89 | causare |
-| 154 | universitàri | propagated | 3.89 | universitario |
-| 155 | scoprìrlo | propagated | 3.89 | scoprire |
-| 156 | collegàta | propagated | 3.89 | collegare, collegato |
-| 157 | prènderla | propagated | 3.88 | prendere |
-| 158 | ràp | propagated | 3.88 | rap |
-| 159 | drìve | propagated | 3.88 | drive |
-| 160 | crèdimi | propagated | 3.88 | credere |
-| 161 | nascòste | propagated | 3.88 | nascondere, nascosto |
-| 162 | lontàne | propagated | 3.88 | lontano |
-| 163 | universitària | propagated | 3.87 | universitario |
-| 164 | significatìvi | propagated | 3.87 | significativo |
-| 165 | fottùta | propagated | 3.87 | fottere, fottuto |
-| 166 | gestìta | propagated | 3.87 | gestire |
-| 167 | brìvidi | propagated | 3.87 | brivido |
-| 168 | scusàtemi | propagated | 3.86 | scusare |
-| 169 | guàrdami | propagated | 3.86 | guardare |
-| 170 | tìzi | propagated | 3.86 | tizio |
-| 171 | tarìffe | propagated | 3.85 | tariffa |
-| 172 | rilevànti | propagated | 3.85 | rilevante, rilevare |
-| 173 | succèssa | propagated | 3.85 | succedere |
-| 174 | càpitan | propagated | 3.85 | capitare |
-| 175 | lasciàrti | propagated | 3.84 | lasciare |
-| 176 | bìrre | propagated | 3.84 | birra |
-| 177 | contribuènti | propagated | 3.84 | contribuente, contribuire |
-| 178 | bò | propagated | 3.84 | bo |
-| 179 | chiàmami | propagated | 3.83 | chiamare |
-| 180 | telespettatòri | propagated | 3.83 | telespettatore |
-| 181 | pròfughi | propagated | 3.83 | profugo |
-| 182 | mistèri | propagated | 3.83 | mistero |
-| 183 | pòrtami | propagated | 3.83 | portare |
-| 184 | còlpe | propagated | 3.83 | colpa |
-| 185 | parlàrti | propagated | 3.82 | parlare |
-| 186 | aiùtami | propagated | 3.82 | aiutare |
-| 187 | statunitènsi | propagated | 3.82 | statunitense |
-| 188 | sùn | propagated | 3.82 | sun |
-| 189 | prènderti | propagated | 3.82 | prendere |
-| 190 | cugìni | propagated | 3.82 | cugino |
-| 191 | lasciàrla | propagated | 3.82 | lasciare |
-| 192 | còm | propagated | 3.82 | com |
-| 193 | pochìssimi | propagated | 3.81 | pochissimo, poco |
-| 194 | regolàri | propagated | 3.81 | regolare |
-| 195 | miglioramènti | propagated | 3.81 | miglioramento |
-| 196 | chiamàrlo | propagated | 3.81 | chiamare |
-| 197 | aumentàta | propagated | 3.81 | aumentare, aumentato |
-| 198 | dìllo | propagated | 3.81 | dicere, dire |
-| 199 | cominciàta | propagated | 3.80 | cominciare |
-| 200 | ràm | propagated | 3.80 | ram |
+| 1 | unìti | propagated | 5.10 | unire, unito |
+| 2 | èh | propagated | 4.99 | eh |
+| 3 | onlìne | predicted | 4.89 | online |
+| 4 | stòrie | propagated | 4.88 | storia |
+| 5 | dottòr | propagated | 4.70 | dottore |
+| 6 | ricèrche | propagated | 4.64 | ricerca |
+| 7 | còlpi | propagated | 4.63 | colpo |
+| 8 | pàlle | propagated | 4.54 | palla |
+| 9 | àfrica | propagated | 4.53 | africo |
+| 10 | tàl | propagated | 4.50 | tal, tale |
+| 11 | vedèrlo | propagated | 4.49 | vedere |
+| 12 | scientìfica | propagated | 4.47 | scientifico |
+| 13 | màl | propagated | 4.46 | mal, male |
+| 14 | potèri | propagated | 4.45 | potere |
+| 15 | ìa | predicted | 4.44 | ia |
+| 16 | èmma | predicted | 4.44 | emma |
+| 17 | avvocàti | propagated | 4.43 | avvocato |
+| 18 | giornàte | propagated | 4.41 | giornata |
+| 19 | crìtiche | propagated | 4.38 | critica, critico |
+| 20 | parlàrne | propagated | 4.38 | parlare |
+| 21 | màil | predicted | 4.38 | mail |
+| 22 | lìve | propagated | 4.38 | live |
+| 23 | iniziàta | propagated | 4.37 | iniziare, iniziato |
+| 24 | partecipànti | propagated | 4.34 | partecipante, partecipare |
+| 25 | professòr | propagated | 4.34 | professore |
+| 26 | assolùta | propagated | 4.31 | assoluto |
+| 27 | leggèra | propagated | 4.31 | leggere, leggero |
+| 28 | ucràina | propagated | 4.29 | ucraino |
+| 29 | crìmini | propagated | 4.29 | crimine |
+| 30 | entràti | propagated | 4.28 | entrare |
+| 31 | califòrnia | propagated | 4.27 | californio |
+| 32 | olimpìadi | propagated | 4.27 | olimpiade |
+| 33 | colpìta | propagated | 4.27 | colpire, colpito |
+| 34 | lìngue | propagated | 4.27 | lingua |
+| 35 | intenziòni | propagated | 4.26 | intenzione |
+| 36 | fì | propagated | 4.26 | fio |
+| 37 | vedèrla | propagated | 4.25 | vedere |
+| 38 | avèrmi | propagated | 4.22 | avere |
+| 39 | pèrdite | propagated | 4.20 | perdita |
+| 40 | aiutàrti | propagated | 4.19 | aiutare |
+| 41 | occupàta | propagated | 4.18 | occupare, occupato |
+| 42 | scienziàti | propagated | 4.18 | scienziato |
+| 43 | vòn | propagated | 4.18 | von |
+| 44 | tantìssimi | propagated | 4.16 | tanto |
+| 45 | energìe | propagated | 4.16 | energia |
+| 46 | iphòne | propagated | 4.16 | iphone |
+| 47 | preoccupàrti | propagated | 4.15 | preoccupare |
+| 48 | mònica | propagated | 4.15 | monico |
+| 49 | padròni | propagated | 4.14 | padrone |
+| 50 | chiàcchiere | propagated | 4.14 | chiacchiera |
+| 51 | trovàrlo | propagated | 4.12 | trovare |
+| 52 | relatìve | propagated | 4.12 | relativo |
+| 53 | costruìta | propagated | 4.12 | costruire, costruito |
+| 54 | requisìti | propagated | 4.11 | requisire, requisito |
+| 55 | tètte | propagated | 4.11 | tetta |
+| 56 | bottìglie | propagated | 4.10 | bottiglia |
+| 57 | portàrlo | propagated | 4.10 | portare |
+| 58 | prènderlo | propagated | 4.10 | prendere |
+| 59 | àlan | propagated | 4.10 | alare |
+| 60 | dìgli | propagated | 4.10 | dicere, dire |
+| 61 | tantìssime | propagated | 4.09 | tanto |
+| 62 | versiòni | propagated | 4.09 | versione |
+| 63 | pressiòni | propagated | 4.09 | pressione |
+| 64 | potèrlo | propagated | 4.09 | poter, potere |
+| 65 | abbandonàta | propagated | 4.08 | abbandonare, abbandonato |
+| 66 | catène | propagated | 4.08 | catena |
+| 67 | nìna | predicted | 4.08 | nina |
+| 68 | futùri | propagated | 4.08 | futuro |
+| 69 | vedèrti | propagated | 4.08 | vedere |
+| 70 | matèrie | propagated | 4.07 | materia |
+| 71 | realizzàta | propagated | 4.07 | realizzare, realizzato |
+| 72 | nà | propagated | 4.07 | na |
+| 73 | seràte | propagated | 4.07 | serata |
+| 74 | sentìrmi | propagated | 4.06 | sentire |
+| 75 | iscrìtti | propagated | 4.06 | iscritto, iscrivere |
+| 76 | riguardànti | propagated | 4.06 | riguardante, riguardare |
+| 77 | pòllici | propagated | 4.06 | pollice |
+| 78 | ùltra | predicted | 4.05 | ultra |
+| 79 | lìne | propagated | 4.05 | lino |
+| 80 | appartamènti | propagated | 4.05 | appartamento |
+| 81 | dàmmi | propagated | 4.04 | dare |
+| 82 | registràta | propagated | 4.04 | registrare, registrato |
+| 83 | unìta | propagated | 4.04 | unire, unito |
+| 84 | quàrti | propagated | 4.03 | quarto |
+| 85 | teorìe | propagated | 4.03 | teoria |
+| 86 | pà | propagated | 4.02 | papà |
+| 87 | prèndermi | propagated | 4.01 | prendere |
+| 88 | fantàstici | propagated | 4.01 | fantastico |
+| 89 | avèrti | propagated | 4.00 | avere |
+| 90 | aiutàrci | propagated | 4.00 | aiutare |
+| 91 | sapèrne | propagated | 4.00 | sapere |
+| 92 | fantàsmi | propagated | 4.00 | fantasma |
+| 93 | dròni | propagated | 4.00 | drone |
+| 94 | prèstiti | propagated | 4.00 | prestito |
+| 95 | significatìva | propagated | 3.99 | significativo |
+| 96 | rènderlo | propagated | 3.99 | rendere |
+| 97 | lasciàrlo | propagated | 3.99 | lasciare |
+| 98 | fissàta | propagated | 3.99 | fissare, fissato |
+| 99 | ùsb | propagated | 3.98 | usb |
+| 100 | aiutàrla | propagated | 3.98 | aiutare |
+| 101 | amànda | predicted | 3.98 | amanda |
+| 102 | emissiòni | propagated | 3.98 | emissione |
+| 103 | nucleàri | propagated | 3.97 | nucleare |
+| 104 | mèle | propagated | 3.97 | mela, melo |
+| 105 | tenèrlo | propagated | 3.97 | tenere |
+| 106 | èssermi | propagated | 3.97 | essere |
+| 107 | ritrovàta | propagated | 3.97 | ritrovare, ritrovato |
+| 108 | trasferìti | propagated | 3.96 | trasferire, trasferito |
+| 109 | concrète | propagated | 3.96 | concreto |
+| 110 | approvàta | propagated | 3.96 | approvare |
+| 111 | ricevùte | propagated | 3.96 | ricevere, ricevuta |
+| 112 | còrde | propagated | 3.96 | corda |
+| 113 | rì | propagated | 3.95 | rio |
+| 114 | làsciami | propagated | 3.94 | lasciare |
+| 115 | aiutàrlo | propagated | 3.94 | aiutare |
+| 116 | portàrla | propagated | 3.94 | portare |
+| 117 | quartièr | propagated | 3.94 | quartiere |
+| 118 | usàrlo | propagated | 3.94 | usare |
+| 119 | capìrlo | propagated | 3.94 | capire |
+| 120 | rubàta | propagated | 3.93 | rubare, rubato |
+| 121 | aiutàrmi | propagated | 3.93 | aiutare |
+| 122 | potèrsi | propagated | 3.93 | poter, potere |
+| 123 | sconosciùta | propagated | 3.93 | sconoscere, sconosciuto |
+| 124 | mèga | predicted | 3.92 | mega |
+| 125 | deputàti | propagated | 3.92 | deputare, deputato |
+| 126 | condòtti | propagated | 3.92 | condotto, condurre |
+| 127 | chièdermi | propagated | 3.91 | chiedere |
+| 128 | ascòltami | propagated | 3.91 | ascoltare |
+| 129 | patatìne | propagated | 3.91 | patatina |
+| 130 | màra | predicted | 3.91 | mara |
+| 131 | sentìrti | propagated | 3.91 | sentire |
+| 132 | riportàta | propagated | 3.91 | riportare |
+| 133 | màschere | propagated | 3.90 | maschera |
+| 134 | uccìderlo | propagated | 3.90 | uccidere |
+| 135 | spìriti | propagated | 3.90 | spirito |
+| 136 | vedèrli | propagated | 3.90 | vedere |
+| 137 | riflettòri | propagated | 3.90 | riflettore |
+| 138 | sòmme | propagated | 3.90 | somma, sommo |
+| 139 | spaventàta | propagated | 3.90 | spaventare, spaventato |
+| 140 | pùb | propagated | 3.90 | pub |
+| 141 | causàta | propagated | 3.89 | causare |
+| 142 | universitàri | propagated | 3.89 | universitario |
+| 143 | scoprìrlo | propagated | 3.89 | scoprire |
+| 144 | collegàta | propagated | 3.89 | collegare, collegato |
+| 145 | prènderla | propagated | 3.88 | prendere |
+| 146 | ràp | propagated | 3.88 | rap |
+| 147 | drìve | propagated | 3.88 | drive |
+| 148 | crèdimi | propagated | 3.88 | credere |
+| 149 | nascòste | propagated | 3.88 | nascondere, nascosto |
+| 150 | lontàne | propagated | 3.88 | lontano |
+| 151 | universitària | propagated | 3.87 | universitario |
+| 152 | significatìvi | propagated | 3.87 | significativo |
+| 153 | fottùta | propagated | 3.87 | fottere, fottuto |
+| 154 | gestìta | propagated | 3.87 | gestire |
+| 155 | brìvidi | propagated | 3.87 | brivido |
+| 156 | scusàtemi | propagated | 3.86 | scusare |
+| 157 | guàrdami | propagated | 3.86 | guardare |
+| 158 | tìzi | propagated | 3.86 | tizio |
+| 159 | tarìffe | propagated | 3.85 | tariffa |
+| 160 | rilevànti | propagated | 3.85 | rilevante, rilevare |
+| 161 | succèssa | propagated | 3.85 | succedere |
+| 162 | càpitan | propagated | 3.85 | capitare |
+| 163 | lasciàrti | propagated | 3.84 | lasciare |
+| 164 | bìrre | propagated | 3.84 | birra |
+| 165 | contribuènti | propagated | 3.84 | contribuente, contribuire |
+| 166 | bò | propagated | 3.84 | bo |
+| 167 | chiàmami | propagated | 3.83 | chiamare |
+| 168 | telespettatòri | propagated | 3.83 | telespettatore |
+| 169 | pròfughi | propagated | 3.83 | profugo |
+| 170 | mistèri | propagated | 3.83 | mistero |
+| 171 | pòrtami | propagated | 3.83 | portare |
+| 172 | còlpe | propagated | 3.83 | colpa |
+| 173 | parlàrti | propagated | 3.82 | parlare |
+| 174 | aiùtami | propagated | 3.82 | aiutare |
+| 175 | statunitènsi | propagated | 3.82 | statunitense |
+| 176 | sùn | propagated | 3.82 | sun |
+| 177 | prènderti | propagated | 3.82 | prendere |
+| 178 | cugìni | propagated | 3.82 | cugino |
+| 179 | lasciàrla | propagated | 3.82 | lasciare |
+| 180 | còm | propagated | 3.82 | com |
+| 181 | pochìssimi | propagated | 3.81 | pochissimo, poco |
+| 182 | regolàri | propagated | 3.81 | regolare |
+| 183 | miglioramènti | propagated | 3.81 | miglioramento |
+| 184 | chiamàrlo | propagated | 3.81 | chiamare |
+| 185 | aumentàta | propagated | 3.81 | aumentare, aumentato |
+| 186 | dìllo | propagated | 3.81 | dicere, dire |
+| 187 | cominciàta | propagated | 3.80 | cominciare |
+| 188 | ràm | propagated | 3.80 | ram |
+| 189 | chièderle | propagated | 3.80 | chiedere |
+| 190 | appàrsa | propagated | 3.80 | apparire, apparso |
+| 191 | cosiddètti | propagated | 3.79 | cosiddetto |
+| 192 | giudìzi | propagated | 3.79 | giudizio |
+| 193 | aggressiòni | propagated | 3.79 | aggressione |
+| 194 | lasciàrmi | propagated | 3.78 | lasciare |
+| 195 | sbàrre | propagated | 3.78 | sbarra |
+| 196 | tàc | propagated | 3.78 | tac |
+| 197 | dìtemi | propagated | 3.78 | dire |
+| 198 | avvenùti | propagated | 3.78 | avvenire, avvenuto |
+| 199 | conòscerti | propagated | 3.78 | conoscere |
+| 200 | conòscerla | propagated | 3.78 | conoscere |
 
 ## Source correlations
 

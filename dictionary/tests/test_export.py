@@ -244,15 +244,15 @@ def test_exclusions_and_tiers():
         {"form": "striscie", "lemma": "strisce", "tags": ["misspelling"]},
         {"form": "striscie", "lemma": "striscia", "source": "morphit"},
         {"form": "c'è"}, {"form": "'ndrangheta"}, {"form": "dubbio"}, {"form": "nulla"},
-        {"form": "ii", "pos": "num", "source": "morphit"}, {"form": "di", "pos": "num", "source": "morphit"},
-        {"form": "di", "pos": "prep", "source": "morphit"}, {"form": "me", "pos": "pron"},
+        {"form": "ii", "pos": "num", "source": "morphit"}, {"form": "dici", "pos": "num", "source": "morphit"},
+        {"form": "dici", "pos": "verb", "source": "morphit"}, {"form": "me", "pos": "pron"},
     )
     readings = readings_df(
         {"form": "sig", "stress_idx": 1}, {"form": "perchè", "stress_idx": 5}, {"form": "c'è", "stress_idx": 2},
         {"form": "striscie", "stress_idx": 3, "lemma": "striscia", "tier": "propagated", "evidence": "none",
          "sources": ["paradigm.nominal"]},
-        {"form": "ii", "stress_idx": 0, "pos": "num"}, {"form": "di", "stress_idx": 1, "pos": "prep"},
-        {"form": "di", "stress_idx": 1, "pos": "num"}, {"form": "me", "stress_idx": 1, "pos": "pron"},
+        {"form": "ii", "stress_idx": 0, "pos": "num"}, {"form": "dici", "stress_idx": 1, "pos": "verb"},
+        {"form": "dici", "stress_idx": 1, "pos": "num"}, {"form": "me", "stress_idx": 1, "pos": "pron"},
         {"form": "generato", "stress_idx": 4, "tier": "propagated"},
         {"form": "inventato", "stress_idx": 4},
         {"form": "previsto", "stress_idx": 3, "tier": "predicted", "confidence": 0.97},
@@ -263,16 +263,18 @@ def test_exclusions_and_tiers():
                                      "c'è": "chars", "'ndrangheta": "chars", "dubbio": "low_confidence",
                                      "nulla": "no_stress", "ii": "roman_numeral", "inventato": "not_in_lexicon"}
     got = {f: t for f, t in entries.select("form", "tier").rows()}
-    assert got == {"di": "attested", "generato": "propagated", "me": "attested", "previsto": "predicted"}
+    assert got == {"dici": "attested", "generato": "propagated", "me": "attested", "previsto": "predicted"}
 
 
 def test_atonic_function_words_go_with_all_their_readings():
-    """la/si: the note goes with the article or clitic; so does glìe (plural of glia), stressed elsewhere."""
+    """la/si: the note goes with the article or clitic; so does glìe (plural of glia), stressed elsewhere.
+    su stays: the adverb is stressed."""
     forms = forms_df(
         {"form": "la", "pos": "article"}, {"form": "la", "pos": "pron"}, {"form": "la", "pos": "noun"},
         {"form": "si", "pos": "pron"}, {"form": "si", "pos": "noun"}, {"form": "si", "pos": "num"},
         {"form": "glie", "pos": "pron"}, {"form": "glie", "lemma": "glia"}, {"form": "me", "pos": "pron"},
-        {"form": "luna"},
+        {"form": "luna"}, {"form": "della", "pos": "prep"}, {"form": "su", "pos": "prep"},
+        {"form": "su", "pos": "adv"},
     )
     readings = readings_df(
         {"form": "la", "stress_idx": 1, "pos": "article"}, {"form": "la", "stress_idx": 1, "pos": "pron"},
@@ -280,10 +282,12 @@ def test_atonic_function_words_go_with_all_their_readings():
         {"form": "si", "stress_idx": 1}, {"form": "si", "stress_idx": 1, "pos": "num"},
         {"form": "glie", "stress_idx": 3, "pos": "pron"}, {"form": "glie", "stress_idx": 2, "lemma": "glia"},
         {"form": "me", "stress_idx": 1, "pos": "pron"}, {"form": "luna", "stress_idx": 1},
+        {"form": "della", "stress_idx": 1, "pos": "prep"}, {"form": "su", "stress_idx": 1, "pos": "prep"},
+        {"form": "su", "stress_idx": 1, "pos": "adv"},
     )
     entries, excluded = run_select(forms, readings)
-    assert keys(entries) == [("luna", 1), ("me", 1)]
-    assert excluded.rows() == [("glie", "atonic"), ("la", "atonic"), ("si", "atonic")]
+    assert sorted(keys(entries)) == [("luna", 1), ("me", 1), ("su", 1)]
+    assert excluded.rows() == [("della", "atonic"), ("glie", "atonic"), ("la", "atonic"), ("si", "atonic")]
 
 
 def test_tags_need_every_row_of_a_source_except_vulgar_form_of():

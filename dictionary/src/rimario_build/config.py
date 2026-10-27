@@ -281,16 +281,24 @@ READING_MIN_ZIPF = 0.01
 
 # --- Lexicon, export and report ----------------------------------------------
 
-# Unstressed function words: the articles and the clitic pronouns. They never
-# carry stress of their own, so they can't end a line or rhyme, and their high
-# frequency puts them above the real rhymes (si, mi, ci, ti before così). The
+# Unstressed function words: articles, clitic pronouns, prepositions (simple
+# and articulated) and conjunctions. They never carry stress of their own, so
+# they can't end a line or rhyme, and their high frequency puts them above the
+# real rhymes (si, mi, ci, ti before così; a, da, ma, tra before felicità). The
 # whole form goes, with its other readings (the note la, the letter i, glìe
 # plural of glia): frequencies are split among readings later, so a reading
-# left alone would get the clitic's whole frequency. Stressed pronouns (me, te,
-# sé, lui, noi) and uno/una (also numerals: nessuno, luna) are good rhymes and stay.
+# left alone would get the clitic's whole frequency. So spellings that are also
+# a common stressed word stay: su (the adverb, vieni su), dai (tu dai, dài!),
+# dei (gli dèi). Stressed pronouns (me, te, sé, lui, noi), uno/una (also
+# numerals: nessuno, luna) and né are good rhymes and stay.
 ATONIC_FORMS = frozenset({
     "il", "lo", "la", "i", "gli", "le", "un",
     "mi", "ti", "si", "ci", "vi", "li", "ne", "ce", "ve", "glie",
+    "di", "a", "da", "in", "con", "per", "tra", "fra",
+    "del", "dello", "della", "delle", "degli", "al", "allo", "alla", "ai", "agli", "alle",
+    "dal", "dallo", "dalla", "dagli", "dalle", "nel", "nello", "nella", "nei", "negli", "nelle",
+    "sul", "sullo", "sulla", "sui", "sugli", "sulle", "col", "coi",
+    "e", "ed", "o", "ma", "se", "che",
 })
 
 # Loanwords among forms whose stress is only predicted or from the
