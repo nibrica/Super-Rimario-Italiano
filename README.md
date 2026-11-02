@@ -84,6 +84,25 @@ Per pubblicare su WordPress:
 2. Controlla che l'URL di ogni file caricato sia esattamente quello stampato da `build.py`; se non lo è, rilancia lo script con `--upload-base` impostato sulla cartella usata da WordPress
 3. Incolla il contenuto di `build/wordpress.html` in un blocco "HTML personalizzato" della pagina. Il frammento contiene `<script>` e `<style>`, quindi serve un utente con il permesso `unfiltered_html` (amministratore o editor su un sito singolo)
 
+## Command line
+
+`rimario.mjs` runs the same search from a terminal. It needs Node 22.7 or later and a checkout of this repository, with no dependencies to install. To call it as `rimario`, link it into a folder on your `PATH`:
+
+```sh
+ln -s "$PWD/rimario.mjs" ~/.local/bin/rimario
+```
+
+Usage: `rimario [flags] word`. By default it prints every type of result under a header, with 100 words split evenly among the types:
+
+```sh
+rimario amore                                 # all types, up to 25 words each
+rimario --max 20 --type rhymes,assonances amore
+rimario --archaic --no-proper -t rhymes cuore
+rimario -t rhymes amore | grep '^[^#]'        # words only
+```
+
+Run `rimario --help` for every flag.
+
 ## Contribuire
 
 Sono benvenuti contributi per migliorare Super Rimario Italiano.
